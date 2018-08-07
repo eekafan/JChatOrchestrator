@@ -9,4 +9,57 @@
 		<welcome-file>default.htm</welcome-file>
 		<welcome-file>default.jsp</welcome-file>
 	</welcome-file-list>
+	<servlet>
+		<display-name>loginServlet</display-name>
+	<servlet-name>
+			com.rombachuk.jchatorchestrator.loginServlet
+	</servlet-name>
+	<servlet-class>com.rombachuk.jchatorchestrator.loginServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>
+			com.rombachuk.jchatorchestrator.loginServlet
+		</servlet-name>
+		<url-pattern>/login</url-pattern>
+	</servlet-mapping>
+	<context-param>
+		<param-name>LDAPbindDN</param-name>
+		<param-value>cn=Manager,dc=example,dc=com</param-value>
+	</context-param>
+	<context-param>
+		<param-name>LDAPbindPassword</param-name>
+		<param-value>sm3rtw3y</param-value>
+	</context-param>
+	<context-param>
+		<param-name>LDAPhostname</param-name>
+		<param-value>olmm.ibm.com</param-value>
+	</context-param>
+	<context-param>
+		<param-name>LDAPhostport</param-name>
+		<param-value>389</param-value>
+	</context-param>
+	<context-param>
+		<param-name>LDAPuserClassFilter</param-name>
+		<param-value>(objectClass=person)</param-value>
+	</context-param>
+	<context-param>
+		<param-name>LDAPuserBaseDN</param-name>
+		<param-value>ou=People,dc=example,dc=com</param-value>
+	</context-param>
+	<context-param>
+		<param-name>LDAPuserUniqueAttribute</param-name>
+		<param-value>uid</param-value>
+	</context-param>
+	<context-param>
+		<param-name>CloudantURL</param-name>
+		<param-value>arombach.cloudant.com</param-value>
+	</context-param>
+	<context-param>
+		<param-name>CloudantAPIKey</param-name>
+		<param-value>NYdAjSWej/pkpR78AZXPhg==</param-value>
+	</context-param>
+	<context-param>
+		<param-name>CloudantAPIKeyCredentials</param-name>
+		<param-value>NYdAjSWej/pkpR78AZXPhg==</param-value>
+	</context-param>
 </web-app>
