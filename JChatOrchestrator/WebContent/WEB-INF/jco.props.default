@@ -1,0 +1,10 @@
+LDAPbindDN					cn=Manager,dc=example,dc=com
+LDAPbindPassword			password
+LDAPhostname				localhost
+LDAPhostport				389
+LDAPuserClassFilter			(objectClass=person)
+LDAPuserBaseDN				ou=People,dc=example,dc=com
+LDAPuserUniqueAttribute 	uid
+CloudantURL					someone.cloudant.com
+CloudantAPIKey				
+CloudantAPIKeyCredentials	

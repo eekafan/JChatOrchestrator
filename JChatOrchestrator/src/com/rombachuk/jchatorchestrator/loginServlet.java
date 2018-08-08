@@ -49,7 +49,7 @@ public class loginServlet extends HttpServlet {
         try {
         	
          JcoProps ldapconfig = new JcoProps( request.getServletContext().getRealPath("/")+
-        		request.getServletContext().getInitParameter("jcoProperties"));    
+        		            request.getServletContext().getInitParameter("jcoProperties"));    
          User       user = new User(ldapconfig,request.getParameter("username"));
 
          if (user.getDn().equals("notfound")) {

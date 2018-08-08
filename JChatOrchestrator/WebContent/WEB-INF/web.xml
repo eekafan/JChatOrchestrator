@@ -24,6 +24,6 @@
 	</servlet-mapping>
 	<context-param>
 		<param-name>jcoProperties</param-name>
-		<param-value>WEB-INF/jco.props</param-value>
+		<param-value>/WEB-INF/jco.props</param-value>
 	</context-param>
 </web-app>

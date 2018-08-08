@@ -45,7 +45,7 @@ public class User {
 	public User(JcoProps ldapconfig, String username) throws LDAPException, LDAPSearchException {
 		this.name = username;
 		this.dn = "notfound";
-	  
+	    
 		LDAPConnection ldapconnection = new LDAPConnection(ldapconfig.getHostname(),
                 ldapconfig.getHostport(),ldapconfig.getBinddn(),ldapconfig.getBindpassword());
 	   	if (ldapconnection.isConnected()) {
