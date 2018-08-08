@@ -47,8 +47,9 @@ public class loginServlet extends HttpServlet {
         String destination = "relogin.html"; 
         
         try {
-    
-	     LDAPConfig ldapconfig = new LDAPConfig(request.getServletContext());        
+        	
+         JcoProps ldapconfig = new JcoProps( request.getServletContext().getRealPath("/")+
+        		request.getServletContext().getInitParameter("jcoProperties"));    
          User       user = new User(ldapconfig,request.getParameter("username"));
 
          if (user.getDn().equals("notfound")) {

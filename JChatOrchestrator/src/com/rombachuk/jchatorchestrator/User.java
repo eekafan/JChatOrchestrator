@@ -42,7 +42,7 @@ public class User {
 	String dn;
 	List<String> Roles;	
 	
-	public User(LDAPConfig ldapconfig, String username) throws LDAPException, LDAPSearchException {
+	public User(JcoProps ldapconfig, String username) throws LDAPException, LDAPSearchException {
 		this.name = username;
 		this.dn = "notfound";
 	  
@@ -61,7 +61,7 @@ public class User {
 	   	}
 	 }
 	   	
-	 public static Boolean authenticate(LDAPConfig ldapconfig, String userdn, String credentials) throws LDAPException {
+	 public static Boolean authenticate(JcoProps ldapconfig, String userdn, String credentials) throws LDAPException {
 		 
 		    Boolean authenticated = false;
 			LDAPConnection ldapconnection = new LDAPConnection(ldapconfig.getHostname(),
