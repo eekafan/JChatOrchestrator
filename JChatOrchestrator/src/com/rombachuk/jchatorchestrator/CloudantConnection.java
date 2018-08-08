@@ -11,11 +11,20 @@ import com.cloudant.client.api.CloudantClient;
 public class CloudantConnection {
 	CloudantClient client;
 	
-public CloudantConnection (String url, String account, String password, String key, String iv)  throws MalformedURLException,IOException {
-		   	        
-	    this.client =  ClientBuilder.url(new URL(url))
-                                            .username(account)
-                                            .password(password)
+public CloudantConnection (JcoProps props)  throws MalformedURLException,IOException {
+		   	   
+	 
+	    this.client =  ClientBuilder.url(new URL(props.getCloudanturl()))
+                                            .username(props.getCloudantapikey())
+                                            .password(props.getCloudantapipassword())
                                             .build();
 	}
+
+public CloudantClient getClient() {
+	return client;
+}
+
+public void setClient(CloudantClient client) {
+	this.client = client;
+}
 }

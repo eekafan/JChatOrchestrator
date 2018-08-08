@@ -14,6 +14,12 @@ public class JcoProps {
 	String userbasedn = null;
 	String useruniqueattribute = null;
 	String userclassfilter = null;
+	String cloudanturl = null;
+	String cloudantapikey = null;
+	String cloudantapipassword = null;
+	String watsonassistanturl = null;
+	String watsonassistantusername = null;
+	String watsonassistantpassword = null;
 	
 	public JcoProps (String propsfile) {	
 		
@@ -44,6 +50,24 @@ public class JcoProps {
 		    if (nextLine[0].equalsIgnoreCase("LDAPuserClassFilter")) {
 		    	this.userclassfilter = nextLine[1];
 		    }
+		    if (nextLine[0].equalsIgnoreCase("CloudantURL")) {
+		    	this.cloudanturl = nextLine[1];
+		    }
+		    if (nextLine[0].equalsIgnoreCase("CloudantAPIKey")) {
+		    	this.cloudantapikey = nextLine[1];
+		    }
+		    if (nextLine[0].equalsIgnoreCase("CloudantAPIPassword")) {
+		    	this.cloudantapipassword = nextLine[1];
+		    }
+		    if (nextLine[0].equalsIgnoreCase("WatsonAssistantURL")) {
+		    	this.watsonassistanturl = nextLine[1];
+		    }
+		    if (nextLine[0].equalsIgnoreCase("WatsonAssistantUsername")) {
+		    	this.watsonassistantusername = nextLine[1];
+		    }
+		    if (nextLine[0].equalsIgnoreCase("WatsonAsssitantPassword")) {
+		    	this.watsonassistantpassword = nextLine[1];
+		    }
 		    
 		}
 
@@ -55,6 +79,54 @@ public class JcoProps {
 
 	}
 	
+	public String getCloudanturl() {
+		return cloudanturl;
+	}
+
+	public void setCloudanturl(String cloudanturl) {
+		this.cloudanturl = cloudanturl;
+	}
+
+	public String getCloudantapikey() {
+		return cloudantapikey;
+	}
+
+	public void setCloudantapikey(String cloudantapikey) {
+		this.cloudantapikey = cloudantapikey;
+	}
+
+	public String getCloudantapipassword() {
+		return cloudantapipassword;
+	}
+
+	public void setCloudantapipassword(String cloudantapipassword) {
+		this.cloudantapipassword = cloudantapipassword;
+	}
+
+	public String getWatsonassistanturl() {
+		return watsonassistanturl;
+	}
+
+	public void setWatsonassistanturl(String watsonassistanturl) {
+		this.watsonassistanturl = watsonassistanturl;
+	}
+
+	public String getWatsonassistantusername() {
+		return watsonassistantusername;
+	}
+
+	public void setWatsonassistantusername(String watsonassistantusername) {
+		this.watsonassistantusername = watsonassistantusername;
+	}
+
+	public String getWatsonassistantpassword() {
+		return watsonassistantpassword;
+	}
+
+	public void setWatsonassistantpassword(String watsonassistantpassword) {
+		this.watsonassistantpassword = watsonassistantpassword;
+	}
+
 	public String getBinddn() {
 		return binddn;
 	}

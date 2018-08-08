@@ -1,6 +1,7 @@
 package com.rombachuk.jchatorchestrator;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 
 
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.cloudant.client.api.Database;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSearchException;
 
@@ -48,16 +50,20 @@ public class loginServlet extends HttpServlet {
         
         try {
         	
-         JcoProps ldapconfig = new JcoProps( request.getServletContext().getRealPath("/")+
+         JcoProps Jcoprops = new JcoProps( request.getServletContext().getRealPath("/")+
         		            request.getServletContext().getInitParameter("jcoProperties"));    
-         User       user = new User(ldapconfig,request.getParameter("username"));
+         User       user = new User(Jcoprops,request.getParameter("username"));
 
          if (user.getDn().equals("notfound")) {
         		destination = "relogin.html";
          } 
          else {
-        	 	Boolean testCredentials = User.authenticate(ldapconfig, user.getDn(), request.getParameter("userpass"));
+        	 	Boolean testCredentials = User.authenticate(Jcoprops, user.getDn(), request.getParameter("userpass"));
                 if (testCredentials == true) {
+                	CloudantConnection cloudantconn  = new CloudantConnection(Jcoprops);
+                	Database jco_log = cloudantconn.client.database("jco_log", false);
+                	InputStream test = jco_log.find("Test");
+                	System.out.println(test.toString());
                 	destination = "success.html";
                 }
                 else {
