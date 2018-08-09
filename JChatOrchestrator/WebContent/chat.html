@@ -1,0 +1,62 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="css/bot.css">
+    <link rel="stylesheet" href="css/jco.css">
+    <title>Chat Interface</title>
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function() {
+
+            // Namespace here needs to match the one used in server.py
+            servletMapping = '/chat';
+            // Connect via Flask SocketIO
+            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + servletMapping);
+
+            // Display message from the WOS bot
+            socket.on('my_response', function(msg) {
+                displayMessage(msg.data, 'Bot');
+                displayImage(msg.image);
+            });
+
+            // Send message to the WOS bot
+            $('form#emit').submit(function(event) {
+                socket.emit('my_event', {data: $('#emit_data').val()});
+                // Display sent from user on the right side
+                displayMessage($('#emit_data').val(), 'NotWatsonBot');
+                $("#emit")[0].reset();
+                return false;
+            });
+            
+            $('#detach').click(function(e) {
+            	e.preventDefault();
+            	window.open(document.URL,'_blank','location=no,scrollbars=yes,left=500,height=800,width=450');          	
+            	return false;
+            });
+
+        });
+    </script>
+</head>
+<body >
+<div class="container">
+    <div class="chatbot">
+        <div id="chatBox" class="dialogContainer"></div>
+        <form id="emit" method="POST" action="#" _lpchecked="1">
+            <!-- Use a form to get input. Flask template style. -->
+            <!-- Use class="dialogInput, to style it like the output. -->
+       <table><tr>
+       <td><input class="dialogInput" type="text" name="emit_data" id="emit_data" autofocus="autofocus" placeholder="Type here"></td>
+       <td><button class="login-signon-input" id="detach" type="button">Detach</button></td> 
+      </tr></table>
+      </form>
+ 
+        
+    </div>
+</div>
+<!-- Use bot.js to give us a nice chatbot UI. -->
+<script src="js/bot.js"></script>
+</body>
+</html>

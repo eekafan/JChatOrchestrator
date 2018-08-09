@@ -63,8 +63,7 @@ public class loginServlet extends HttpServlet {
                 	CloudantConnection cloudantconn  = new CloudantConnection(Jcoprops);
                 	Database jco_log = cloudantconn.client.database("jco_log", false);
                 	InputStream test = jco_log.find("Test");
-                	System.out.println(test.toString());
-                	destination = "success.html";
+                	destination = "chat.html";
                 }
                 else {
                 	destination = "relogin.html";
