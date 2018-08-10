@@ -1,18 +1,21 @@
 <html>
 <head>
+<link rel="stylesheet" type="text/css" href="css/bot.css">
 <link rel="stylesheet" type="text/css" href="css/jco.css">
 </head>
-<body id="login-body">
-<div id="login-container">
-<div id="login-box" >
+<body>
+<div class="container" >
+<div class="chatbot" >
+  <div id="chatBox" class="dialogContainer">
 <form id = "login-form" action="login" method="post">  
 <p class="login-text-para" >Username</p>
 <input class="login-option-input" type="text" name="username"/> 
 <p class="login-text-para" >Password</p>
-<input class="login-option-input" type="password" name="userpass"/> 
+<input class="login-option-input" type="password" name="userpass"/><br/> 
 <p class="login-invalid-text-para"> You have been logged out </p>
-<input class="login-signon-input" type="submit" value="Sign On"/>
+<input class="login-signon-input" type="submit" value="Sign in"/> 
 </form> 
+</div>
 </div>
 </div>
 </body>

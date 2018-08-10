@@ -22,6 +22,45 @@
 		</servlet-name>
 		<url-pattern>/login</url-pattern>
 	</servlet-mapping>
+		<servlet>
+		<display-name>loginServlet</display-name>
+	<servlet-name>
+			com.rombachuk.jchatorchestrator.logoutServlet
+	</servlet-name>
+	<servlet-class>com.rombachuk.jchatorchestrator.logoutServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>
+			com.rombachuk.jchatorchestrator.logoutServlet
+		</servlet-name>
+		<url-pattern>/logout</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<display-name>chatServlet</display-name>
+		<servlet-name>
+			com.rombachuk.jchatorchestrator.chatServlet
+	</servlet-name>
+	<servlet-class>com.rombachuk.jchatorchestrator.chatServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>
+			com.rombachuk.jchatorchestrator.chatServlet
+		</servlet-name>
+		<url-pattern>/chat</url-pattern>
+	</servlet-mapping>
+   <servlet>
+		<display-name>chatstartServlet</display-name>
+		<servlet-name>
+			com.rombachuk.jchatorchestrator.chatstartServlet
+	</servlet-name>
+	<servlet-class>com.rombachuk.jchatorchestrator.chatstartServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>
+			com.rombachuk.jchatorchestrator.chatstartServlet
+		</servlet-name>
+		<url-pattern>/chatstart</url-pattern>
+	</servlet-mapping>
 	<context-param>
 		<param-name>jcoProperties</param-name>
 		<param-value>/WEB-INF/jco.props</param-value>

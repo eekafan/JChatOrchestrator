@@ -1,7 +1,6 @@
 package com.rombachuk.jchatorchestrator;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 
 
@@ -12,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.cloudant.client.api.Database;
+
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSearchException;
 
@@ -20,7 +19,7 @@ import com.unboundid.ldap.sdk.LDAPSearchException;
 /**
  * Servlet implementation class loginServlet
  */
-@WebServlet("/loginServlet")
+@WebServlet("/login")
 public class loginServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -61,9 +60,10 @@ public class loginServlet extends HttpServlet {
         	 	Boolean testCredentials = User.authenticate(Jcoprops, user.getDn(), request.getParameter("userpass"));
                 if (testCredentials == true) {
                 	CloudantConnection cloudantconn  = new CloudantConnection(Jcoprops);
-                	Database jco_log = cloudantconn.client.database("jco_log", false);
-                	InputStream test = jco_log.find("Test");
-                	destination = "chat.html";
+                	HttpSession session = request.getSession();
+        	    	session.setAttribute("user", user);
+        	    	session.setAttribute("cloudantconn", cloudantconn);
+                	destination = "launcher.html";
                 }
                 else {
                 	destination = "relogin.html";
