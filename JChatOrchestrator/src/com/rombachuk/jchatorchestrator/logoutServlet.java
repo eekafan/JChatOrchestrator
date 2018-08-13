@@ -33,10 +33,10 @@ public class logoutServlet extends HttpServlet {
 
 		 response.setContentType("text/html");  
 		  PrintWriter out = response.getWriter(); 
-	      HttpSession session = request.getSession();
-			session.invalidate();
-			response.sendRedirect("logout.html");
-    	out.close();  
+	      HttpSession session = request.getSession(true); //creates a new one if timedout
+	      session.invalidate();
+	      response.sendRedirect("logout.html");
+    	  out.close();  
 	}
 
 	/**

@@ -8,6 +8,7 @@ LDAPuserUniqueAttribute 	uid
 CloudantURL					https://someone.cloudant.com
 CloudantAPIKey				
 CloudantAPIPassword	
+WatsonAssistantVersion		2018-07-10
 WatsonAssistantURL			https://gateway.watsonplatform.net/assistant/api
 WatsonAssistantUsername
 WatsonAssistantPassword

@@ -19,6 +19,7 @@
             		chat_windows[w].close();
             	}
             	window.location.href = "../JChatOrchestrator/logout";
+            	return false;
             });
 
         });

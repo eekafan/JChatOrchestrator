@@ -34,9 +34,11 @@ public class chatstartServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	 try {
-	    
-		HttpSession session = request.getSession(true);
-        request.getRequestDispatcher("/chat").forward(request, response);
+	    response.setContentType("text/html");  
+		PrintWriter out = response.getWriter();  
+		HttpSession session = request.getSession(true); // new session if not exist
+		response.sendRedirect("chat.html");
+	    out.close();
   
 	 }
      catch( IOException e) {

@@ -17,6 +17,7 @@ public class JcoProps {
 	String cloudanturl = null;
 	String cloudantapikey = null;
 	String cloudantapipassword = null;
+	String watsonassistantversion = null;
 	String watsonassistanturl = null;
 	String watsonassistantusername = null;
 	String watsonassistantpassword = null;
@@ -58,6 +59,9 @@ public class JcoProps {
 		    }
 		    if (nextLine[0].equalsIgnoreCase("CloudantAPIPassword")) {
 		    	this.cloudantapipassword = nextLine[1];
+		    }
+		    if (nextLine[0].equalsIgnoreCase("WatsonAssistantVersion")) {
+		    	this.watsonassistantversion = nextLine[1];
 		    }
 		    if (nextLine[0].equalsIgnoreCase("WatsonAssistantURL")) {
 		    	this.watsonassistanturl = nextLine[1];
@@ -126,7 +130,15 @@ public class JcoProps {
 	public void setWatsonassistantpassword(String watsonassistantpassword) {
 		this.watsonassistantpassword = watsonassistantpassword;
 	}
+	
+	public String getWatsonassistantversion() {
+		return watsonassistantversion;
+	}
 
+	public void setWatsonassistantversion(String watsonassistantversion) {
+		this.watsonassistantversion = watsonassistantversion;
+	}
+	
 	public String getBinddn() {
 		return binddn;
 	}

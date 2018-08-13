@@ -49,17 +49,17 @@ public class loginServlet extends HttpServlet {
         
         try {
         	
-         JcoProps Jcoprops = new JcoProps( request.getServletContext().getRealPath("/")+
+         JcoProps jcoprops = new JcoProps( request.getServletContext().getRealPath("/")+
         		            request.getServletContext().getInitParameter("jcoProperties"));    
-         User       user = new User(Jcoprops,request.getParameter("username"));
+         User       user = new User(jcoprops,request.getParameter("username"));
 
          if (user.getDn().equals("notfound")) {
         		destination = "relogin.html";
          } 
          else {
-        	 	Boolean testCredentials = User.authenticate(Jcoprops, user.getDn(), request.getParameter("userpass"));
+        	 	Boolean testCredentials = User.authenticate(jcoprops, user.getDn(), request.getParameter("userpass"));
                 if (testCredentials == true) {
-                	CloudantConnection cloudantconn  = new CloudantConnection(Jcoprops);
+                	CloudantConnection cloudantconn  = new CloudantConnection(jcoprops);
                 	HttpSession session = request.getSession();
         	    	session.setAttribute("user", user);
         	    	session.setAttribute("cloudantconn", cloudantconn);
