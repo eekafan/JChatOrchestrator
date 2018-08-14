@@ -94,8 +94,6 @@ public class chatServlet extends HttpServlet {
 					  MessageOptions options = new MessageOptions.Builder(workspaceid)
 					    .input(input)
 					    .build();
-					  
-					  Assistant assistant = watsonconnection.getAssistant();
 
 					  MessageResponse botReply = watsonconnection.getAssistant().message(options).execute();
 

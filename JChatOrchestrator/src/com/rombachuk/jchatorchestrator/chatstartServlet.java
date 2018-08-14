@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.List;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -14,6 +15,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.cloudant.client.api.Database;
+import com.ibm.watson.developer_cloud.assistant.v1.model.InputData;
+import com.ibm.watson.developer_cloud.assistant.v1.model.MessageOptions;
+import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
 
 
 /**
@@ -60,14 +64,26 @@ public class chatstartServlet extends HttpServlet {
 		session.setAttribute("name", request.getParameter("name"));
         JcoWorkspaces jcoworkspaces = new JcoWorkspaces( request.getServletContext().getRealPath("/")+
 	            request.getServletContext().getInitParameter("jcoWorkspaces")); 
-        session.setAttribute("workspaceid",getWorkspaceId(jcoworkspaces.getList(),request.getParameter("name")));
+        String workspaceid = getWorkspaceId(jcoworkspaces.getList(),request.getParameter("name"));
+        session.setAttribute("workspaceid",workspaceid);
         
         WatsonConnection watsonconnection = new WatsonConnection(
         		new JcoProps(request.getServletContext().getRealPath("/")+
 				request.getServletContext().getInitParameter("jcoProperties")));
 	    session.setAttribute("watsonconnection", watsonconnection);
+	    
+		  InputData input = new InputData.Builder("Hello").build();
 
-		response.sendRedirect("chat.html");
+		  MessageOptions options = new MessageOptions.Builder(workspaceid)
+		    .input(input)
+		    .build();
+
+		  MessageResponse botReply = watsonconnection.getAssistant().message(options).execute();
+
+	    request.setAttribute("workspacename", request.getParameter("name"));
+	    request.setAttribute("welcome", botReply.getOutput().getText().get(0));
+        RequestDispatcher dispatcher = request.getRequestDispatcher("chat.jsp");
+        dispatcher.forward(request, response);
 	    out.close();
   
 	 }
