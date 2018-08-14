@@ -65,4 +65,8 @@
 		<param-name>jcoProperties</param-name>
 		<param-value>/WEB-INF/jco.props</param-value>
 	</context-param>
+	<context-param>
+		<param-name>jcoWorkspaces</param-name>
+		<param-value>/WEB-INF/jco_workspaces.props</param-value>
+	</context-param>
 </web-app>

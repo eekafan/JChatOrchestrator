@@ -11,7 +11,7 @@ public class WatsonConnection {
 		this.assistant = assistant;
 	}
 
-	Assistant assistant;
+	private Assistant assistant = null;
 	
 	public WatsonConnection (JcoProps props) {
 		    this.assistant = new Assistant(props.getWatsonassistantversion(),

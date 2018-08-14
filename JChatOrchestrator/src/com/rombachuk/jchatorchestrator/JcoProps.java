@@ -7,20 +7,20 @@ import java.util.Scanner;
 
 public class JcoProps {
 	
-	String binddn = null;
-	String bindpassword = null;
-	String hostname = null;
-	int hostport = 389;
-	String userbasedn = null;
-	String useruniqueattribute = null;
-	String userclassfilter = null;
-	String cloudanturl = null;
-	String cloudantapikey = null;
-	String cloudantapipassword = null;
-	String watsonassistantversion = null;
-	String watsonassistanturl = null;
-	String watsonassistantusername = null;
-	String watsonassistantpassword = null;
+	private String binddn = null;
+	private String bindpassword = null;
+	private String hostname = null;
+	private int hostport = 389;
+	private String userbasedn = null;
+	private String useruniqueattribute = null;
+	private String userclassfilter = null;
+	private String cloudanturl = null;
+	private String cloudantapikey = null;
+	private String cloudantapipassword = null;
+	private String watsonassistantversion = null;
+	private String watsonassistanturl = null;
+	private String watsonassistantusername = null;
+	private String watsonassistantpassword = null;
 	
 	public JcoProps (String propsfile) {	
 		
@@ -69,7 +69,7 @@ public class JcoProps {
 		    if (nextLine[0].equalsIgnoreCase("WatsonAssistantUsername")) {
 		    	this.watsonassistantusername = nextLine[1];
 		    }
-		    if (nextLine[0].equalsIgnoreCase("WatsonAsssitantPassword")) {
+		    if (nextLine[0].equalsIgnoreCase("WatsonAssistantPassword")) {
 		    	this.watsonassistantpassword = nextLine[1];
 		    }
 		    

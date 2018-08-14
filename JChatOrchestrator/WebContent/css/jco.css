@@ -52,6 +52,19 @@ ul {
 .login-signon-input:hover {
 	background-color:#F3622D;
 }
+.launcher-button-input {
+  position: relative;
+  left: 5px;
+  width: 120px;
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background-color: #389ae1;
+}
+.launcher-button-input:hover {
+	background-color:#F3622D;
+}
 .login-text-para {
   position: relative;
   margin-top: 5px;

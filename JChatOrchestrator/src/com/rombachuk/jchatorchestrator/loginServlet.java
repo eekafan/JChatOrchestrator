@@ -2,8 +2,9 @@ package com.rombachuk.jchatorchestrator;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
-
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -44,45 +45,51 @@ public class loginServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	    response.setContentType("text/html");  
 	    PrintWriter out = response.getWriter();  
-	          
-        String destination = "relogin.html"; 
         
         try {
         	
          JcoProps jcoprops = new JcoProps( request.getServletContext().getRealPath("/")+
         		            request.getServletContext().getInitParameter("jcoProperties"));    
          User       user = new User(jcoprops,request.getParameter("username"));
+ 
 
          if (user.getDn().equals("notfound")) {
-        		destination = "relogin.html";
+             	HttpSession session = request.getSession();
+       			session.invalidate();
+     		    response.sendRedirect("relogin.html");
+    	        out.close(); 
          } 
          else {
         	 	Boolean testCredentials = User.authenticate(jcoprops, user.getDn(), request.getParameter("userpass"));
                 if (testCredentials == true) {
-                	CloudantConnection cloudantconn  = new CloudantConnection(jcoprops);
-                	HttpSession session = request.getSession();
-        	    	session.setAttribute("user", user);
-        	    	session.setAttribute("cloudantconn", cloudantconn);
-                	destination = "launcher.html";
+                    JcoWorkspaces jcoworkspaces = new JcoWorkspaces( request.getServletContext().getRealPath("/")+
+        		            request.getServletContext().getInitParameter("jcoWorkspaces")); 
+                    List<Workspace> workspaces = jcoworkspaces.getList();
+                    request.setAttribute("workspaces", workspaces);
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("launcher.jsp");
+                    dispatcher.forward(request, response);
+                    out.close();              
                 }
                 else {
-                	destination = "relogin.html";
+                 	HttpSession session = request.getSession();
+           			session.invalidate();
+         		    response.sendRedirect("relogin.html");
+        	        out.close(); 
                 }
          }
         }
         catch (LDAPSearchException e) {
-        	
+           	HttpSession session = request.getSession();
+       			session.invalidate();
+     		    response.sendRedirect("relogin.html");
+    	        out.close();
         }
         catch (LDAPException e) {
-        	
-        }
-        
- 
-     	if (destination.equals("relogin.html")){ 
-       			HttpSession session = request.getSession();
+           	HttpSession session = request.getSession();
        			session.invalidate();
-       	}
-       	response.sendRedirect(destination);
-	    out.close();  
+     		    response.sendRedirect("relogin.html");
+    	        out.close();
+        }
+       	 
     }
 }

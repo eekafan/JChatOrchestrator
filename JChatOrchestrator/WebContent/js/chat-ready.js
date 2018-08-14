@@ -15,14 +15,20 @@
             		complete: function() {          			
             		},
             		success: function(reply){
-            			if (reply.botreply) {
-            			displayMessage(reply.botreply, 'Bot');
-            		    }  
-            			if (reply.error) {
-            			  if (reply.error == "session invalid") {
-            			  window.location.href = "../JChatOrchestrator/chatsessioninvalid.html";
-            			  }
-            			}                       			
+            		   if (reply.error) {
+              			    if (reply.error == "session invalid") {
+              			     window.location.href = "../JChatOrchestrator/chatsessioninvalid.html";
+              			    }
+              			    else {
+            		    	displayMessage(reply.error, 'Bot');
+            		        } 
+              		   } else {           		  
+            			    if (reply.output.text[0]) {
+            			     displayMessage(reply.output.text[0], 'Bot');
+            		        } else {
+            		      	 displayMessage("Error: no reply", 'Bot');
+            		        } 
+              		   }                      			
             		},
             		fail: function(data) {   
             		}     		

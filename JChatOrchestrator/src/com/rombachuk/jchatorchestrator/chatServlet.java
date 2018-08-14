@@ -18,6 +18,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import com.ibm.watson.developer_cloud.assistant.v1.Assistant;
+import com.ibm.watson.developer_cloud.assistant.v1.model.InputData;
+import com.ibm.watson.developer_cloud.assistant.v1.model.MessageOptions;
+import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
+import com.ibm.watson.developer_cloud.service.exception.UnauthorizedException;
 
 
 /**
@@ -62,35 +67,60 @@ public class chatServlet extends HttpServlet {
 			    PrintWriter out = response.getWriter();			    
 				HttpSession session = request.getSession(true);
 				response.setContentType("application/json");  
-				JsonObject botResponse = new JsonObject();
+				JsonObject botError = new JsonObject();
 				WatsonConnection watsonconnection = null;
 		        
 			    if (session.isNew()) {
-			    	botResponse.addProperty("error","session invalid");  
-			    	out.write(botResponse.toString());
+			    	botError.addProperty("error","session invalid");  
+			    	out.write(botError.toString());
 				    out.close(); 
 			    }
 				else {	
 					String propsfile = request.getServletContext().getRealPath("/")+
 							request.getServletContext().getInitParameter("jcoProperties");
-					if (request.getSession().getAttribute("watsonconnection") != null) {
+					String workspacename = (String) request.getSession().getAttribute("name");
+					String workspaceid = (String) request.getSession().getAttribute("workspaceid");
+					if (workspacename != null) {
+					  if (request.getSession().getAttribute("watsonconnection") != null) {
 						 watsonconnection = (WatsonConnection) request.getSession().getAttribute("watsonconnection");
-					} else {
-						
+					  } else {	
 					     watsonconnection = new WatsonConnection(new JcoProps(propsfile));
 					     request.getSession().setAttribute("watsonconnection", watsonconnection);
+					  }
+					  
+
+					  InputData input = new InputData.Builder(BufferToString(request.getReader())).build();
+
+					  MessageOptions options = new MessageOptions.Builder(workspaceid)
+					    .input(input)
+					    .build();
+					  
+					  Assistant assistant = watsonconnection.getAssistant();
+
+					  MessageResponse botReply = watsonconnection.getAssistant().message(options).execute();
+
+					
+				      if (!botReply.toString().isEmpty()) { 
+				    	out.write(botReply.toString());
+				      } 
+				      else {
+					    	botError.addProperty("error","response problem");  
+					    	out.write(botError.toString());
+				      }
+				     out.close(); 
 					}
-					
-					botResponse.addProperty("botreply",BufferToString(request.getReader()));
-					
-				    if (!botResponse.toString().isEmpty()) { 
-				    	out.write(botResponse.toString());
-				     } 
-				    out.close(); 
+					else { // workspace not present
+				    	botError.addProperty("error","workspace not identified");  
+				    	out.write(botError.toString());
+					    out.close(); 						
+					}
 				}
 			 }
 		     catch( IOException e) {
 		     	
+		     }
+		     catch( UnauthorizedException e) {
+		    	 System.out.println(e.getResponse());
 		     }
 	}
 
