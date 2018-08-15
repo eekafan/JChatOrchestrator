@@ -18,7 +18,7 @@
     <div class="chatbot">
       <div id="chatBox" class="dialogContainer">
       <c:forEach items="${workspaces}" var="workspace">
-        <button class="launcher-button-input" id=${workspace.name} type="button">${workspace.name}</button></option>
+        <button class="launcher-button-input" id=${workspace.name} type="button">${workspace.name}</button>
      </c:forEach>
       <button class="login-signon-input" id="logout" type="button">Logout</button>
       </div>

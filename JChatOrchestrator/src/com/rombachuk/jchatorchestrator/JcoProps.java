@@ -1,9 +1,10 @@
 package com.rombachuk.jchatorchestrator;
 
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
-import java.util.Scanner;
 
 public class JcoProps {
 	
@@ -22,14 +23,15 @@ public class JcoProps {
 	private String watsonassistantusername = null;
 	private String watsonassistantpassword = null;
 	
-	public JcoProps (String propsfile) {	
+	public JcoProps (InputStream input) {	
 		
      try {
-		File pfile = new File(propsfile);
-		Scanner input = new Scanner(pfile);
 
-		while(input.hasNext()) {
-		    String[] nextLine = input.nextLine().split("\\s+");
+    	BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+    	String line;
+
+		while((line = reader.readLine()) != null) {
+		    String[] nextLine = line.split("\\s+");
 		    if (nextLine[0].equalsIgnoreCase("LDAPbindDN")) {
 		    	this.binddn = nextLine[1];
 		    }
@@ -71,14 +73,12 @@ public class JcoProps {
 		    }
 		    if (nextLine[0].equalsIgnoreCase("WatsonAssistantPassword")) {
 		    	this.watsonassistantpassword = nextLine[1];
-		    }
-		    
+		    }	    
 		}
-
-		input.close();
+		reader.close();
      }
      catch (IOException e) {
-    	 System.out.println("File "+propsfile+" not found");
+    	 System.out.println("File not found");
      }
 
 	}

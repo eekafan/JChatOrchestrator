@@ -1,6 +1,7 @@
 package com.rombachuk.jchatorchestrator;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.List;
 
@@ -48,8 +49,10 @@ public class loginServlet extends HttpServlet {
         
         try {
         	
-         JcoProps jcoprops = new JcoProps( request.getServletContext().getRealPath("/")+
-        		            request.getServletContext().getInitParameter("jcoProperties"));    
+         InputStream propsfile = request.getServletContext().getResourceAsStream(
+        		 request.getServletContext().getInitParameter("jcoProperties"));
+         JcoProps jcoprops = new JcoProps(propsfile);   
+         propsfile.close();
          User       user = new User(jcoprops,request.getParameter("username"));
  
 
@@ -62,8 +65,10 @@ public class loginServlet extends HttpServlet {
          else {
         	 	Boolean testCredentials = User.authenticate(jcoprops, user.getDn(), request.getParameter("userpass"));
                 if (testCredentials == true) {
-                    JcoWorkspaces jcoworkspaces = new JcoWorkspaces( request.getServletContext().getRealPath("/")+
-        		            request.getServletContext().getInitParameter("jcoWorkspaces")); 
+                	InputStream workspacesfile = request.getServletContext().getResourceAsStream(
+                   		 request.getServletContext().getInitParameter("jcoWorkspaces"));
+                    JcoWorkspaces jcoworkspaces = new JcoWorkspaces(workspacesfile); 
+                    workspacesfile.close();
                     List<Workspace> workspaces = jcoworkspaces.getList();
                     request.setAttribute("workspaces", workspaces);
                     RequestDispatcher dispatcher = request.getRequestDispatcher("launcher.jsp");

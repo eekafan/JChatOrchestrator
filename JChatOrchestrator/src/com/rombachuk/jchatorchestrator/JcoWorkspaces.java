@@ -1,7 +1,10 @@
 package com.rombachuk.jchatorchestrator;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -11,15 +14,32 @@ public class JcoWorkspaces {
 	
 	private List<Workspace> list = new ArrayList<Workspace>();
 	
-	public JcoWorkspaces(String propsfile) {
+    public String findId(String name) {
+    	int index = 0;
+    	String id = null;
+    	Boolean found = false;
+    	while (!found && index < this.list.size()) {
+    		if (this.list.get(index).getName().equals(name)) {
+    			found = true;
+    			id = this.list.get(index).getId();
+    		}
+    		else
+    		{
+    			index=index+1;
+    		}
+    	}
+    	return id;
+    }
+	
+	public JcoWorkspaces(InputStream input) {
 
 		try {
-			File pfile = new File(propsfile);
-			Scanner input = new Scanner(pfile);
+		   	BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+	    	String line;
 
-			while(input.hasNext()) {
-			    String[] nextLine = input.nextLine().split("\\s+");
-			    if (nextLine.length == 2) {
+			while((line = reader.readLine()) != null) {
+			    String[] nextLine = line.split("\\s+");
+		    if (nextLine.length == 2) {
 			      Workspace thisworkspace = new Workspace(nextLine[0],nextLine[1]);
                   this.list.add(thisworkspace);
 			    }
@@ -27,7 +47,7 @@ public class JcoWorkspaces {
 			input.close();
 	     }
 	     catch (IOException e) {
-	    	 System.out.println("File "+propsfile+" not found");
+	    	 System.out.println("File  not found");
 	     }
 	}
 	

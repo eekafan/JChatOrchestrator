@@ -35,22 +35,7 @@ public class chatstartServlet extends HttpServlet {
         // TODO Auto-generated constructor stub
     }
 
-    private String getWorkspaceId(List<Workspace> list, String name) {
-    	int index = 0;
-    	String id = null;
-    	Boolean found = false;
-    	while (!found && index < list.size()) {
-    		if (list.get(index).getName().equals(name)) {
-    			found = true;
-    			id = list.get(index).getId();
-    		}
-    		else
-    		{
-    			index=index+1;
-    		}
-    	}
-    	return id;
-    }
+
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
@@ -61,15 +46,17 @@ public class chatstartServlet extends HttpServlet {
 		PrintWriter out = response.getWriter();  
 		HttpSession session = request.getSession(true); // new session if not exist
 		
-		session.setAttribute("name", request.getParameter("name"));
-        JcoWorkspaces jcoworkspaces = new JcoWorkspaces( request.getServletContext().getRealPath("/")+
-	            request.getServletContext().getInitParameter("jcoWorkspaces")); 
-        String workspaceid = getWorkspaceId(jcoworkspaces.getList(),request.getParameter("name"));
-        session.setAttribute("workspaceid",workspaceid);
+       	InputStream workspacesfile = request.getServletContext().getResourceAsStream(
+          		 request.getServletContext().getInitParameter("jcoWorkspaces"));
+        JcoWorkspaces jcoworkspaces = new JcoWorkspaces(workspacesfile); 
+        workspacesfile.close(); 
+        String workspaceid = jcoworkspaces.findId(request.getParameter("name"));
         
-        WatsonConnection watsonconnection = new WatsonConnection(
-        		new JcoProps(request.getServletContext().getRealPath("/")+
-				request.getServletContext().getInitParameter("jcoProperties")));
+	    InputStream propsfile = request.getServletContext().getResourceAsStream(
+	        		 request.getServletContext().getInitParameter("jcoProperties"));
+	    JcoProps jcoprops = new JcoProps(propsfile);   
+	    propsfile.close();
+        WatsonConnection watsonconnection = new WatsonConnection(jcoprops);
 	    session.setAttribute("watsonconnection", watsonconnection);
 	    
 		  InputData input = new InputData.Builder("Hello").build();

@@ -3,9 +3,10 @@
             // Send message to the WOS bot
             $('form#emit').submit(function(event) {
             	event.preventDefault();
+            	var $chaturl = window.location.origin + "/JChatOrchestrator/chat" + window.location.search;
             	$.ajax({
             		type: "POST",
-            		url: "../JChatOrchestrator/chat",
+            		url: $chaturl,
             		timeout: 5000,
             		data: $('#emit_data').val(),
             		beforeSend: function() {
