@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.Scanner;
 
 import javax.naming.AuthenticationException;
@@ -21,13 +22,20 @@ import org.apache.commons.io.IOUtils;
 import com.cloudant.client.api.Database;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.ibm.watson.developer_cloud.assistant.v1.Assistant;
 import com.ibm.watson.developer_cloud.assistant.v1.model.InputData;
+import com.ibm.watson.developer_cloud.assistant.v1.model.ListEntitiesOptions;
 import com.ibm.watson.developer_cloud.assistant.v1.model.MessageOptions;
 import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
+import com.ibm.watson.developer_cloud.assistant.v1.model.RuntimeEntity;
+import com.ibm.watson.developer_cloud.assistant.v1.model.RuntimeIntent;
+import com.ibm.watson.developer_cloud.service.exception.NotFoundException;
+import com.ibm.watson.developer_cloud.service.exception.RequestTooLargeException;
+import com.ibm.watson.developer_cloud.service.exception.ServiceResponseException;
 import com.ibm.watson.developer_cloud.service.exception.UnauthorizedException;
 
 
@@ -90,12 +98,13 @@ public class chatServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+	    PrintWriter out = response.getWriter();
+	    JsonObject botError = new JsonObject();
 		 try {
 
-			    PrintWriter out = response.getWriter();			    
+			    	    
 				HttpSession session = request.getSession(true);
 				response.setContentType("application/json");  
-				JsonObject botError = new JsonObject();
 				WatsonConnection watsonconnection = null;
 		        
 			    if (session.isNew()) {
@@ -105,9 +114,11 @@ public class chatServlet extends HttpServlet {
 			    }
 				else {	
 			          //J7 Servlet3 fix for read request once problem - do this first
-			          InputData input = new InputData.Builder(getRequestBody(request)).build();
 			          // J8 -> InputData input = new InputData.Builder(IOUtils.toString(req.getReader())).build();
-					 
+					  String bodyString = getRequestBody(request);
+					  System.out.println(bodyString);
+				      JsonObject chatRequest = new JsonParser().parse(bodyString).getAsJsonObject();
+				 
 				      InputStream propsfile = request.getServletContext().getResourceAsStream(
 				        		 request.getServletContext().getInitParameter("jcoProperties"));
 				      JcoProps jcoprops = new JcoProps(propsfile);   
@@ -128,30 +139,66 @@ public class chatServlet extends HttpServlet {
 					     request.getSession().setAttribute("watsonconnection", watsonconnection);
 					  }
 
-
-					  MessageOptions options = new MessageOptions.Builder(workspaceid)
-					    .input(input)
-					    .build();
-
-					  MessageResponse botReply = watsonconnection.getAssistant().message(options).execute();
-
+					  if (chatRequest.has("input") && chatRequest.has("lastReply")) {
+					   JsonObject lastReply = chatRequest.get("lastReply").getAsJsonObject();
+						  
+					   ChatRequestOptions lastOptions =  new ChatRequestOptions(lastReply);
 					
-				      if (!botReply.toString().isEmpty()) { 
+					   InputData input = new InputData.Builder(chatRequest.get("input").getAsString()).build();
+					  
+					   MessageOptions options = null;
+					   if (lastReply.entrySet().size() == 0) {
+						    options = new MessageOptions.Builder(workspaceid)
+								    .input(input)
+								    .build();
+					   } else {
+				  	    options = new MessageOptions.Builder(workspaceid)
+					    .input(input)
+					    //.intents(lastOptions.getIntents())
+					    //.entities(lastOptions.getEntities())
+					    //.context(lastOptions.getContext())
+					    //.output(lastOptions.getOutput())
+					    .build();
+					   }
+					   
+					   MessageResponse botReply = watsonconnection.synchronousRequest(options);
+					
+	
+				       if (!botReply.toString().isEmpty()) { 
 				    	out.write(botReply.toString());
-				      } 
-				      else {
+				       } 
+				       else {
 					    	botError.addProperty("error","response problem");  
 					    	out.write(botError.toString());
-				      }
-				     out.close(); 
+				       }
+					  }
+					  else {
+						  botError.addProperty("error","input problem");  
+					      out.write(botError.toString());
+					  }
+				      out.close(); 
 					}
 			 }
+
+
 		     catch( IOException e) {
-		     	
+		    	  botError.addProperty("error","input problem");  
+			      out.write(botError.toString());
+			      out.close(); 
 		     }
 		     catch( UnauthorizedException e) {
 		    	 System.out.println(e.getResponse());
+		    	 botError.addProperty("error","input problem");  
+			      out.write(botError.toString());
+			      out.close(); 
 		     }
+	         catch (Exception e) {
+	        	 System.out.println(e.getMessage());
+	        	 botError.addProperty("error","input problem");  
+			      out.write(botError.toString());
+			      out.close(); 
+		     }
+
 	}
 
 }
