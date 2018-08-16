@@ -12,6 +12,7 @@
     <title><c:out value="${workspacename}"/>  </title>
     <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
     <script type="text/javascript" charset="utf-8" src="js/chat-ready.js"></script>
 </head>
 <body>
