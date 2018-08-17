@@ -142,7 +142,7 @@ public class chatServlet extends HttpServlet {
 					   String chatuuid_lastreply = request.getParameter("uuid")+"lastreply";
 					   MessageResponse lastReply = (MessageResponse) request.getSession().getAttribute(chatuuid_lastreply);
 						  
-					   MessageOptions options = new MessageOptions.Builder().build();
+					   MessageOptions options = new MessageOptions.Builder(workspaceid).build();
 					   if ((lastReply == null) || (lastReply.entrySet().size() == 0)) {
 						   options= new MessageOptions.Builder(workspaceid)
 								    .input(input)
