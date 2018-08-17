@@ -101,11 +101,8 @@ public class chatServlet extends HttpServlet {
 	    PrintWriter out = response.getWriter();
 	    JsonObject botError = new JsonObject();
 		 try {
-
-			    	    
 				HttpSession session = request.getSession(true);
 				response.setContentType("application/json");  
-				WatsonConnection watsonconnection = null;
 		        
 			    if (session.isNew()) {
 			    	botError.addProperty("error","session invalid");  
@@ -132,36 +129,36 @@ public class chatServlet extends HttpServlet {
 				      String workspaceid = jcoworkspaces.findId(request.getParameter("name"));
 					
 					
-					  if (request.getSession().getAttribute("watsonconnection") != null) {
-						 watsonconnection = (WatsonConnection) request.getSession().getAttribute("watsonconnection");
-					  } else {	
-					     watsonconnection = new WatsonConnection(jcoprops);
-					     request.getSession().setAttribute("watsonconnection", watsonconnection);
+					  WatsonConnection watsonconnection = (WatsonConnection) request.getSession().getAttribute("watsonconnection");
+					  if (watsonconnection == null) {
+						     watsonconnection = new WatsonConnection(jcoprops);
+						     session.setAttribute("watsonconnection", watsonconnection);
 					  }
 
-					  if (chatRequest.has("input") && chatRequest.has("lastReply")) {
-					   JsonObject lastReply = chatRequest.get("lastReply").getAsJsonObject();
-						  
-					   ChatRequestOptions lastOptions =  new ChatRequestOptions(lastReply);
+					  if (chatRequest.has("input")) {
 					
 					   InputData input = new InputData.Builder(chatRequest.get("input").getAsString()).build();
 					  
-					   MessageOptions options = null;
-					   if (lastReply.entrySet().size() == 0) {
-						    options = new MessageOptions.Builder(workspaceid)
+					   String chatuuid_lastreply = request.getParameter("uuid")+"lastreply";
+					   MessageResponse lastReply = (MessageResponse) request.getSession().getAttribute(chatuuid_lastreply);
+						  
+					   MessageOptions options = new MessageOptions.Builder().build();
+					   if ((lastReply == null) || (lastReply.entrySet().size() == 0)) {
+						   options= new MessageOptions.Builder(workspaceid)
 								    .input(input)
 								    .build();
 					   } else {
 				  	    options = new MessageOptions.Builder(workspaceid)
 					    .input(input)
 					    //.intents(lastOptions.getIntents())
-					    .entities(lastOptions.getEntities())
-					    .context(lastOptions.getContext())
-					    .output(lastOptions.getOutput())
+					    .entities(lastReply.getEntities())
+					    .context(lastReply.getContext())
+					    .output(lastReply.getOutput())
 					    .build();
 					   }
 					   
 					   MessageResponse botReply = watsonconnection.synchronousRequest(options);
+					   session.setAttribute(chatuuid_lastreply, botReply);
 					
 	
 				       if (!botReply.toString().isEmpty()) { 

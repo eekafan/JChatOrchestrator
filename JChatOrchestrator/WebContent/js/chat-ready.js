@@ -1,9 +1,9 @@
        
      $(document).ready(function() {
             var data = new Object();
-            data.lastReply = new Object();
             $('form#emit').submit(function(event) {
             	event.preventDefault();
+            	// important to resend the location.search as the uuid is used to decode lastreply by server
             	var $chaturl = window.location.origin + "/JChatOrchestrator/chat" + window.location.search;
             	data.input = $('#emit_data').val();
             	$.ajax({
@@ -20,7 +20,6 @@
             		},
             		success: function(reply){
             		   if (!(reply == null)) {
-            		    data.lastReply = JSON.parse(JSON.stringify(reply));
             		    if (reply.hasOwnProperty('error')) {
               			    if (reply.error == "session invalid") {
               			     window.location.href = "../JChatOrchestrator/chatsessioninvalid.html";

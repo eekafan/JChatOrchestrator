@@ -52,20 +52,29 @@ public class chatstartServlet extends HttpServlet {
         workspacesfile.close(); 
         String workspaceid = jcoworkspaces.findId(request.getParameter("name"));
         
+        
 	    InputStream propsfile = request.getServletContext().getResourceAsStream(
 	        		 request.getServletContext().getInitParameter("jcoProperties"));
 	    JcoProps jcoprops = new JcoProps(propsfile);   
 	    propsfile.close();
-        WatsonConnection watsonconnection = new WatsonConnection(jcoprops);
-	    session.setAttribute("watsonconnection", watsonconnection);
 	    
-		  InputData input = new InputData.Builder("Hello").build();
+	    WatsonConnection watsonconnection = (WatsonConnection) request.getSession().getAttribute("watsonconnection");
+	    if (watsonconnection == null) {
+		     watsonconnection = new WatsonConnection(jcoprops);
+		     session.setAttribute("watsonconnection", watsonconnection);
+	    }
 
-		  MessageOptions options = new MessageOptions.Builder(workspaceid)
-		    .input(input)
+         // use hello as default input to kick start a reply
+		 MessageOptions options = new MessageOptions.Builder(workspaceid)
+		    .input(new InputData.Builder("Hello").build())
 		    .build();
 
-		  MessageResponse botReply = watsonconnection.getAssistant().message(options).execute();
+		  MessageResponse botReply = watsonconnection.synchronousRequest(options);
+		  
+		  //session is shared by many chats, so use this uuid to store a specific session variable
+		  //for recovery by this chat dialogue
+		  String chatuuid_lastreply = request.getParameter("uuid")+"lastreply";
+		  session.setAttribute(chatuuid_lastreply, botReply);
 
 	    request.setAttribute("workspacename", request.getParameter("name"));
 	    request.setAttribute("welcome", botReply.getOutput().getText().get(0));
