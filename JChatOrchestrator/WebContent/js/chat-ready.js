@@ -10,7 +10,7 @@
             		type: "POST",
             		url: $chaturl,
             		contentType:'application/json',
-            		timeout: 5000,
+            		timeout: 30000,
             		data: JSON.stringify(data),
             		beforeSend: function() {
             			displayMessage($('#emit_data').val(), 'NotWatsonBot');
@@ -28,9 +28,11 @@
               			    else {
             		    	displayMessage(reply.error, 'Bot');           		    	
             		        } 
-              		    } else {           		  
-            			    if (reply.output.text[0]) {
-            			     displayMessage(reply.output.text[0], 'Bot');
+              		    } else { 
+              		    	if ((reply.hasOwnProperty('output')) &&
+            			       (reply.output.text[0])) {
+            			     var latest = reply.output.text.length - 1;
+            			     displayMessage(reply.output.text[latest], 'Bot');
             		        } else {
             		      	 displayMessage("Error: no reply", 'Bot');
             		        } 

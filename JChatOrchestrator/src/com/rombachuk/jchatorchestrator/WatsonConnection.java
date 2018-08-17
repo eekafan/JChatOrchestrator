@@ -34,11 +34,15 @@ public class WatsonConnection {
               } catch (NotFoundException e) {
      	       response.put("exception", e);
      	      } catch (RequestTooLargeException e) {
+     	    	 response.put("exception", e);
      	      } catch (ServiceResponseException e) {
      	    	 response.put("exception", e);
+     	      } catch (Exception e) {
+      	    	 response.put("exception", e);
      	      }
 		return response;
 	}
+	
 	public Assistant getAssistant() {
 		return assistant;
 	}

@@ -116,7 +116,7 @@ public class chatServlet extends HttpServlet {
 			          //J7 Servlet3 fix for read request once problem - do this first
 			          // J8 -> InputData input = new InputData.Builder(IOUtils.toString(req.getReader())).build();
 					  String bodyString = getRequestBody(request);
-					  System.out.println(bodyString);
+					  // System.out.println(bodyString);
 				      JsonObject chatRequest = new JsonParser().parse(bodyString).getAsJsonObject();
 				 
 				      InputStream propsfile = request.getServletContext().getResourceAsStream(
@@ -155,9 +155,9 @@ public class chatServlet extends HttpServlet {
 				  	    options = new MessageOptions.Builder(workspaceid)
 					    .input(input)
 					    //.intents(lastOptions.getIntents())
-					    //.entities(lastOptions.getEntities())
-					    //.context(lastOptions.getContext())
-					    //.output(lastOptions.getOutput())
+					    .entities(lastOptions.getEntities())
+					    .context(lastOptions.getContext())
+					    .output(lastOptions.getOutput())
 					    .build();
 					   }
 					   
