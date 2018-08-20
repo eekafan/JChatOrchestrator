@@ -23,7 +23,7 @@ import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
 /**
  * Servlet implementation class chatServlet
  */
-@WebServlet("/chatstart")
+
 public class chatstartServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -50,9 +50,10 @@ public class chatstartServlet extends HttpServlet {
           		 request.getServletContext().getInitParameter("jcoWorkspaces"));
         JcoWorkspaces jcoworkspaces = new JcoWorkspaces(workspacesfile); 
         workspacesfile.close(); 
+        
+
         String workspaceid = jcoworkspaces.findId(request.getParameter("name"));
-        
-        
+ 
 	    InputStream propsfile = request.getServletContext().getResourceAsStream(
 	        		 request.getServletContext().getInitParameter("jcoProperties"));
 	    JcoProps jcoprops = new JcoProps(propsfile);   
@@ -78,13 +79,17 @@ public class chatstartServlet extends HttpServlet {
 
 	    request.setAttribute("workspacename", request.getParameter("name"));
 	    request.setAttribute("welcome", botReply.getOutput().getText().get(0));
-        RequestDispatcher dispatcher = request.getRequestDispatcher("chat.jsp");
+
+        RequestDispatcher dispatcher = request.getServletContext().getRequestDispatcher("chat.jsp");
         dispatcher.forward(request, response);
 	    out.close();
   
 	 }
      catch( IOException e) {
      	
+     }
+     catch( Exception e) {
+      	System.out.println(e.getMessage());
      }
 	}
 

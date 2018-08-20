@@ -4,7 +4,8 @@
             $('form#emit').submit(function(event) {
             	event.preventDefault();
             	// important to resend the location.search as the uuid is used to decode lastreply by server
-            	var $chaturl = window.location.origin + "/JChatOrchestrator/chat" + window.location.search;
+            	var chatpath = window.location.pathname;
+            	var $chaturl = window.location.origin + "/JChatOrchestrator/chat/" + document.title + window.location.search;
             	data.input = $('#emit_data').val();
             	$.ajax({
             		type: "POST",

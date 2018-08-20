@@ -9,6 +9,16 @@
 		<welcome-file>default.htm</welcome-file>
 		<welcome-file>default.jsp</welcome-file>
 	</welcome-file-list>
+		<filter>
+		<filter-name>ChatFilter</filter-name>
+		<filter-class>
+			com.rombachuk.jchatorchestrator.ChatFilter
+		</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>ChatFilter</filter-name>
+		<url-pattern>/chat/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher></filter-mapping>
 	<servlet>
 		<display-name>loginServlet</display-name>
 	<servlet-name>
@@ -36,19 +46,17 @@
 		<url-pattern>/logout</url-pattern>
 	</servlet-mapping>
 	<servlet>
-		<display-name>chatServlet</display-name>
-		<servlet-name>
-			com.rombachuk.jchatorchestrator.chatServlet
-	</servlet-name>
-	<servlet-class>com.rombachuk.jchatorchestrator.chatServlet</servlet-class>
+		<display-name>EventAnalyticsServlet</display-name>
+		<servlet-name>com.rombachuk.jchatorchestrator.EventAnalyticsServlet</servlet-name>
+	<servlet-class>com.rombachuk.jchatorchestrator.EventAnalyticsServlet</servlet-class>
 	</servlet>
-	<servlet-mapping>
-		<servlet-name>
-			com.rombachuk.jchatorchestrator.chatServlet
-		</servlet-name>
-		<url-pattern>/chat</url-pattern>
-	</servlet-mapping>
-   <servlet>
+	<servlet>
+		<display-name>CustomerServiceServlet</display-name>
+		<servlet-name>com.rombachuk.jchatorchestrator.CustomerServiceServlet</servlet-name>
+	<servlet-class>com.rombachuk.jchatorchestrator.CustomerServiceServlet</servlet-class>
+	</servlet>
+	
+	<servlet>
 		<display-name>chatstartServlet</display-name>
 		<servlet-name>
 			com.rombachuk.jchatorchestrator.chatstartServlet
@@ -69,4 +77,13 @@
 		<param-name>jcoWorkspaces</param-name>
 		<param-value>/WEB-INF/jco_workspaces.props</param-value>
 	</context-param>
+
+	<servlet-mapping>
+		<servlet-name>com.rombachuk.jchatorchestrator.EventAnalyticsServlet</servlet-name>
+		<url-pattern>/chat/eventanalytics</url-pattern>
+	</servlet-mapping>
+		<servlet-mapping>
+		<servlet-name>com.rombachuk.jchatorchestrator.CustomerServiceServlet</servlet-name>
+		<url-pattern>/chat/customerservice</url-pattern>
+	</servlet-mapping>
 </web-app>
