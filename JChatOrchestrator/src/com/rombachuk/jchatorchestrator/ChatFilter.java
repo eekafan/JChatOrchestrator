@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
 import com.ibm.watson.developer_cloud.service.exception.UnauthorizedException;
 
 /**
@@ -91,23 +92,24 @@ public class ChatFilter implements Filter {
 	 */
     
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-	    PrintWriter out = response.getWriter();
-	    JsonObject botError = new JsonObject();
+	     PrintWriter out = response.getWriter();
+	     JsonObject botException = new JsonObject();
+	     MessageResponse botReply = new MessageResponse();
 		 try {
 			    HttpServletRequest httprequest = (HttpServletRequest) request;
 				HttpSession session = httprequest.getSession(true);
 				response.setContentType("application/json");  
 		        
 			    if (session.isNew()) {
-			    	botError.addProperty("error","session invalid");  
-			    	out.write(botError.toString());
+			    	botException.addProperty("error","session invalid");  
+			    	out.write(botException.toString());
 				    out.close(); 
 			    }
 				else {	
 			          //J7 Servlet3 fix for read request once problem - do this first
 			          // J8 -> InputData input = new InputData.Builder(IOUtils.toString(req.getReader())).build();
 					  String bodyString = getRequestBody(httprequest);
-				      JsonObject chatRequest = new JsonParser().parse(bodyString).getAsJsonObject();
+				      JsonObject chatclientInput = new JsonParser().parse(bodyString).getAsJsonObject();
 				 
 				      InputStream propsfile = this.context.getResourceAsStream(
 				    		  this.context.getInitParameter("jcoProperties"));
@@ -131,34 +133,52 @@ public class ChatFilter implements Filter {
 						     session.setAttribute("watsonconnection", watsonconnection);
 					  }
 
-					  if ((chatRequest.has("input")) && (workspaceid != null)) {
+					  if ((chatclientInput.has("input")) && (workspaceid != null)) {
 					   request.setAttribute("chatname", chatname);
 					   request.setAttribute("workspaceid", workspaceid);
-					   request.setAttribute("chatrequest", chatRequest);
-					   chain.doFilter(request, response); //send to servlet routed via /chat/name 
+					   request.setAttribute("chatclientinput", chatclientInput);
+					   request.setAttribute("botreply", botReply);
+					   request.setAttribute("botexception", botException);
+					   // pre-servlet processing complete - send to chatapp servlet
+					   chain.doFilter(request, response); 
+					   // post-servlet processing starts - process reply from chatapp
+					   // expects good answer in request.botreply
+					   // expects errors in request.botexception
+					
+					   botException = (JsonObject)  request.getAttribute("botexception");
+					   botReply = (MessageResponse) request.getAttribute("botreply");
+					   if (botException.entrySet().isEmpty()) {
+						  String chatuuid_lastreply = request.getParameter("uuid")+"lastreply";
+						  session.setAttribute(chatuuid_lastreply, botReply);
+						  out.write(botReply.toString());
+					   } 
+					   else {
+						  out.write(botException.toString());
+					   }
+					   out.close(); 
 				      }
 					  else {
-						  botError.addProperty("error","input problem");  
-					      out.write(botError.toString());
+						  botException.addProperty("error","input problem");  
+					      out.write(botException.toString());
 					      out.close(); 
 					  }			      
 					}
 			 }
 		     catch( IOException e) {
-		    	  botError.addProperty("error","input problem");  
-			      out.write(botError.toString());
+		    	  botException.addProperty("error","input problem");  
+			      out.write(botException.toString());
 			      out.close(); 
 		     }
 		     catch( UnauthorizedException e) {
 		    	 System.out.println(e.getResponse());
-		    	 botError.addProperty("error","input problem");  
-			      out.write(botError.toString());
+		    	 botException.addProperty("error","input problem");  
+			      out.write(botException.toString());
 			      out.close(); 
 		     }
 	         catch (Exception e) {
 	        	 System.out.println(e.getMessage());
-	        	 botError.addProperty("error","input problem");  
-			      out.write(botError.toString());
+	        	 botException.addProperty("error","input problem");  
+			      out.write(botException.toString());
 			      out.close(); 
 		     }
 	}
