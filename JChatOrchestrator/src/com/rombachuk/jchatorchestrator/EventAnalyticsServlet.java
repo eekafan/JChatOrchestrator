@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 
 import com.google.gson.JsonObject;
-
+import com.ibm.watson.developer_cloud.assistant.v1.model.Context;
 import com.ibm.watson.developer_cloud.assistant.v1.model.InputData;
 
 import com.ibm.watson.developer_cloud.assistant.v1.model.MessageOptions;
@@ -62,6 +62,7 @@ public class EventAnalyticsServlet extends HttpServlet {
 			 	WatsonConnection watsonconnection = (WatsonConnection) request.getSession().getAttribute("watsonconnection");
 			    String chatuuid_lastreply = request.getParameter("uuid")+"lastreply";
 			    MessageResponse lastReply = (MessageResponse) request.getSession().getAttribute(chatuuid_lastreply);
+			    Context latestContext = (Context) request.getAttribute("latestcontext");
 			    MessageOptions options = new MessageOptions.Builder(workspaceid).build();
 			    
 			    // prepare options to send
@@ -73,17 +74,25 @@ public class EventAnalyticsServlet extends HttpServlet {
 				} else {
 				  	    options = new MessageOptions.Builder(workspaceid)
 					    .input(input)
-					    //.intents(lastOptions.getIntents())
-					    .entities(lastReply.getEntities())
-					    .context(lastReply.getContext())
-					    .output(lastReply.getOutput())
+					    //.intents(lastReply.getIntents())
+					    //.entities(lastReply.getEntities())
+					    .context(latestContext)
+					    //.output(lastReply.getOutput())
 					    .build();
 			    }
 					
 				// send request to watson assistant
 				MessageResponse botReply = watsonconnection.synchronousRequest(options);
-				
+
 				// process reply from watson assistant
+				Context context = botReply.getContext();
+				Object key = "reportstatus";
+				if (context.containsKey(key) == true ) {
+					if (context.get("reportstatus").toString().equals("run")) {
+						System.out.println(context.get("reportstatus").toString());
+					}
+				}
+				
 				
 				// send response to chatclient via ChatFilter
 				request.setAttribute("botreply", botReply);

@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.HashMap;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -21,6 +23,7 @@ import javax.servlet.http.HttpSession;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.ibm.watson.developer_cloud.assistant.v1.model.Context;
 import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
 import com.ibm.watson.developer_cloud.service.exception.UnauthorizedException;
 
@@ -133,12 +136,32 @@ public class ChatFilter implements Filter {
 						     session.setAttribute("watsonconnection", watsonconnection);
 					  }
 
-					  if ((chatclientInput.has("input")) && (workspaceid != null)) {
+					  if ((chatclientInput.has("action")) && (workspaceid != null)) {
+					   // common tasks for all action types
 					   request.setAttribute("chatname", chatname);
 					   request.setAttribute("workspaceid", workspaceid);
 					   request.setAttribute("chatclientinput", chatclientInput);
 					   request.setAttribute("botreply", botReply);
 					   request.setAttribute("botexception", botException);
+
+					    String chatuuid_lastreply = request.getParameter("uuid")+"lastreply";
+					    MessageResponse lastReply = (MessageResponse) session.getAttribute(chatuuid_lastreply);
+					    Context latestContext = lastReply.getContext();
+                 	    request.setAttribute("latestcontext", latestContext);	
+                 	    
+					   // specific for sendtext client action
+                       if (chatclientInput.get("action").getAsString().equals("sendtext")) {
+
+					   }   
+					   // specific for selectoption client action - injects contextvariable into context
+					   if (chatclientInput.get("action").getAsString().equals("selectoption")) {
+						 if (chatclientInput.has("input") && chatclientInput.has("contextvariable")){								    
+							    latestContext.put(chatclientInput.get("contextvariable").getAsString(), 
+							    		chatclientInput.get("input"));
+							    request.setAttribute("latestcontext", latestContext);
+						 }
+					   }
+					   
 					   // pre-servlet processing complete - send to chatapp servlet
 					   chain.doFilter(request, response); 
 					   // post-servlet processing starts - process reply from chatapp
@@ -148,7 +171,6 @@ public class ChatFilter implements Filter {
 					   botException = (JsonObject)  request.getAttribute("botexception");
 					   botReply = (MessageResponse) request.getAttribute("botreply");
 					   if (botException.entrySet().isEmpty()) {
-						  String chatuuid_lastreply = request.getParameter("uuid")+"lastreply";
 						  session.setAttribute(chatuuid_lastreply, botReply);
 						  out.write(botReply.toString());
 					   } 

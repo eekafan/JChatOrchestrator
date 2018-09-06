@@ -21,8 +21,9 @@
       <c:forEach items="${workspaces}" var="workspace">
         <button class="launcher-button-input" id=${workspace.name} type="button">${workspace.name}</button>
      </c:forEach>
-      <button class="login-signon-input" id="logout" type="button">Logout</button>
-      </div>
+     <div id ="chatSpacer" class="launcher-spacer"></div>
+     <button class="login-signout-input" id="logout" type="button">Logout</button>
+      </div>   
     </div>
 </div>
 </body>

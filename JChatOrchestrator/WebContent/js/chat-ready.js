@@ -1,4 +1,32 @@
-       
+     function handleBotReply(reply) {
+		   if (!(reply == null)) {
+   		    if (reply.hasOwnProperty('error')) {
+     			    if (reply.error == "session invalid") {
+     			     window.location.href = "../JChatOrchestrator/chatsessioninvalid.html";
+     			    }
+     			    else {
+   		    	displayMessage(reply.error, 'Bot');           		    	
+   		        } 
+     		    } else { 
+     		    	if ((reply.hasOwnProperty('output')) && (reply.output.generic[0])) {
+   			     var latest = reply.output.generic.length - 1;
+   			     if (reply.output.generic[latest].response_type == "text") {
+   			     displayMessage(reply.output.generic[latest].text, 'Bot');
+   			     }
+   			     if (reply.output.generic[latest].response_type == "option") {
+   			      if (reply.hasOwnProperty('context')) {
+   			      displayOptions(reply.context,
+   			    		reply.output.generic[latest],
+   			    		  function(reply){handleBotReply(reply)});
+   			      }
+   			     }
+   		        } else {
+   		      	 displayMessage("Error: no reply", 'Bot');
+   		        } 
+     		    }  
+   		   }
+   		}
+ 
      $(document).ready(function() {
             var data = new Object();
             $('form#emit').submit(function(event) {
@@ -6,6 +34,7 @@
             	// important to resend the location.search as the uuid is used to decode lastreply by server
             	var chatpath = window.location.pathname;
             	var $chaturl = window.location.origin + "/JChatOrchestrator/chat/" + document.title + window.location.search;
+            	data.action = 'sendtext';
             	data.input = $('#emit_data').val();
             	$.ajax({
             		type: "POST",
@@ -19,26 +48,7 @@
             		},
             		complete: function() {          			
             		},
-            		success: function(reply){
-            		   if (!(reply == null)) {
-            		    if (reply.hasOwnProperty('error')) {
-              			    if (reply.error == "session invalid") {
-              			     window.location.href = "../JChatOrchestrator/chatsessioninvalid.html";
-              			    }
-              			    else {
-            		    	displayMessage(reply.error, 'Bot');           		    	
-            		        } 
-              		    } else { 
-              		    	if ((reply.hasOwnProperty('output')) &&
-            			       (reply.output.text[0])) {
-            			     var latest = reply.output.text.length - 1;
-            			     displayMessage(reply.output.text[latest], 'Bot');
-            		        } else {
-            		      	 displayMessage("Error: no reply", 'Bot');
-            		        } 
-              		    }  
-            		   }
-            		},
+            		success: function(reply) { handleBotReply(reply); },
             		fail: function(data) {   
             		}     		
             	});
