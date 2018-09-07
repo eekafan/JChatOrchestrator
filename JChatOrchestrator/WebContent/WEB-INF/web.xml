@@ -55,7 +55,6 @@
 		<servlet-name>com.rombachuk.jchatorchestrator.CustomerServiceServlet</servlet-name>
 	<servlet-class>com.rombachuk.jchatorchestrator.CustomerServiceServlet</servlet-class>
 	</servlet>
-	
 	<servlet>
 		<display-name>chatstartServlet</display-name>
 		<servlet-name>
@@ -77,7 +76,6 @@
 		<param-name>jcoWorkspaces</param-name>
 		<param-value>/WEB-INF/jco_workspaces.props</param-value>
 	</context-param>
-
 	<servlet-mapping>
 		<servlet-name>com.rombachuk.jchatorchestrator.EventAnalyticsServlet</servlet-name>
 		<url-pattern>/chat/eventanalytics</url-pattern>
