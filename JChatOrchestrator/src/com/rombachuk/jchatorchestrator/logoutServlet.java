@@ -14,7 +14,7 @@ import javax.servlet.http.HttpSession;
 /**
  * Servlet implementation class logoutServlet
  */
-@WebServlet("/logout")
+
 public class logoutServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        

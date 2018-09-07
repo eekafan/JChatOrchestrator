@@ -21,7 +21,7 @@ import com.unboundid.ldap.sdk.LDAPSearchException;
 /**
  * Servlet implementation class loginServlet
  */
-@WebServlet("/login")
+
 public class loginServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 

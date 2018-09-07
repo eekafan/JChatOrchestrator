@@ -82,7 +82,7 @@
 		<servlet-name>com.rombachuk.jchatorchestrator.EventAnalyticsServlet</servlet-name>
 		<url-pattern>/chat/eventanalytics</url-pattern>
 	</servlet-mapping>
-		<servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>com.rombachuk.jchatorchestrator.CustomerServiceServlet</servlet-name>
 		<url-pattern>/chat/customerservice</url-pattern>
 	</servlet-mapping>
