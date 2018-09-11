@@ -10,6 +10,34 @@
         }
         return uuid;
      }
+     
+     function handleReply(reply,chat_windows,chat_name) {
+		   if (!(reply == null)) {
+ 		    if (reply.hasOwnProperty('error')) {
+   			    if (reply.error == "session invalid") {
+   			     window.location.href = "../JChatOrchestrator/chatsessioninvalid.html";
+   			    }
+   			    else {
+   			     // also invalidate if any other webserver errors indicated
+   			     window.location.href = "../JChatOrchestrator/chatsessioninvalid.html";          		    	
+ 		        } 
+   		    } else { 
+                if (chat_windows.length < 3) {
+             	   var url = new URL(window.location.origin + "/JChatOrchestrator/chatstart");
+             	   url.searchParams.append("name",chat_name);
+             	   url.searchParams.append("uuid",uuid());
+             	   var thischat = window.open(url,'_blank','location=no,scrollbars=yes,left=500,height=800,width=450');          	
+ 				   chat_windows.push(thischat);
+ 				   var thischatClosed = setInterval(function () {
+ 					    if (thischat.closed) {
+ 					        clearInterval(thischatClosed);
+ 					        chat_windows.pop(thischat);
+ 					    }
+ 					  }, 1000);
+                }
+   		    }  
+ 		   }
+ 		}
 
        $(document).ready(function() {
         	var chat_windows = new Array();
@@ -17,15 +45,25 @@
         	var $listButtons = $('.launcher-button-input');
         	$listButtons.each(function(){ 
                 var $this = $(this);
+                var chat_name = $this.attr('id');
                 $this.click(function(e){
             	e.preventDefault();
-                if (chat_windows.length < 3) {
-            	   var url = new URL(window.location.origin + "/JChatOrchestrator/chatstart");
-            	   url.searchParams.append("name",$this.attr('id'));
-            	   url.searchParams.append("uuid",uuid());
-            	   var thischat = window.open(url,'_blank','location=no,scrollbars=yes,left=500,height=800,width=450');          	
-				   chat_windows.push(thischat);
-                   }
+            	// test if session has expired
+            	var chatpath = window.location.pathname;
+            	var $chaturl = window.location.origin + "/JChatOrchestrator/launchsessioncheck";
+            	$.ajax({
+            		type: "GET",
+            		url: $chaturl,
+            		contentType:'application/json',
+            		timeout: 30000,
+            		beforeSend: function() {      			
+            		},
+            		complete: function() {          			
+            		},
+            		success: function(reply) { handleReply(reply,chat_windows,chat_name); },
+            		fail: function(reply) {   
+            		}     		
+            	});
             	return false;
               });
         	});

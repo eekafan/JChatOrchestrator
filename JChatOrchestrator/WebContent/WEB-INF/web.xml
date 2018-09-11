@@ -19,6 +19,12 @@
 		<filter-name>ChatFilter</filter-name>
 		<url-pattern>/chat/*</url-pattern>
 		<dispatcher>REQUEST</dispatcher></filter-mapping>
+	<listener>
+	<description>SessionListener</description>
+	<listener-class>
+		com.rombachuk.jchatorchestrator.SessionListener
+	</listener-class>
+</listener>
 	<servlet>
 		<display-name>loginServlet</display-name>
 	<servlet-name>
@@ -67,6 +73,19 @@
 			com.rombachuk.jchatorchestrator.chatstartServlet
 		</servlet-name>
 		<url-pattern>/chatstart</url-pattern>
+	</servlet-mapping>
+		<servlet>
+		<display-name>LaunchSessionCheckServlet</display-name>
+		<servlet-name>
+			com.rombachuk.jchatorchestrator.LaunchSessionCheckServlet
+	</servlet-name>
+	<servlet-class>com.rombachuk.jchatorchestrator.LaunchSessionCheckServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>
+			com.rombachuk.jchatorchestrator.LaunchSessionCheckServlet
+		</servlet-name>
+		<url-pattern>/launchsessioncheck</url-pattern>
 	</servlet-mapping>
 	<context-param>
 		<param-name>jcoProperties</param-name>

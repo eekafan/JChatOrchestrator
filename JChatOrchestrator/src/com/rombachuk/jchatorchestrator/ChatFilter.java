@@ -96,19 +96,22 @@ public class ChatFilter implements Filter {
     
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 	     PrintWriter out = response.getWriter();
+	     response.setContentType("application/json");  
 	     JsonObject botException = new JsonObject();
 	     MessageResponse botReply = new MessageResponse();
 		 try {
 			    HttpServletRequest httprequest = (HttpServletRequest) request;
-				HttpSession session = httprequest.getSession(true);
-				response.setContentType("application/json");  
-		        
-			    if (session.isNew()) {
+				if (httprequest.getRequestedSessionId() != null
+				        && !httprequest.isRequestedSessionIdValid()) {
+				    // Session is expired so flag error as reply to enable client to respond
 			    	botException.addProperty("error","session invalid");  
 			    	out.write(botException.toString());
 				    out.close(); 
 			    }
-				else {	
+				else {
+					 // create new session if none exists, else collect current valid session
+					 HttpSession session = httprequest.getSession(true);
+					 
 			          //J7 Servlet3 fix for read request once problem - do this first
 			          // J8 -> InputData input = new InputData.Builder(IOUtils.toString(req.getReader())).build();
 					  String bodyString = getRequestBody(httprequest);
