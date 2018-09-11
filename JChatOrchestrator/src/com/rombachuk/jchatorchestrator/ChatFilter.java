@@ -33,7 +33,6 @@ import com.ibm.watson.developer_cloud.service.exception.UnauthorizedException;
 
 
 public class ChatFilter implements Filter {
-	private ServletContext context;
 	
 	  private String getRequestBody (final HttpServletRequest request) 
 
@@ -62,8 +61,7 @@ public class ChatFilter implements Filter {
 	                // ignore
 	            }
 	        }
-	    }
-	 
+	    }	 
 	    return stringBuilder.toString();
 	}
 
@@ -80,7 +78,6 @@ public class ChatFilter implements Filter {
 
 	public void init(FilterConfig fConfig) throws ServletException {
 
-		this.context = fConfig.getServletContext();
 	}
 	/**
 	 * @see Filter#destroy()
@@ -116,22 +113,14 @@ public class ChatFilter implements Filter {
 			          // J8 -> InputData input = new InputData.Builder(IOUtils.toString(req.getReader())).build();
 					  String bodyString = getRequestBody(httprequest);
 				      JsonObject chatclientInput = new JsonParser().parse(bodyString).getAsJsonObject();
+				        
+				      JcoWorkspaces jcoworkspaces = (JcoWorkspaces) session.getServletContext().getAttribute("jcoworkspaces");
 				 
-				      InputStream propsfile = this.context.getResourceAsStream(
-				    		  this.context.getInitParameter("jcoProperties"));
-				      JcoProps jcoprops = new JcoProps(propsfile);   
-				      propsfile.close();
-				      
-				      InputStream workspacesfile = this.context.getResourceAsStream(
-				    		  this.context.getInitParameter("jcoWorkspaces"));
-				      JcoWorkspaces jcoworkspaces = new JcoWorkspaces(workspacesfile); 
-				      workspacesfile.close(); 
-				     
+					  JcoProps jcoprops = (JcoProps) session.getServletContext().getAttribute("jcoprops");   
 	
 				      String servletpath[] = httprequest.getServletPath().split("/");
 				      String chatname = servletpath[servletpath.length-1];
 				      String workspaceid = jcoworkspaces.findId(chatname);
-					
 					
 					  WatsonConnection watsonconnection = (WatsonConnection) request.getAttribute("watsonconnection");
 					  if (watsonconnection == null) {

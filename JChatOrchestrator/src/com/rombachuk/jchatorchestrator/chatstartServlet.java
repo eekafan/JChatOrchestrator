@@ -45,19 +45,11 @@ public class chatstartServlet extends HttpServlet {
 	    response.setContentType("text/html");  
 		PrintWriter out = response.getWriter();  
 		HttpSession session = request.getSession(true); // new session if not exist
-		
-       	InputStream workspacesfile = request.getServletContext().getResourceAsStream(
-          		 request.getServletContext().getInitParameter("jcoWorkspaces"));
-        JcoWorkspaces jcoworkspaces = new JcoWorkspaces(workspacesfile); 
-        workspacesfile.close(); 
-        
 
+        JcoWorkspaces jcoworkspaces = (JcoWorkspaces) session.getServletContext().getAttribute("jcoworkspaces");
         String workspaceid = jcoworkspaces.findId(request.getParameter("name"));
  
-	    InputStream propsfile = request.getServletContext().getResourceAsStream(
-	        		 request.getServletContext().getInitParameter("jcoProperties"));
-	    JcoProps jcoprops = new JcoProps(propsfile);   
-	    propsfile.close();
+	    JcoProps jcoprops = (JcoProps) session.getServletContext().getAttribute("jcoprops");   
 	    
 	    WatsonConnection watsonconnection = (WatsonConnection) request.getSession().getAttribute("watsonconnection");
 	    if (watsonconnection == null) {
@@ -86,7 +78,7 @@ public class chatstartServlet extends HttpServlet {
   
 	 }
      catch( IOException e) {
-     	
+    	 System.out.println(e.getMessage());
      }
      catch( Exception e) {
       	System.out.println(e.getMessage());
