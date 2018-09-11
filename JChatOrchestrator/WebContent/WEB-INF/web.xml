@@ -25,6 +25,12 @@
 		com.rombachuk.jchatorchestrator.SessionListener
 	</listener-class>
 </listener>
+<listener>  
+<description>ContextListener</description>
+    <listener-class>
+        com.rombachuk.jchatorchestrator.ContextListener
+    </listener-class>
+</listener>  
 	<servlet>
 		<display-name>loginServlet</display-name>
 	<servlet-name>

@@ -8,7 +8,7 @@ import javax.servlet.http.HttpSessionListener;
  * Application Lifecycle Listener implementation class SessionListener
  *
  */
-@WebListener
+
 public class SessionListener implements HttpSessionListener {
 
     /**
