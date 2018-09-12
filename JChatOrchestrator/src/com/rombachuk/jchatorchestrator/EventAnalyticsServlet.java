@@ -12,8 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import javax.servlet.http.HttpServletResponse;
 
-
-
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.ibm.watson.developer_cloud.assistant.v1.model.Context;
 import com.ibm.watson.developer_cloud.assistant.v1.model.InputData;
@@ -86,6 +85,7 @@ public class EventAnalyticsServlet extends HttpServlet {
 
 				// process reply from watson assistant
 				Context context = botReply.getContext();
+				JsonArray fields = (JsonArray) request.getSession().getServletContext().getAttribute("eventsobjectserverfields");
 				Object key = "reportstatus";
 				if (context.containsKey(key) == true ) {
 					if (context.get("reportstatus").toString().equals("run")) {

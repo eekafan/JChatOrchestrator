@@ -1,0 +1,7 @@
+			
+HistoryURL				https://hostname:50000/REPORTER
+HistoryUser				
+HistoryPassword			
+ObjectServerURL			https://hostname:8080/objectserver/restapi
+ObjectServerUser		
+ObjectServerPassword	''

@@ -26,9 +26,9 @@
 	</listener-class>
 </listener>
 <listener>  
-<description>ContextListener</description>
+<description>JcoContextListener</description>
     <listener-class>
-        com.rombachuk.jchatorchestrator.ContextListener
+        com.rombachuk.jchatorchestrator.JcoContextListener
     </listener-class>
 </listener>  
 	<servlet>
@@ -109,4 +109,12 @@
 		<servlet-name>com.rombachuk.jchatorchestrator.CustomerServiceServlet</servlet-name>
 		<url-pattern>/chat/customerservice</url-pattern>
 	</servlet-mapping>
+	<context-param>
+		<param-name>eventbotObjectserverFields</param-name>
+		<param-value>/WEB-INF/eventbot_objectserver_fields.def</param-value>
+	</context-param>
+	<context-param>
+		<param-name>eventbotProperties</param-name>
+		<param-value>/WEB-INF/eventbot.props</param-value>
+	</context-param>
 </web-app>
