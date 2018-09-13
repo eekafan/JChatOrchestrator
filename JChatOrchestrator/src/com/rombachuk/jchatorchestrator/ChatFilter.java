@@ -157,17 +157,24 @@ public class ChatFilter implements Filter {
 					   // pre-servlet processing complete - send to chatapp servlet
 					   chain.doFilter(request, response); 
 					   // post-servlet processing starts - process reply from chatapp
-					   // expects good answer in request.botreply
+					   // expects good answer from assistant in request.botreply
 					   // expects errors in request.botexception
+					   // expects chatapp specific data in request.appdata
+					   // for non-error combine botreply and appdata
 					
 					   botException = (JsonObject)  request.getAttribute("botexception");
 					   botReply = (MessageResponse) request.getAttribute("botreply");
+					   JsonObject assistantreply = (JsonObject) new JsonParser().parse(botReply.toString());
+					   JsonObject appdata = (JsonObject)  request.getAttribute("appdata");
 					   if (botException.entrySet().isEmpty()) {
 						  session.setAttribute(chatuuid_lastreply, botReply);
-						  out.write(botReply.toString());
+						  JsonObject reply = new JsonObject();
+						  reply.add("assistantreply",assistantreply);
+						  reply.add("appdata", appdata);
+						  out.write(reply.toString());
 					   } 
 					   else {
-						  out.write(botException.toString());
+						   out.write(botException.toString());
 					   }
 					   out.close(); 
 				      }

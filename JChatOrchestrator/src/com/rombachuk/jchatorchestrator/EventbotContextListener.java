@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Date;
 import java.util.Enumeration;
 
@@ -229,8 +231,18 @@ public class EventbotContextListener implements ServletContextListener {
         Class.forName("com.ibm.db2.jcc.DB2Driver");
         Connection historyconn = DriverManager.getConnection (eventbotprops.getHistoryurl(), 
         		eventbotprops.getHistoryuser(), eventbotprops.getHistorypassword());
-        ctx.setAttribute("eventbothistoryconn", historyconn);
-    
+        Statement statement = historyconn.createStatement();
+        JsonArray history_fields = new JsonArray();
+        ResultSet rs = statement.executeQuery("select column_name,data_type,character_maximum_length from sysibm.columns where table_name='REPORTER_STATUS'");
+        while(rs.next()){
+        	JsonObject field_def = new JsonObject();
+		      field_def.add("name", new JsonPrimitive(rs.getString("column_name")));
+		      field_def.add("type", new JsonPrimitive(rs.getString("data_type")));
+		      field_def.add("length", new JsonPrimitive(Integer.toString(rs.getInt("character_maximum_length"))));
+		      history_fields.add(field_def);
+         }
+        historyconn.close();
+        ctx.setAttribute("eventbothistoryfields",history_fields);
         
         FileAlterationObserver fao = new FileAlterationObserver(ctx.getRealPath("/")+"/WEB-INF");
         fao.addListener(new FileAlterationListenerEB(ctx));

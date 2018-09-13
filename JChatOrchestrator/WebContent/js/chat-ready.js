@@ -8,15 +8,15 @@
    		    	displayMessage(reply.error, 'Bot');           		    	
    		        } 
      		    } else { 
-     		    	if ((reply.hasOwnProperty('output')) && (reply.output.generic[0])) {
-   			     var latest = reply.output.generic.length - 1;
-   			     if (reply.output.generic[latest].response_type == "text") {
-   			     displayMessage(reply.output.generic[latest].text, 'Bot');
+     		    	if ((reply.hasOwnProperty('assistantreply')) && (reply.assistantreply.hasOwnProperty('output')) && (reply.assistantreply.output.generic[0])) {
+   			     var latest = reply.assistantreply.output.generic.length - 1;
+   			     if (reply.assistantreply.output.generic[latest].response_type == "text") {
+   			     displayMessage(reply.assistantreply.output.generic[latest].text, 'Bot');
    			     }
-   			     if (reply.output.generic[latest].response_type == "option") {
-   			      if (reply.hasOwnProperty('context')) {
-   			      displayOptions(reply.context,
-   			    		reply.output.generic[latest],
+   			     if (reply.assistantreply.output.generic[latest].response_type == "option") {
+   			      if (reply.assistantreply.hasOwnProperty('context')) {
+   			      displayOptions(reply.assistantreply.context,
+   			    		reply.assistantreply.output.generic[latest],
    			    		  function(reply){handleBotReply(reply)});
    			      }
    			     }

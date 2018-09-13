@@ -50,7 +50,6 @@ public class EventAnalyticsServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
 		 JsonObject botException = new JsonObject();
 		 try {
 			    // ChatFilter provides validated set of attributes for use by chat servlet
@@ -85,16 +84,21 @@ public class EventAnalyticsServlet extends HttpServlet {
 
 				// process reply from watson assistant
 				Context context = botReply.getContext();
-				JsonArray fields = (JsonArray) request.getSession().getServletContext().getAttribute("eventsobjectserverfields");
+				JsonObject appData = new JsonObject();
+				JsonArray currentfields = (JsonArray) request.getSession().getServletContext().getAttribute("eventbotobjectserverfields");
+				JsonArray historyfields = (JsonArray) request.getSession().getServletContext().getAttribute("eventbothistoryfields");
+
 				Object key = "reportstatus";
 				if (context.containsKey(key) == true ) {
 					if (context.get("reportstatus").toString().equals("run")) {
-						System.out.println(context.get("reportstatus").toString());
+						appData.add("field_defs",historyfields);
 					}
 				}
 				
 				
-				// send response to chatclient via ChatFilter
+				// send app specific response to chatclient via ChatFilter
+				request.setAttribute("appdata", appData);
+				// send bot response to chatclient via ChatFilter
 				request.setAttribute("botreply", botReply);
 			 }
 		 
