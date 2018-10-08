@@ -2,8 +2,7 @@ package com.rombachuk.jchatorchestrator;
 
 
 import java.io.IOException;
-
-
+import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 
@@ -13,7 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.ibm.watson.developer_cloud.assistant.v1.model.Context;
 import com.ibm.watson.developer_cloud.assistant.v1.model.InputData;
 
@@ -85,16 +86,48 @@ public class EventAnalyticsServlet extends HttpServlet {
 				// process reply from watson assistant
 				Context context = botReply.getContext();
 				JsonObject appData = new JsonObject();
-				JsonArray currentfields = (JsonArray) request.getSession().getServletContext().getAttribute("eventbotobjectserverfields");
-				JsonArray historyfields = (JsonArray) request.getSession().getServletContext().getAttribute("eventbothistoryfields");
 
-				Object key = "reportstatus";
-				if (context.containsKey(key) == true ) {
-					if (context.get("reportstatus").toString().equals("run")) {
-						appData.add("field_defs",historyfields);
+
+				if ((context.containsKey("activity") == true ) && (context.containsKey("operation") == true )){
+					
+					// collectparameter operations
+					if (context.get("operation").toString().equals("collectparameters") && 
+							!context.get("operationstatus").toString().equals("complete")) {
+						
+						if (context.get("activity").toString().equals("seasonaleventsreport") ||
+						 context.get("activity").toString().equals("relatedeventsreport") ||
+						 context.get("activity").toString().equals("historiceventsreport")) {
+						 JsonArray historyfields = (JsonArray) request.getSession().getServletContext().getAttribute("eventbothistoryfields");
+						 appData.add("eventfilter_fields",historyfields);
+					    }
+
+					    if (context.get("activity").toString().equals("currenteventsreport")) {
+						 JsonArray currentfields = (JsonArray) request.getSession().getServletContext().getAttribute("eventbotobjectserverfields");
+						 appData.add("eventfilter_fields",currentfields);
+					    }
 					}
+					
+					// showresults (run report) operations
+					if (context.get("operation").toString().equals("showresults") && 
+							!context.get("operationstatus").toString().equals("complete")) {
+						
+					    if (context.get("activity").toString().equals("seasonaleventsreport")) {
+						    JsonElement resultType = new JsonParser().parse("seasonal");
+						    JsonArray resultRows = new JsonArray();
+						    resultRows.add(new JsonParser().parse("{\"name\":\"aname\",\"field1\":\"345\"}"));
+							appData.add("result_type",resultType);
+							appData.add("result_rows",resultRows);
+						}
+					    
+					    if (context.get("activity").toString().equals("relatedeventsreport")) {
+						    JsonElement resultType = new JsonParser().parse("related");
+						    JsonArray resultRows = new JsonArray();
+						    resultRows.add(new JsonParser().parse("{\"name\":\"bname\",\"field2\":\"567\"}"));
+							appData.add("result_type",resultType);
+							appData.add("result_rows",resultRows);
+						}
+				    }
 				}
-				
 				
 				// send app specific response to chatclient via ChatFilter
 				request.setAttribute("appdata", appData);

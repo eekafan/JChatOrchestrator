@@ -33,6 +33,48 @@ var watson = 'Bot';
  * @param {String} user - Denotes if the message is from Bot or the user. 
  * @return null
  */
+
+function displayBotMessage(chat,text) {
+    var bubble = document.createElement('div');
+    bubble.className = 'bot_message';  // Bot text formatting
+    bubble.innerHTML = "<div class='bot'>" + text + "</div>";
+    chat.appendChild(bubble);	
+}
+
+function displayRadio(chat,name,options,defaultoption) {
+    var radioform = document.createElement('form');
+        radioform.id = name;
+        chat.appendChild(radioform);
+    for (var index in options) {
+    	var input = document.createElement('input');
+    	input.type = 'radio';
+    	input.name = name;
+        input.value = options[index].value.input.text;
+        if ((defaultoption != undefined) && (input.value == defaultoption)){
+        	input.checked = true;
+        }	            
+        var label = document.createElement('label');
+        label.innerHTML = options[index].label;
+        label.className = 'bot_message'; 
+        radioform.appendChild(input);
+        radioform.appendChild(label);
+        radioform.appendChild(document.createElement('br'));
+    }
+    var radiosend =  document.createElement('button');
+        radiosend.innerHTML = 'Send';
+        radioform.appendChild(radiosend);
+}
+
+function displayParametersForm(chat,name,parameters)  {
+    var dpform = document.createElement('form');
+    dpform.id = name;
+    chat.appendChild(dpform);
+    
+    var dpsend =  document.createElement('button');
+    dpsend.innerHTML = 'Send';
+    dpform.appendChild(dpsend);
+}
+
 function displayMessage(text, user) {
 
     if (text && text != "") {
@@ -73,52 +115,31 @@ function displayImage(url) {
     return null;
 }
 
-function displayOptions(context,latest,handleBotReply) {
-	
-	  //naming convention - if the output.generic[latest].title matches a context variable
-      // then the client will select a value for that option
-	  // if the context property value of that variable is not empty then use it as default
-	  // selected item.
-	  var contextvariable = undefined;
-	  var defaultselected = undefined;
-	  if (context.hasOwnProperty(latest.title)) {
-	      contextvariable = latest.title;
-	      if (context[contextvariable] != "") {
-	    	  defaultselected = context[contextvariable];
-	      }
-	  }
-	
-	  if (latest.options) {
-	        var chat = document.getElementById('chatBox');
-	        var bubble = document.createElement('div');
-	            bubble.className = 'bot_message';  // Bot text formatting
-	            bubble.innerHTML = "<div class='bot'>" + latest.description + "</div>";
-	            chat.appendChild(bubble);
 
-	        var radioform = document.createElement('form');
+
+function displayOptions(context,output,handleBotReply) {
+	// The bot will prompt for options and maybe extract a context defaultoption
+	// The client will return the text of the option which can be used as an entity for dialog logic
+	// The turn counter is used to uniquely identify the radio form
+	
+	  var chat = document.getElementById('chatBox');
+
+	  for (var index in output) {
+	   if (output[index].response_type == 'text') {
+		   displayBotMessage(chat,output[index].text)
+	   }
+	   if (output[index].response_type == 'option') {
+		    displayBotMessage(chat,output[index].description)
 	        var radioname = "radio" + String(context.system.dialog_turn_counter);
-	            radioform.id = radioname;
-	            chat.appendChild(radioform);
-            for (var index in latest.options) {
-            	var input = document.createElement('input');
-            	input.type = 'radio';
-            	input.name = radioname;
-	            input.value = latest.options[index].value.input.text;
-	            if ((defaultselected != undefined) && (input.value == defaultselected)){
-	            	input.checked = true;
-	            }
-	            
-	            var label = document.createElement('label');
-	            label.innerHTML = latest.options[index].label;
-	            label.className = 'bot_message'; 
-	            radioform.appendChild(input);
-	            radioform.appendChild(label);
-	            radioform.appendChild(document.createElement('br'));
+	        if (context.hasOwnProperty("defaultoption")) {
+	        	displayRadio(chat,radioname,output[index].options,context.defaultoption);
+	        } else {
+	        displayRadio(chat,radioname,output[index].options)
 	        }
-            var radiosend =  document.createElement('button');
-                radiosend.innerHTML = 'Send';
-                radioform.appendChild(radiosend);
-                
+	   }
+	  }
+	  chat.scrollTop = chat.scrollHeight;  // Move chat down to the last message displayed
+	  
                 $('form#'+radioname).submit(function(event) {
                 var data = new Object();
             	event.preventDefault();
@@ -130,10 +151,6 @@ function displayOptions(context,latest,handleBotReply) {
             	data.input = myRadio.filter(":checked").val();
             	// check if client has selected an option before click of send button
             	if (data.input != undefined) {
-            	  data.action = 'selectoption';
-            	  if (context.hasOwnProperty(latest.title)) {
-            	      data.contextvariable = latest.title;
-            	  }
             	  $.ajax({
             		type: "POST",
             		url: $chaturl,
@@ -143,17 +160,70 @@ function displayOptions(context,latest,handleBotReply) {
             		beforeSend: function() {
                         $("#emit")[0].reset();       			
             		},
-            		complete: function() {          			
-            		},
+            		complete: function() {},
             		success: function(reply) {handleBotReply(reply);},
-            		fail: function(data) {   
-            		}     		
+            		fail: function(data) {}     		
             	   });
-            	}
-                return false;
-            });
-	        chat.scrollTop = chat.scrollHeight;  // Move chat down to the last message displayed
-	    }
-
-	    return null;
+            	 }
+                });
+	  
+	   return null;
 }
+
+function displayCollectParameters(context,output,handleBotReply) {
+	// The bot will prompt for parameters and maybe provide a context variable default
+	// The client will return the text of the option which can be used as an entity for dialog logic
+	// The turn counter is used to uniquely identify the radio form
+	
+	  var chat = document.getElementById('chatBox');
+	  var activity = context.activity;
+	  var operationdata = context.operationdata;
+	  var dpname = "dp" + String(context.system.dialog_turn_counter);
+	  
+	  displayParametersForm(chat,dpname,activity,operationdata);
+	  chat.scrollTop = chat.scrollHeight;  // Move chat down to the last message displayed
+	  
+      $('form#'+dpname).submit(function(event) {
+      var data = new Object();
+  	  event.preventDefault();
+  	  // important to resend the location.search as the uuid is used to decode lastreply by server
+  	  var chatpath = window.location.pathname;
+  	  var $chaturl = window.location.origin + "/JChatOrchestrator/chat/" + document.title + window.location.search;
+
+  	  data.input = 'sendparameters';
+  	  data.contextinput = {operationstatus : 'complete'};
+  	  // check if client has selected an option before click of send button
+  	   if (data.input != undefined) {
+  	    $.ajax({
+  		 type: "POST",
+  	 	 url: $chaturl,
+  		 contentType:'application/json',
+  		 timeout: 30000,
+  		 data: JSON.stringify(data),
+  		 beforeSend: function() {
+              $("#emit")[0].reset();       			
+  		 },
+  		 complete: function() {},
+  		 success: function(reply) {handleBotReply(reply);},
+  		 fail: function(data) {}     		
+  	     });
+  	    }
+      });
+
+return null;
+}
+
+function displayGrid(context,output,handleBotReply) {
+	// The bot will prompt for parameters and maybe provide a context variable default
+	// The client will return the text of the option which can be used as an entity for dialog logic
+	// The turn counter is used to uniquely identify the radio form
+	
+	  var chat = document.getElementById('chatBox');
+	  var activity = context.activity;
+	  var operationdata = context.operationdata;
+
+	  console.log(operationdata);
+	  
+	   return null;
+}
+

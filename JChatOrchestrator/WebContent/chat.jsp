@@ -13,7 +13,25 @@
     <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
     <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
-    <script type="text/javascript" charset="utf-8" src="js/chat-ready.js"></script>
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/dojo/1.7.1/dojo/dojo.js"></script>
+    <script type="text/javascript">
+    require([
+        "dojo/query", //alias the query API
+        "dojo/dom", // alias DOM api to "dom"
+        "dojo/_base/array", // alias array api to "arrayUtil"
+        "dojo/store/Memory",
+        "dojo/ready",
+        "dijit/layout/ContentPane",
+        "dijit/layout/TabContainer",
+        "dojox/grid/cells/dijit",
+        "dojo/domReady!"], // wait until DOM is loaded
+        function(dQuery, dDom, dArray, dMemory, dReady){
+        dReady(function(){
+            console.log("dojo is ready");
+        });
+     });
+     </script>
+     <script type="text/javascript" charset="utf-8" src="js/chat-ready.js"></script>
 </head>
 <body>
 <div class="container">

@@ -1,31 +1,90 @@
-     function handleBotReply(reply) {
-		   if (!(reply == null)) {
-   		    if (reply.hasOwnProperty('error')) {
+  
+
+function handleBotReply(reply) {
+		if (reply != null) {
+   		 if (reply.hasOwnProperty('error')) {
      			    if (reply.error == "session invalid") {
      			     window.location.href = "../JChatOrchestrator/chatsessioninvalid.html";
      			    }
      			    else {
-   		    	displayMessage(reply.error, 'Bot');           		    	
-   		        } 
-     		    } else { 
-     		    	if ((reply.hasOwnProperty('assistantreply')) && (reply.assistantreply.hasOwnProperty('output')) && (reply.assistantreply.output.generic[0])) {
-   			     var latest = reply.assistantreply.output.generic.length - 1;
-   			     if (reply.assistantreply.output.generic[latest].response_type == "text") {
-   			     displayMessage(reply.assistantreply.output.generic[latest].text, 'Bot');
+   		    	     displayMessage(reply.error, 'Bot');           		    	
+   		            } 
+     	 } else { 
+     		  var activity = undefined;
+     		  var operation = undefined;
+     		  var operationdata = undefined;
+     		  var operationstatus = undefined;
+       		  var responsetype = undefined;
+       		  var topindex = undefined;
+
+     		  if (reply.hasOwnProperty('assistantreply') && reply.assistantreply.hasOwnProperty('context') &&
+     				 reply.assistantreply.hasOwnProperty('output')) {   	
+   			     
+  			     if (reply.assistantreply.context.hasOwnProperty('activity')) {
+    			     activity = reply.assistantreply.context.activity;
+    			 }
+  			     
+   			     if (reply.assistantreply.context.hasOwnProperty('operation')) {
+   			    	 operation = reply.assistantreply.context.operation;
    			     }
-   			     if (reply.assistantreply.output.generic[latest].response_type == "option") {
-   			      if (reply.assistantreply.hasOwnProperty('context')) {
-   			      displayOptions(reply.assistantreply.context,
-   			    		reply.assistantreply.output.generic[latest],
-   			    		  function(reply){handleBotReply(reply)});
-   			      }
+   			     
+   			     if (reply.assistantreply.context.hasOwnProperty('operationdata')) {
+   			    	 operationdata = reply.assistantreply.context.operationdata;
    			     }
-   		        } else {
-   		      	 displayMessage("Error: no reply", 'Bot');
-   		        } 
-     		    }  
-   		   }
+   			     
+ 			     if (reply.assistantreply.context.hasOwnProperty('operationstatus')) {
+    			     operationstatus = reply.assistantreply.context.operationstatus;
+    			 } 
+   			     			     
+   			     if	(reply.assistantreply.output.generic[0]) {
+		           topindex = reply.assistantreply.output.generic.length - 1;
+		           responsetype = reply.assistantreply.output.generic[topindex].response_type;		    	 
+   			     }
+   			     
+   			     // Now process bot activity-operation requests
+   			     // If no activity-operation, then handle as plain bot dialogues
+   			     
+   			    if ((activity == undefined) && (operation == undefined)) {
+   			    	if (responsetype == "text") {
+  		   			     displayMessage(reply.assistantreply.output.generic[topindex].text, 'Bot');
+  		   			}
+   			    	else if ((responsetype == "option") && 
+	   		   		   reply.assistantreply.hasOwnProperty('context')) {
+	   		   			      displayOptions(reply.assistantreply.context,reply.assistantreply.output.generic,
+	   		   			    		  function(reply){handleBotReply(reply)});
+	   		   	    }
+   			    }
+   			    
+   			     // If incomplete activity-operation, then process them 
+   			     // If complete then handle as plain bot dialogues
+   			     
+   			     if ((activity != undefined) && (operation != undefined)) {
+   			    	 if ((operation == 'collectparameters') && 
+   			    	    (operationdata != undefined) && (operationstatus != 'complete')){
+   			    			 displayCollectParameters(reply.assistantreply.context,reply.assistantreply.output.generic,
+   			    					function(reply){handleBotReply(reply)});  			    					 
+   			    	 }
+   			    	 else if ((operation == 'showgrid') && 
+   	   			    	    (operationdata != undefined) && (operationstatus != 'complete')){
+   			    		     displayGrid(reply.assistantreply.context,reply.assistantreply.output.generic,
+			    					function(reply){handleBotReply(reply)});  	  					 
+   	   			     }
+   			    	 else {
+   	  			    	if (responsetype == "text") {
+     		   			     displayMessage(reply.assistantreply.output.generic[topindex].text, 'Bot');
+     		   			}
+      			    	else if (responsetype == "option") {
+   	   		   			      displayOptions(reply.assistantreply.context,reply.assistantreply.output.generic,
+   	   		   			    		  function(reply){handleBotReply(reply)});
+   	   		   	        }
+   			         }			     
+   			      }			     
+     		   } else {
+     			  displayMessage(reply.error, 'Bot');      
+     		   }
+            }
    		}
+     }
  
      $(document).ready(function() {
             var data = new Object();
