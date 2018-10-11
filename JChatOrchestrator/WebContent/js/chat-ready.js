@@ -14,6 +14,7 @@ function handleBotReply(reply) {
      		  var operation = undefined;
      		  var operationdata = undefined;
      		  var operationstatus = undefined;
+     		  var appdata = {};
        		  var responsetype = undefined;
        		  var topindex = undefined;
 
@@ -35,6 +36,10 @@ function handleBotReply(reply) {
  			     if (reply.assistantreply.context.hasOwnProperty('operationstatus')) {
     			     operationstatus = reply.assistantreply.context.operationstatus;
     			 } 
+ 			     
+ 			    if (reply.hasOwnProperty('appdata')) {
+   			         appdata = reply.appdata;
+   			     } 
    			     			     
    			     if	(reply.assistantreply.output.generic[0]) {
 		           topindex = reply.assistantreply.output.generic.length - 1;
@@ -50,7 +55,7 @@ function handleBotReply(reply) {
   		   			}
    			    	else if ((responsetype == "option") && 
 	   		   		   reply.assistantreply.hasOwnProperty('context')) {
-	   		   			      displayOptions(reply.assistantreply.context,reply.assistantreply.output.generic,
+	   		   			      displayOptions(reply.assistantreply,
 	   		   			    		  function(reply){handleBotReply(reply)});
 	   		   	    }
    			    }
@@ -61,12 +66,12 @@ function handleBotReply(reply) {
    			     if ((activity != undefined) && (operation != undefined)) {
    			    	 if ((operation == 'collectparameters') && 
    			    	    (operationdata != undefined) && (operationstatus != 'complete')){
-   			    			 displayCollectParameters(reply.assistantreply.context,reply.assistantreply.output.generic,
+   			    			 displayCollectParameters(reply.assistantreply,appdata,
    			    					function(reply){handleBotReply(reply)});  			    					 
    			    	 }
-   			    	 else if ((operation == 'showgrid') && 
+   			    	 else if ((operation == 'showresults') && 
    	   			    	    (operationdata != undefined) && (operationstatus != 'complete')){
-   			    		     displayGrid(reply.assistantreply.context,reply.assistantreply.output.generic,
+   			    		     displayResults(reply.assistantreply,
 			    					function(reply){handleBotReply(reply)});  	  					 
    	   			     }
    			    	 else {
@@ -74,7 +79,7 @@ function handleBotReply(reply) {
      		   			     displayMessage(reply.assistantreply.output.generic[topindex].text, 'Bot');
      		   			}
       			    	else if (responsetype == "option") {
-   	   		   			      displayOptions(reply.assistantreply.context,reply.assistantreply.output.generic,
+   	   		   			      displayOptions(reply.assistantreply,
    	   		   			    		  function(reply){handleBotReply(reply)});
    	   		   	        }
    			         }			     

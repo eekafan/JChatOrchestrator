@@ -94,16 +94,16 @@ public class EventAnalyticsServlet extends HttpServlet {
 					if (context.get("operation").toString().equals("collectparameters") && 
 							!context.get("operationstatus").toString().equals("complete")) {
 						
-						if (context.get("activity").toString().equals("seasonaleventsreport") ||
-						 context.get("activity").toString().equals("relatedeventsreport") ||
-						 context.get("activity").toString().equals("historiceventsreport")) {
+						if (context.get("activity").toString().equals("searchseasonalevents") ||
+						 context.get("activity").toString().equals("searchrelatedevents") ||
+						 context.get("activity").toString().equals("searchhistoricevents")) {
 						 JsonArray historyfields = (JsonArray) request.getSession().getServletContext().getAttribute("eventbothistoryfields");
-						 appData.add("eventfilter_fields",historyfields);
+						 appData.add("filter_fields",historyfields);
 					    }
 
-					    if (context.get("activity").toString().equals("currenteventsreport")) {
+					    if (context.get("activity").toString().equals("searchcurrentevents")) {
 						 JsonArray currentfields = (JsonArray) request.getSession().getServletContext().getAttribute("eventbotobjectserverfields");
-						 appData.add("eventfilter_fields",currentfields);
+						 appData.add("filter_fields",currentfields);
 					    }
 					}
 					
@@ -111,20 +111,25 @@ public class EventAnalyticsServlet extends HttpServlet {
 					if (context.get("operation").toString().equals("showresults") && 
 							!context.get("operationstatus").toString().equals("complete")) {
 						
-					    if (context.get("activity").toString().equals("seasonaleventsreport")) {
+					    if (context.get("activity").toString().equals("searchseasonalevents")) {
 						    JsonElement resultType = new JsonParser().parse("seasonal");
 						    JsonArray resultRows = new JsonArray();
 						    resultRows.add(new JsonParser().parse("{\"name\":\"aname\",\"field1\":\"345\"}"));
 							appData.add("result_type",resultType);
 							appData.add("result_rows",resultRows);
+							context.put("operationstatus", "complete");	
+							botReply.put("context", context);
 						}
 					    
-					    if (context.get("activity").toString().equals("relatedeventsreport")) {
+					    if (context.get("activity").toString().equals("searchrelatedevents")) {
 						    JsonElement resultType = new JsonParser().parse("related");
 						    JsonArray resultRows = new JsonArray();
 						    resultRows.add(new JsonParser().parse("{\"name\":\"bname\",\"field2\":\"567\"}"));
 							appData.add("result_type",resultType);
 							appData.add("result_rows",resultRows);
+							context.put("operationstatus", "complete");
+							botReply.put("context", context);
+							
 						}
 				    }
 				}

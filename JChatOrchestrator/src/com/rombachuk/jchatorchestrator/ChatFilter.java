@@ -149,7 +149,9 @@ public class ChatFilter implements Filter {
 					     }
 					    }
                  	    request.setAttribute("latestcontext", latestContext);	
-                 	    
+                 	   if (chatclientInput.has("appdata")) {
+  					     JsonObject chatclientAppdata = (JsonObject) chatclientInput.get("appdata");
+                 	   }
 					   
 					   // pre-servlet processing complete - send to chatapp servlet
 					   chain.doFilter(request, response); 

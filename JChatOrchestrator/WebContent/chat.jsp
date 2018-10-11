@@ -9,8 +9,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="stylesheet" href="css/bot.css">
     <link rel="stylesheet" href="css/jco.css">
+    <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/dojo/1.7.1/dojo/resources/dojo.css"> 
+    <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/dojo/1.7.1/dijit/themes/claro/claro.css">
     <title><c:out value="${workspacename}"/>  </title>
-    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
     <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/dojo/1.7.1/dojo/dojo.js"></script>
@@ -21,11 +23,13 @@
         "dojo/_base/array", // alias array api to "arrayUtil"
         "dojo/store/Memory",
         "dojo/ready",
-        "dijit/layout/ContentPane",
-        "dijit/layout/TabContainer",
-        "dojox/grid/cells/dijit",
+        "dijit/form/DateTextBox",
+        "dijit/form/TimeTextBox",
+        "dijit/form/FilteringSelect",
         "dojo/domReady!"], // wait until DOM is loaded
         function(dQuery, dDom, dArray, dMemory, dReady){
+    	fieldStore = new dMemory({data:[]});
+    	operatorStore = new dMemory({data:[]});
         dReady(function(){
             console.log("dojo is ready");
         });
