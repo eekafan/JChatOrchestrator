@@ -78,18 +78,22 @@ function tableCreate(parent,name,rows,columns){
     return tbl;
 }
 
-function displayDatetimeParameter(parent,parameter) {
- 	var paramtable = tableCreate(parent,parent.id +'table',1,3);
-  	paramtable.rows[0].cells[0].innerHTML = parameter.name;
+function displayDatetimePicker(parent) {
+	if (document.getElementById(parent.id + 'datecontainer')) {
+		var datecontainer = document.getElementById(parent.id + 'datecontainer');
+		parent.removeChild(datecontainer);
+	}
+	if (document.getElementById(parent.id + 'timecontainer')) {
+		var timecontainer = document.getElementById(parent.id + 'timecontainer');
+		parent.removeChild(timecontainer);
+	}
   	var datediv = document.createElement('div');
   	datediv.id = parent.id + 'datecontainer';
-  	var dateinput = document.createElement('input');
- 	paramtable.rows[0].cells[1].appendChild(datediv);
+  	parent.appendChild(datediv);
  	dojo.place('<input id="'+parent.id+'dateinput"></input>',document.getElementById(datediv.id));
-  	var timediv = document.createElement('div');
+ 	var timediv = document.createElement('div');
  	timediv.id = parent.id + 'timecontainer';
-  	var timeinput = document.createElement('input');
-  	paramtable.rows[0].cells[2].appendChild(timediv); 
+  	parent.appendChild(timediv);
   	dojo.place('<input id="'+parent.id+'timeinput"></input>',document.getElementById(timediv.id));
   	var now = new Date();
   	var start = new Date(now.getTime()-(now.getMilliseconds()/1000));
@@ -104,42 +108,92 @@ function displayDatetimeParameter(parent,parameter) {
          timePattern: 'HH:mm',
          clickableIncrement: 'T01:00:00',
          visibleIncrement: 'T01:00:00',
-         visibleRange: 'T01:00:00'
+         visibleRange: 'T06:00:00'
          }
     }, parent.id+'timeinput');
     timeBox.startup();
 }
 
+function displayDatetimeParameter(parent,parameter) {
+ 	var paramtable = tableCreate(parent,parent.id +'table',1,2);
+  	paramtable.rows[0].cells[0].innerHTML = parameter.name;
+  	var pickerdiv = document.createElement('div');
+  	pickerdiv.id = parent.id +'picker';
+ 	paramtable.rows[0].cells[1].appendChild(pickerdiv);
+ 	displayDatetimePicker(pickerdiv);
+}
+
   function displaySimplefilterParameter(parent,parameter,filter_fields) {
  	var paramtable = tableCreate(parent,parent.id +'table',1,4);
   	paramtable.rows[0].cells[0].innerHTML = parameter.name;
-  	var fieldsdiv = document.createElement('div');
-  	fieldsdiv.id = parent.id + 'fieldscontainer';
-  	var fieldselect = document.createElement('input');
+  	var fieldselect = document.createElement('div');
   	fieldselect.id = parent.id + 'fieldselect';
-  	fieldsdiv.appendChild(fieldselect);
- 	paramtable.rows[0].cells[1].appendChild(fieldsdiv);
-  	var operatordiv = document.createElement('div');
-  	operatordiv.id = parent.id + 'operatorcontainer';
-  	var operatorselect = document.createElement('input');
+ 	paramtable.rows[0].cells[1].appendChild(fieldselect);
+  	var operatorselect = document.createElement('div');
   	operatorselect.id = parent.id + 'operatorselect';
-  	operatordiv.appendChild(operatorselect);
- 	paramtable.rows[0].cells[2].appendChild(operatordiv);
+ 	paramtable.rows[0].cells[2].appendChild(operatorselect);
   	var valuediv = document.createElement('div');
-  	valuediv.id = parent.id + 'valuecontainer';
-  	var valueinput = document.createElement('input');
-  	valueinput.id = parent.id + 'valueinput';
-  	valuediv.appendChild(valueinput);
+  	valuediv.id = parent.id + 'valuediv';
  	paramtable.rows[0].cells[3].appendChild(valuediv);
+ 	
+    var opsA = ([{name:"=",id:"="},{name:"<>",id:"<>"},
+    	{name:">=",id:">="},
+        {name:">",id:">"},{name:"<=",id:"<="},
+        {name:"<",id:"<"}]);
+
+    var opsB = ([{name:"like",id:"like"},{name:"not like",id:"not like"},
+    	{name:"=",id:"="},{name:"<>",id:"<>"},
+    	{name:">=",id:">="},
+        {name:">",id:">"},{name:"<=",id:"<="},
+        {name:"<",id:"<"}]);
  	
  	fieldStore.setData(filter_fields);
  	var fieldFilterSelect = new dijit.form.FilteringSelect({
+ 		id: fieldselect.id,
         name: fieldselect.id,
-        placeHolder: "Select a Field",
+        value: "NODE",
         store: fieldStore,
-        searchAttr: "name"
+        searchAttr: "name",
+        onChange:function(value) {
+        	
+        	if (dijit.byId(valuediv.id + '-pickerdateinput')) {
+        		dijit.byId(valuediv.id + '-pickerdateinput').destroyRecursive();
+        	}
+        	if (dijit.byId(valuediv.id + '-pickertimeinput')) {
+        		dijit.byId(valuediv.id + '-pickertimeinput').destroyRecursive();
+        	}
+       	    if (document.getElementById(valuediv.id + '-picker')) {
+      		 var pickerdiv = document.getElementById(valuediv.id + '-picker');
+      		 valuediv.removeChild(pickerdiv);
+      	    }
+       	    
+        	if (this.item.type == "CHARACTER VARYING") {
+        	  operatorStore.setData(opsB);
+        	}
+        	if (this.item.type == "INTEGER"){
+          	  operatorStore.setData(opsA);
+          	}
+        	if (this.item.type == "TIMESTAMP"){
+              operatorStore.setData(opsA);
+           	  var pickerdiv = document.createElement('div');
+          	  pickerdiv.id = valuediv.id +'-picker';
+          	  valuediv.appendChild(pickerdiv);
+              displayDatetimePicker(pickerdiv);
+            }
+        	alert(3);
+        }
         }, fieldselect.id);
         fieldFilterSelect.startup();
+        
+        operatorStore.setData(opsA);
+    var operatorFilterSelect =  new dijit.form.FilteringSelect({
+ 		id: operatorselect.id,
+        name: operatorselect.id,
+        store: operatorStore,
+        value: "=",
+        searchAttr: "name"
+        }, operatorselect.id);
+        operatorFilterSelect.startup();
 }
 
 
@@ -170,8 +224,8 @@ function readParametersForm(name,parameters)  {
 	
     for (var index in parameters) {
     	if (parameters[index].type == 'datetime') {  
-    	    var localdate = new Date(dijit.byId(name+String(index)+'dateinput').get('value'));
-       	    var localtime = new Date(dijit.byId(name+String(index)+'timeinput').get('value'));
+    	    var localdate = new Date(dijit.byId(name+String(index)+'pickerdateinput').get('value'));
+       	    var localtime = new Date(dijit.byId(name+String(index)+'pickertimeinput').get('value'));
        	    var localdatetime = Math.floor((localdate.getTime() + 
        			 localtime.getTime() - (localdate.getTimezoneOffset()*60*1000))/1000);
        	    var searchparameter = new Object();
@@ -179,9 +233,11 @@ function readParametersForm(name,parameters)  {
     		searchparameters.push(searchparameter);
     	} 	
        	if (parameters[index].type == 'simplefilter') { 
-    	    var field = dijit.byId(name+String(index)+'fieldselect').item.value;
+       		var fieldselect = dijit.byId(name+String(index)+'fieldselect');
+    	    var field = dijit.byId(name+String(index)+'fieldselect').item;
+    	    var selected = field.value;
        	    var searchparameter = new Object();
-    		searchparameter[parameters[index].name] = field+"=''";
+    		searchparameter[parameters[index].name] = selected+"=''";
     		searchparameters.push(searchparameter);
     	} 	
     } 

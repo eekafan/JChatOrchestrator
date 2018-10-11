@@ -15,7 +15,7 @@
     <script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
     <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
-    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/dojo/1.7.1/dojo/dojo.js"></script>
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/dojo/1.7.12/dojo/dojo.js"></script>
     <script type="text/javascript">
     require([
         "dojo/query", //alias the query API
@@ -28,8 +28,8 @@
         "dijit/form/FilteringSelect",
         "dojo/domReady!"], // wait until DOM is loaded
         function(dQuery, dDom, dArray, dMemory, dReady){
-    	fieldStore = new dMemory({data:[]});
-    	operatorStore = new dMemory({data:[]});
+    	fieldStore = new dMemory({data:[],idproperty:"name"});
+    	operatorStore = new dMemory({data:[],idproperty:"name"});
         dReady(function(){
             console.log("dojo is ready");
         });
@@ -37,7 +37,7 @@
      </script>
      <script type="text/javascript" charset="utf-8" src="js/chat-ready.js"></script>
 </head>
-<body>
+<body class="claro">
 <div class="container">
     <div class="chatbot">
         <div id="chatBox" class="dialogContainer">

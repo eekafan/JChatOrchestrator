@@ -74,6 +74,7 @@ public class EventbotContextListener implements ServletContextListener {
 			    String[] nextLine = line.split("\\s+");
 		    if (nextLine.length == 4) {
 			      JsonObject field_def = new JsonObject();
+			      field_def.add("id", new JsonPrimitive(nextLine[1]));
 			      field_def.add("name", new JsonPrimitive(nextLine[1]));
 			      if (sourceType.equals("ObjectServer")) {
 			       field_def.add("type", new JsonPrimitive(convertObjectServerDataType(nextLine[2])));
@@ -236,6 +237,7 @@ public class EventbotContextListener implements ServletContextListener {
         ResultSet rs = statement.executeQuery("select column_name,data_type,character_maximum_length from sysibm.columns where table_name='REPORTER_STATUS'");
         while(rs.next()){
         	JsonObject field_def = new JsonObject();
+		      field_def.add("id", new JsonPrimitive(rs.getString("column_name")));
 		      field_def.add("name", new JsonPrimitive(rs.getString("column_name")));
 		      field_def.add("type", new JsonPrimitive(rs.getString("data_type")));
 		      field_def.add("length", new JsonPrimitive(Integer.toString(rs.getInt("character_maximum_length"))));
