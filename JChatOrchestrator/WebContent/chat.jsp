@@ -23,6 +23,7 @@
         "dojo/_base/array", // alias array api to "arrayUtil"
         "dojo/store/Memory",
         "dojo/ready",
+        "dijit/form/TextBox",
         "dijit/form/DateTextBox",
         "dijit/form/TimeTextBox",
         "dijit/form/FilteringSelect",
@@ -43,7 +44,7 @@
         <div id="chatBox" class="dialogContainer">
         <div class="bot_message"><div class="bot"><c:out value="${welcome}"/></div></div>
         </div>
-        <form id="emit" method="POST" action="#" _lpchecked="1">
+        <form id="emit" method="POST" action="#" lpchecked="1">
             <!-- Use a form to get input. Flask template style. -->
             <!-- Use class="dialogInput, to style it like the output. -->
        <input class="dialogInput" type="text" name="emit_data" id="emit_data" autofocus="autofocus" placeholder="Type here">

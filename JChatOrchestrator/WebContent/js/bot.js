@@ -78,6 +78,18 @@ function tableCreate(parent,name,rows,columns){
     return tbl;
 }
 
+function displayTextinput(parent) {
+	var textdiv = document.createElement('div');
+  	textdiv.id = parent.id + '-textcontainer';
+  	parent.appendChild(textdiv);
+ 	dojo.place('<input id="'+parent.id+'-textinput"></input>',document.getElementById(textdiv.id));
+ 	var myTextBox = new dijit.form.TextBox({
+        name: "firstname",
+        value: "",
+        placeHolder: "Enter your value here"
+    }, parent.id+"-textinput");
+}
+
 function displayDatetimePicker(parent) {
 	if (document.getElementById(parent.id + 'datecontainer')) {
 		var datecontainer = document.getElementById(parent.id + 'datecontainer');
@@ -119,12 +131,12 @@ function displayDatetimeParameter(parent,name) {
   	paramtable.rows[0].cells[0].innerHTML = name;
   	paramtable.rows[0].cells[0].style ='width:90px;max-width:90px;overflow:hidden';
   	var pickerdiv = document.createElement('div');
-  	pickerdiv.id = parent.id +'picker';
+  	pickerdiv.id = parent.id +'-picker';
  	paramtable.rows[0].cells[1].appendChild(pickerdiv);
  	displayDatetimePicker(pickerdiv);
 }
 
-  function displaySimplefilterParameter(parent,name,filter_fields) {
+function displaySimplefilterParameter(parent,name,filter_fields) {
  	var paramtable = tableCreate(parent,parent.id +'table',1,4);
   	paramtable.rows[0].cells[0].innerHTML = name;
   	paramtable.rows[0].cells[0].style ='width:90px;max-width:90px;overflow:hidden';
@@ -165,23 +177,34 @@ function displayDatetimeParameter(parent,name) {
         	if (dijit.byId(valuediv.id + '-pickertimeinput')) {
         		dijit.byId(valuediv.id + '-pickertimeinput').destroyRecursive();
         	}
+        	if (dijit.byId(valuediv.id + '-textinput')) {
+        		dijit.byId(valuediv.id + '-textinput').destroyRecursive();
+        	}
+        	
        	    if (document.getElementById(valuediv.id + '-picker')) {
-      		 var pickerdiv = document.getElementById(valuediv.id + '-picker');
-      		 valuediv.removeChild(pickerdiv);
+      		  var currentpickerdiv = document.getElementById(valuediv.id + '-picker');
+      		  valuediv.removeChild(currentpickerdiv);
       	    }
        	    
+     	    if (document.getElementById(valuediv.id + '-textcontainer')) {
+        		  var textdiv = document.getElementById(valuediv.id + '-textcontainer');
+        		  valuediv.removeChild(textdiv);
+        	}
+        	    
         	if (this.item.type == "CHARACTER VARYING") {
         	  operatorStore.setData(opsB);
         	  dijit.byId(operatorselect.id).set('value','like');
+        	  displayTextinput(valuediv);
         	}
         	if (this.item.type == "INTEGER"){
           	  operatorStore.setData(opsA);
           	  dijit.byId(operatorselect.id).set('value','=');
+          	  displayTextinput(valuediv);
           	}
         	if (this.item.type == "TIMESTAMP"){
               operatorStore.setData(opsA);
-              dijit.byId(operatorselect.id).set('value','=');
-           	  var pickerdiv = document.createElement('div');
+              dijit.byId(operatorselect.id).set('value','=');  
+     		  var pickerdiv = document.createElement('div');
           	  pickerdiv.id = valuediv.id +'-picker';
           	  valuediv.appendChild(pickerdiv);
               displayDatetimePicker(pickerdiv);
@@ -225,25 +248,68 @@ function displayParametersForm(chat,name,activity,parameters,appdata)  {
     dpform.appendChild(dpsend);
 }
 
+function getISO(localdatetime) {
+	var timezone_offset_min = localdatetime.getTimezoneOffset();
+	var offset_hrs = parseInt(Math.abs(timezone_offset_min/60));
+	var offset_min = Math.abs(timezone_offset_min%60);
+	var timezone_standard = undefined;
+
+	if(offset_hrs < 10)
+	offset_hrs = '0' + offset_hrs;
+
+	if(offset_min < 10)
+	offset_min = '0' + offset_min;
+
+	//Add an opposite sign to the offset
+	//If offset is 0, it means timezone is UTC
+	if(timezone_offset_min < 0)
+	timezone_standard = '+' + offset_hrs + ':' + offset_min;
+	else if(timezone_offset_min > 0)
+	timezone_standard = '-' + offset_hrs + ':' + offset_min;
+	else if(timezone_offset_min == 0)
+	timezone_standard = 'Z';
+	
+	var utcstring = localdatetime.toJSON();
+	return utcstring.replace('Z',timezone_standard);
+}
+
+
 function readParametersForm(name,parameters)  {
 	var searchparameters = new Array();
 	
     for (var index in parameters) {
     	if (parameters[index].type == 'datetime') {  
-    	    var localdate = new Date(dijit.byId(name+String(index)+'pickerdateinput').get('value'));
-       	    var localtime = new Date(dijit.byId(name+String(index)+'pickertimeinput').get('value'));
-       	    var localdatetime = Math.floor((localdate.getTime() + 
+    	    var localdate = new Date(dijit.byId(name+String(index)+'-pickerdateinput').get('value'));
+       	    var localtime = new Date(dijit.byId(name+String(index)+'-pickertimeinput').get('value'));
+       	    var localdatetime_epoch = Math.floor((localdate.getTime() + 
        			 localtime.getTime() - (localdate.getTimezoneOffset()*60*1000))/1000);
+       	    var localdatetime = new Date(localdatetime_epoch*1000);  
        	    var searchparameter = new Object();
-    		searchparameter[parameters[index].name] = localdatetime;
+       		searchparameter[parameters[index].name] = {iso:getISO(localdatetime),utc:localdatetime.toJSON(),epoch:localdatetime_epoch};
     		searchparameters.push(searchparameter);
     	} 	
        	if (parameters[index].type == 'simplefilter') { 
-       		var fieldselect = dijit.byId(name+String(index)+'fieldselect');
     	    var field = dijit.byId(name+String(index)+'fieldselect').item;
-    	    var selected = field.value;
+    	    var operator = dijit.byId(name+String(index)+'operatorselect').item;
+    	    var value = undefined;
+        	if (field.type == "TIMESTAMP"){
+        	    var localdate = new Date(dijit.byId(name+String(index)+'valuediv-pickerdateinput').get('value'));
+           	    var localtime = new Date(dijit.byId(name+String(index)+'valuediv-pickertimeinput').get('value'));
+           	    var localdatetime_epoch = Math.floor((localdate.getTime() + 
+           			 localtime.getTime() - (localdate.getTimezoneOffset()*60*1000))/1000);
+           	    var localdatetime = new Date(localdatetime_epoch*1000);
+           	    
+           	    value = {iso:getISO(localdatetime),utc:localdatetime.toJSON(),epoch:localdatetime_epoch};
+        	}
+        	if (field.type == "CHARACTER VARYING") {
+        		value = "'"+dijit.byId(name+String(index)+'valuediv-textinput').get('value')+"'";
+        	}
+           	if (field.type == "INTEGER") {
+        		value = dijit.byId(name+String(index)+'valuediv-textinput').get('value');
+        	}
+
        	    var searchparameter = new Object();
-    		searchparameter[parameters[index].name] = selected+"=''";
+       		searchparameter[parameters[index].name] = {field:field.name,operator:operator.name,value:value};
     		searchparameters.push(searchparameter);
     	} 	
     } 
@@ -292,14 +358,14 @@ function displayImage(url) {
 
 
 
-function displayOptions(assistantreply,handler) {
+function displayOptions(assistantdata,handler) {
 	// The bot will prompt for options and maybe extract a context defaultoption
 	// The client will return the text of the option which can be used as an entity for dialog logic
 	// The turn counter is used to uniquely identify the radio form
 	
 	  var chat = document.getElementById('chatBox');
-	  var context = assistantreply.context;
-	  var output = assistantreply.output.generic;
+	  var context = assistantdata.context;
+	  var output = assistantdata.output.generic;
 
 	  for (var index in output) {
 	   if (output[index].response_type == 'text') {
@@ -325,9 +391,10 @@ function displayOptions(assistantreply,handler) {
             	var $chaturl = window.location.origin + "/JChatOrchestrator/chat/" + document.title + window.location.search;
             	
             	var myRadio = $("input[name="+radioname+"]");
-            	data.input = myRadio.filter(":checked").val();
+            	data.assistantdata = new Object();
+            	data.assistantdata.input = myRadio.filter(":checked").val();
             	// check if client has selected an option before click of send button
-            	if (data.input != undefined) {
+            	if (data.assistantdata.input != undefined) {
             	  $.ajax({
             		type: "POST",
             		url: $chaturl,
@@ -347,16 +414,16 @@ function displayOptions(assistantreply,handler) {
 	   return null;
 }
 
-function displayCollectParameters(assistantreply,appdata,handleBotReply) {
+function displayCollectParameters(assistantdata,appdata,handleBotReply) {
 	// The bot will prompt for parameters and maybe provide a context variable default
 	// The client will return the text of the option which can be used as an entity for dialog logic
 	// The turn counter is used to uniquely identify the radio form
 	
 	  var chat = document.getElementById('chatBox');
-	  var activity = assistantreply.context.activity;
-	  var operationdata = assistantreply.context.operationdata;
-	  var output = assistantreply.output.generic;
-	  var dpname = "dp" + String(assistantreply.context.system.dialog_turn_counter);
+	  var activity = assistantdata.context.activity;
+	  var operationdata = assistantdata.context.operationdata;
+	  var output = assistantdata.output.generic;
+	  var dpname = "dp" + String(assistantdata.context.system.dialog_turn_counter);
 	  
 	  for (var index in output) {
 		   if (output[index].response_type == 'text') {
@@ -373,13 +440,14 @@ function displayCollectParameters(assistantreply,appdata,handleBotReply) {
   	  var chatpath = window.location.pathname;
   	  var $chaturl = window.location.origin + "/JChatOrchestrator/chat/" + document.title + window.location.search;
 
-  	  data.input = 'send parameters';
-  	  data.contextinput = {operationstatus : 'complete'};
+  	  data.assistantdata = new Object();
+  	  data.assistantdata.input = 'send parameters';
+  	  data.assistantdata.contextinput = {operationstatus : 'complete'};
   	  data.appdata = new Object();
 
   	  data.appdata['parameters'] = readParametersForm(event.data['dpname'],event.data['operationdata']);
   	  // check if client has selected an option before click of send button
-  	   if (data.input != undefined) {
+  	   if (data.appdata.parameters != undefined) {
   	    $.ajax({
   		 type: "POST",
   	 	 url: $chaturl,
@@ -399,23 +467,21 @@ function displayCollectParameters(assistantreply,appdata,handleBotReply) {
 return null;
 }
 
-function displayResults(assistantreply,handleBotReply) {
+function displayResults(assistantdata,handleBotReply) {
 	// The bot will prompt for parameters and maybe provide a context variable default
 	// The client will return the text of the option which can be used as an entity for dialog logic
 	// The turn counter is used to uniquely identify the radio form
 	
 	  var chat = document.getElementById('chatBox');
-	  var activity = assistantreply.context.activity;
-	  var operationdata = assistantreply.context.operationdata;
-	  var output = assistantreply.output.generic;
-	  var drname = "dr" + String(assistantreply.context.system.dialog_turn_counter);
+	  var activity = assistantdata.context.activity;
+	  var operationdata = assistantdata.context.operationdata;
+	  var output = assistantdata.output.generic;
+	  var drname = "dr" + String(assistantdata.context.system.dialog_turn_counter);
 	  for (var index in output) {
 		   if (output[index].response_type == 'text') {
 			   displayBotMessage(chat,output[index].text)
 		   }
-	  }
-
-	  
+	  }	  
 	   return null;
 }
 

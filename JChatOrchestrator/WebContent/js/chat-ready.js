@@ -14,36 +14,38 @@ function handleBotReply(reply) {
      		  var operation = undefined;
      		  var operationdata = undefined;
      		  var operationstatus = undefined;
-     		  var appdata = {};
+     		  var appdata = undefined;
        		  var responsetype = undefined;
        		  var topindex = undefined;
 
-     		  if (reply.hasOwnProperty('assistantreply') && reply.assistantreply.hasOwnProperty('context') &&
-     				 reply.assistantreply.hasOwnProperty('output')) {   	
+     		  if (reply.hasOwnProperty('assistantdata') && reply.assistantdata.hasOwnProperty('context') &&
+     				 reply.assistantdata.hasOwnProperty('output')) {   	
    			     
-  			     if (reply.assistantreply.context.hasOwnProperty('activity')) {
-    			     activity = reply.assistantreply.context.activity;
+  			     if (reply.assistantdata.context.hasOwnProperty('activity')) {
+    			     activity = reply.assistantdata.context.activity;
     			 }
   			     
-   			     if (reply.assistantreply.context.hasOwnProperty('operation')) {
-   			    	 operation = reply.assistantreply.context.operation;
+   			     if (reply.assistantdata.context.hasOwnProperty('operation')) {
+   			    	 operation = reply.assistantdata.context.operation;
    			     }
    			     
-   			     if (reply.assistantreply.context.hasOwnProperty('operationdata')) {
-   			    	 operationdata = reply.assistantreply.context.operationdata;
+   			     if (reply.assistantdata.context.hasOwnProperty('operationdata')) {
+   			    	 operationdata = reply.assistantdata.context.operationdata;
    			     }
    			     
- 			     if (reply.assistantreply.context.hasOwnProperty('operationstatus')) {
-    			     operationstatus = reply.assistantreply.context.operationstatus;
+ 			     if (reply.assistantdata.context.hasOwnProperty('operationstatus')) {
+    			     operationstatus = reply.assistantdata.context.operationstatus;
     			 } 
  			     
  			    if (reply.hasOwnProperty('appdata')) {
    			         appdata = reply.appdata;
-   			     } 
+   			     } else {
+   			    	 appdata = {};
+   			     }
    			     			     
-   			     if	(reply.assistantreply.output.generic[0]) {
-		           topindex = reply.assistantreply.output.generic.length - 1;
-		           responsetype = reply.assistantreply.output.generic[topindex].response_type;		    	 
+   			     if	(reply.assistantdata.output.generic[0]) {
+		           topindex = reply.assistantdata.output.generic.length - 1;
+		           responsetype = reply.assistantdata.output.generic[topindex].response_type;		    	 
    			     }
    			     
    			     // Now process bot activity-operation requests
@@ -51,11 +53,11 @@ function handleBotReply(reply) {
    			     
    			    if ((activity == undefined) && (operation == undefined)) {
    			    	if (responsetype == "text") {
-  		   			     displayMessage(reply.assistantreply.output.generic[topindex].text, 'Bot');
+  		   			     displayMessage(reply.assistantdata.output.generic[topindex].text, 'Bot');
   		   			}
    			    	else if ((responsetype == "option") && 
-	   		   		   reply.assistantreply.hasOwnProperty('context')) {
-	   		   			      displayOptions(reply.assistantreply,
+	   		   		   reply.assistantdata.hasOwnProperty('context')) {
+	   		   			      displayOptions(reply.assistantdata,
 	   		   			    		  function(reply){handleBotReply(reply)});
 	   		   	    }
    			    }
@@ -66,20 +68,20 @@ function handleBotReply(reply) {
    			     if ((activity != undefined) && (operation != undefined)) {
    			    	 if ((operation == 'collectparameters') && 
    			    	    (operationdata != undefined) && (operationstatus != 'complete')){
-   			    			 displayCollectParameters(reply.assistantreply,appdata,
+   			    			 displayCollectParameters(reply.assistantdata,appdata,
    			    					function(reply){handleBotReply(reply)});  			    					 
    			    	 }
    			    	 else if ((operation == 'showresults') && 
    	   			    	    (operationdata != undefined) && (operationstatus != 'complete')){
-   			    		     displayResults(reply.assistantreply,
+   			    		     displayResults(reply.assistantdata,
 			    					function(reply){handleBotReply(reply)});  	  					 
    	   			     }
    			    	 else {
    	  			    	if (responsetype == "text") {
-     		   			     displayMessage(reply.assistantreply.output.generic[topindex].text, 'Bot');
+     		   			     displayMessage(reply.assistantdata.output.generic[topindex].text, 'Bot');
      		   			}
       			    	else if (responsetype == "option") {
-   	   		   			      displayOptions(reply.assistantreply,
+   	   		   			      displayOptions(reply.assistantdata,
    	   		   			    		  function(reply){handleBotReply(reply)});
    	   		   	        }
    			         }			     
@@ -98,8 +100,8 @@ function handleBotReply(reply) {
             	// important to resend the location.search as the uuid is used to decode lastreply by server
             	var chatpath = window.location.pathname;
             	var $chaturl = window.location.origin + "/JChatOrchestrator/chat/" + document.title + window.location.search;
-            	data.action = 'sendtext';
-            	data.input = $('#emit_data').val();
+            	data.assistantdata = new Object();
+            	data.assistantdata.input = $('#emit_data').val();
             	$.ajax({
             		type: "POST",
             		url: $chaturl,

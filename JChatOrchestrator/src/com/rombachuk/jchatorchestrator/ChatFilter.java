@@ -115,6 +115,14 @@ public class ChatFilter implements Filter {
 			          // J8 -> InputData input = new InputData.Builder(IOUtils.toString(req.getReader())).build();
 					  String bodyString = getRequestBody(httprequest);
 				      JsonObject chatclientInput = new JsonParser().parse(bodyString).getAsJsonObject();
+				      JsonObject chatclientAssistantInput = new JsonObject();
+				      JsonObject chatclientAppInput = new JsonObject();
+				      if (chatclientInput.has("assistantdata")) {
+				    	  chatclientAssistantInput  = chatclientInput.getAsJsonObject("assistantdata");
+				      }
+				      if (chatclientInput.has("appdata")) {
+				    	  chatclientAppInput  = chatclientInput.getAsJsonObject("appdata");
+				      }
 				        
 				      JcoWorkspaces jcoworkspaces = (JcoWorkspaces) session.getServletContext().getAttribute("jcoworkspaces");
 				 
@@ -131,28 +139,25 @@ public class ChatFilter implements Filter {
 					  }
 
 					  if  (workspaceid != null) {
-					   // common tasks for all action types
 					   request.setAttribute("chatname", chatname);
 					   request.setAttribute("workspaceid", workspaceid);
-					   request.setAttribute("chatclientinput", chatclientInput);
+					   request.setAttribute("chatclientassistantinput", chatclientAssistantInput);
+					   request.setAttribute("chatclientappinput", chatclientAppInput);
 					   request.setAttribute("botreply", botReply);
 					   request.setAttribute("botexception", botException);
 
 					    String chatuuid_lastreply = request.getParameter("uuid")+"lastreply";
 					    MessageResponse lastReply = (MessageResponse) session.getAttribute(chatuuid_lastreply);
 					    Context latestContext = lastReply.getContext();
-					    if (chatclientInput.has("contextinput")) {
-					     JsonObject chatclientContextinput = (JsonObject) chatclientInput.get("contextinput");
+					    if (chatclientAssistantInput.has("contextinput")) {
+					     JsonObject chatclientContextinput = chatclientAssistantInput.getAsJsonObject("contextinput");
 					     Set<String> keyset = chatclientContextinput.keySet();
 					     for (String key : keyset) {
 					    		latestContext.put(key, chatclientContextinput.get(key));
 					     }
 					    }
                  	    request.setAttribute("latestcontext", latestContext);	
-                 	   if (chatclientInput.has("appdata")) {
-  					     JsonObject chatclientAppdata = (JsonObject) chatclientInput.get("appdata");
-                 	   }
-					   
+  				   
 					   // pre-servlet processing complete - send to chatapp servlet
 					   chain.doFilter(request, response); 
 					   // post-servlet processing starts - process reply from chatapp
@@ -168,7 +173,7 @@ public class ChatFilter implements Filter {
 					   if (botException.entrySet().isEmpty()) {
 						  session.setAttribute(chatuuid_lastreply, botReply);
 						  JsonObject reply = new JsonObject();
-						  reply.add("assistantreply",assistantreply);
+						  reply.add("assistantdata",assistantreply);
 						  reply.add("appdata", appdata);
 						  out.write(reply.toString());
 					   } 
