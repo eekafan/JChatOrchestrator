@@ -114,23 +114,26 @@ function displayDatetimePicker(parent) {
     timeBox.startup();
 }
 
-function displayDatetimeParameter(parent,parameter) {
+function displayDatetimeParameter(parent,name) {
  	var paramtable = tableCreate(parent,parent.id +'table',1,2);
-  	paramtable.rows[0].cells[0].innerHTML = parameter.name;
+  	paramtable.rows[0].cells[0].innerHTML = name;
+  	paramtable.rows[0].cells[0].style ='width:90px;max-width:90px;overflow:hidden';
   	var pickerdiv = document.createElement('div');
   	pickerdiv.id = parent.id +'picker';
  	paramtable.rows[0].cells[1].appendChild(pickerdiv);
  	displayDatetimePicker(pickerdiv);
 }
 
-  function displaySimplefilterParameter(parent,parameter,filter_fields) {
+  function displaySimplefilterParameter(parent,name,filter_fields) {
  	var paramtable = tableCreate(parent,parent.id +'table',1,4);
-  	paramtable.rows[0].cells[0].innerHTML = parameter.name;
+  	paramtable.rows[0].cells[0].innerHTML = name;
+  	paramtable.rows[0].cells[0].style ='width:90px;max-width:90px;overflow:hidden';
   	var fieldselect = document.createElement('div');
   	fieldselect.id = parent.id + 'fieldselect';
  	paramtable.rows[0].cells[1].appendChild(fieldselect);
   	var operatorselect = document.createElement('div');
   	operatorselect.id = parent.id + 'operatorselect';
+  	operatorselect.style.width = '15px';
  	paramtable.rows[0].cells[2].appendChild(operatorselect);
   	var valuediv = document.createElement('div');
   	valuediv.id = parent.id + 'valuediv';
@@ -151,7 +154,7 @@ function displayDatetimeParameter(parent,parameter) {
  	var fieldFilterSelect = new dijit.form.FilteringSelect({
  		id: fieldselect.id,
         name: fieldselect.id,
-        value: "NODE",
+        placeHolder: "Please select a field",
         store: fieldStore,
         searchAttr: "name",
         onChange:function(value) {
@@ -169,18 +172,20 @@ function displayDatetimeParameter(parent,parameter) {
        	    
         	if (this.item.type == "CHARACTER VARYING") {
         	  operatorStore.setData(opsB);
+        	  dijit.byId(operatorselect.id).set('value','like');
         	}
         	if (this.item.type == "INTEGER"){
           	  operatorStore.setData(opsA);
+          	  dijit.byId(operatorselect.id).set('value','=');
           	}
         	if (this.item.type == "TIMESTAMP"){
               operatorStore.setData(opsA);
+              dijit.byId(operatorselect.id).set('value','=');
            	  var pickerdiv = document.createElement('div');
           	  pickerdiv.id = valuediv.id +'-picker';
           	  valuediv.appendChild(pickerdiv);
               displayDatetimePicker(pickerdiv);
             }
-        	alert(3);
         }
         }, fieldselect.id);
         fieldFilterSelect.startup();
@@ -190,6 +195,7 @@ function displayDatetimeParameter(parent,parameter) {
  		id: operatorselect.id,
         name: operatorselect.id,
         store: operatorStore,
+        style: "width:90px",
         value: "=",
         searchAttr: "name"
         }, operatorselect.id);
@@ -200,7 +206,7 @@ function displayDatetimeParameter(parent,parameter) {
 
 function displayParametersForm(chat,name,activity,parameters,appdata)  {
     var dpform = document.createElement('form');
-    dpform.id = name;
+    dpform.id = name; dpform.className = "dpform";
     chat.appendChild(dpform);
     
     for (var index in parameters) {
@@ -208,10 +214,10 @@ function displayParametersForm(chat,name,activity,parameters,appdata)  {
     	paramdiv.id = name + String(index);   	
     	dpform.appendChild(paramdiv);
     	if (parameters[index].type == 'datetime') {        	
-    		displayDatetimeParameter(paramdiv,parameters[index]);
+    		displayDatetimeParameter(paramdiv,parameters[index].name);
     	} 	
     	if ((parameters[index].type == 'simplefilter') && (appdata.hasOwnProperty('filter_fields'))){        	
-    		displaySimplefilterParameter(paramdiv,parameters[index],appdata.filter_fields);
+    		displaySimplefilterParameter(paramdiv,parameters[index].name,appdata.filter_fields);
     	} 
     } 
     var dpsend =  document.createElement('button');
