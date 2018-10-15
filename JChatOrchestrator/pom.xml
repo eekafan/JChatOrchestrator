@@ -41,7 +41,11 @@
     <artifactId>db2jcc4</artifactId>
     <version>10.1</version>
 </dependency>
-
+<dependency>
+    <groupId>org.apache.derby</groupId>
+    <artifactId>derbyclient</artifactId>
+    <version>10.8.3.0</version>
+</dependency>
   </dependencies>
   <build>
     <sourceDirectory>src</sourceDirectory>

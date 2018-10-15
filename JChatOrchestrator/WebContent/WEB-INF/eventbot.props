@@ -1,6 +1,9 @@
 HistoryURL				jdbc:db2://opsinsight81.poc.ibm.com:50000/REPORTER
 HistoryUser				smadmin
 HistoryPassword			passw0rd
-ObjectServerURL			https://opsinsight.poc.ibm.com:8087/objectserver/restapi
+ObjectServerURL			https://opsinsight81.poc.ibm.com:8087/objectserver/restapi
 ObjectServerUser		root
 ObjectServerPassword	''
+ImpactServerURL			jdbc:derby://opsinsight81.poc.ibm.com:1527/ImpactDB
+ImpactServerUser		impact
+ImpactServerPassword	derbypass

@@ -173,6 +173,7 @@ public class EventbotContextListener implements ServletContextListener {
                 		eventbotprops.getHistoryuser(), eventbotprops.getHistorypassword());
                  this.context.setAttribute("eventbothistoryconn", historyconn);  
                  this.context.setAttribute("eventbotprops", eventbotprops);
+ 
             	}
         	    catch (Exception e) {
 				e.printStackTrace();
@@ -246,12 +247,31 @@ public class EventbotContextListener implements ServletContextListener {
         historyconn.close();
         ctx.setAttribute("eventbothistoryfields",history_fields);
         
+        
         FileAlterationObserver fao = new FileAlterationObserver(ctx.getRealPath("/")+"/WEB-INF");
         fao.addListener(new FileAlterationListenerEB(ctx));
         final FileAlterationMonitor ebmonitor = new FileAlterationMonitor(30000);
         ebmonitor.addObserver(fao);
         ebmonitor.start();
         ctx.setAttribute("eventbotcontextmonitor", ebmonitor);  
+        
+        Class.forName("org.apache.derby.jdbc.ClientDriver");
+        Connection impactconn = DriverManager.getConnection (eventbotprops.getImpactserverurl(), 
+        		eventbotprops.getImpactserveruser(), eventbotprops.getImpactserverpassword());
+        statement = impactconn.createStatement();
+        JsonArray re_groups = new JsonArray();
+        rs = statement.executeQuery("select groupname,instances,uniqueevents,totalevents,type from RELATEDEVENTS.RE_GROUPS");
+        while(rs.next()){
+        	JsonObject re_group = new JsonObject();
+        	re_group.add("groupname", new JsonPrimitive(rs.getString("groupname")));
+        	re_group.add("type", new JsonPrimitive(rs.getString("type")));
+        	re_group.add("total_events", new JsonPrimitive(Integer.toString(rs.getInt("totalevents"))));
+        	re_group.add("unique_events", new JsonPrimitive(Integer.toString(rs.getInt("uniqueevents"))));
+        	re_group.add("instances", new JsonPrimitive(Integer.toString(rs.getInt("instances"))));
+        	re_groups.add(re_group);
+         }
+        impactconn.close();
+        ctx.setAttribute("eventbotregroups",re_groups);
     }	     
      catch (Exception e) {
    	    System.out.println("Exception processing file");	
