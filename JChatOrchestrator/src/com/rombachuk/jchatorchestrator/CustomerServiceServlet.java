@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 
 import com.google.gson.JsonObject;
-
+import com.ibm.watson.developer_cloud.assistant.v1.model.Context;
 import com.ibm.watson.developer_cloud.assistant.v1.model.InputData;
 
 import com.ibm.watson.developer_cloud.assistant.v1.model.MessageOptions;
@@ -57,15 +57,21 @@ public class CustomerServiceServlet extends HttpServlet {
 			    // ChatFilter provides validated set of attributes for use by chat servlet
 			    // chatuuid_lastreply stores last reply from assistant for this chatclient
 			    String chatname = (String) request.getAttribute("chatname"); //added by filter
-			 	JsonObject chatclientInput = (JsonObject) request.getAttribute("chatclientinput"); //added by filter
+			 	JsonObject chatclientAssistantInput = (JsonObject) request.getAttribute("chatclientassistantinput"); //added by filter
+			 	JsonObject chatclientAppInput = (JsonObject) request.getAttribute("chatclientappinput"); //added by filter
+			    Context latestContext = (Context) request.getAttribute("latestcontext");			    
 			 	String workspaceid = (String) request.getAttribute("workspaceid"); //added by filter
+			 	
+			 	//get session variables - maintained over many requests in this session
 			 	WatsonConnection watsonconnection = (WatsonConnection) request.getSession().getAttribute("watsonconnection");
 			    String chatuuid_lastreply = request.getParameter("uuid")+"lastreply";
 			    MessageResponse lastReply = (MessageResponse) request.getSession().getAttribute(chatuuid_lastreply);
+
+			    
+			    //send message to watson assistant
 			    MessageOptions options = new MessageOptions.Builder(workspaceid).build();
 			    
-			    // prepare options to send
-			    InputData input = new InputData.Builder(chatclientInput.get("input").getAsString()).build();
+			    InputData input = new InputData.Builder(chatclientAssistantInput.get("input").getAsString()).build();
 				if ((lastReply == null) || (lastReply.entrySet().size() == 0)) {
 						   options= new MessageOptions.Builder(workspaceid)
 								    .input(input)
@@ -73,19 +79,24 @@ public class CustomerServiceServlet extends HttpServlet {
 				} else {
 				  	    options = new MessageOptions.Builder(workspaceid)
 					    .input(input)
-					    //.intents(lastOptions.getIntents())
-					    .entities(lastReply.getEntities())
-					    .context(lastReply.getContext())
-					    .output(lastReply.getOutput())
+					    //.intents(lastReply.getIntents())
+					    //.entities(lastReply.getEntities())
+					    .context(latestContext)
+					    //.output(lastReply.getOutput())
 					    .build();
 			    }
-					
-				// send request to watson assistant
 				MessageResponse botReply = watsonconnection.synchronousRequest(options);
 				
-				// process reply from watson assistant
+			    // process reply from watson assistant - 
 				
-				// send response to chatclient via ChatFilter
+				// appData is private to the app and the client, assistant does not see it.
+				
+				JsonObject appData = new JsonObject();
+			    if (chatclientAppInput.has("parameters")) {
+			    	appData.add("parameters", chatclientAppInput.getAsJsonArray("parameters"));
+			    }
+				request.setAttribute("appdata", appData);
+				// send bot response to chatclient via ChatFilter
 				request.setAttribute("botreply", botReply);
 			 }
 		 

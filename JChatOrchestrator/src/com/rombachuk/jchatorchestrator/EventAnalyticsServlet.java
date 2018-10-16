@@ -140,9 +140,8 @@ public class EventAnalyticsServlet extends HttpServlet {
 					    
 					    if (context.get("activity").toString().equals("searchrelatedevents")) {
 					    	// appdata activity
-						    JsonElement resultType = new JsonParser().parse("related");
-						    JsonArray resultRows = new JsonArray();
-						    resultRows.add(new JsonParser().parse("{\"name\":\"bname\",\"field2\":\"567\"}"));
+						    JsonElement resultType = new JsonParser().parse("related-groups-topn-bysize");
+						    JsonArray resultRows = RelatedEventsDAO.fetchGroupsTopN(10, request.getServletContext());
 							appData.add("result_type",resultType);
 							appData.add("result_rows",resultRows);
 							// assistantdata activity

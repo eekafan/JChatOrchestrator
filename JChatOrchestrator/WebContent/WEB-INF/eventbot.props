@@ -4,6 +4,7 @@ HistoryPassword			passw0rd
 ObjectServerURL			https://opsinsight81.poc.ibm.com:8087/objectserver/restapi
 ObjectServerUser		root
 ObjectServerPassword	''
+ImpactServerType		derby
 ImpactServerURL			jdbc:derby://opsinsight81.poc.ibm.com:1527/ImpactDB
 ImpactServerUser		impact
 ImpactServerPassword	derbypass

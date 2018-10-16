@@ -5,6 +5,7 @@ HistoryPassword
 ObjectServerURL			https://hostname:8080/objectserver/restapi
 ObjectServerUser		
 ObjectServerPassword	''
+ImpactServerType		derby
 ImpactServerURL			jdbc:derby://hostname:1527/ImpactDB
 ImpactServerUser		impact
 ImpactServerPassword	derbypass

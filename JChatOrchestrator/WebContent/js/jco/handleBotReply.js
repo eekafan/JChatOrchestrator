@@ -1,6 +1,49 @@
-  
+define(["jco/collectParameters","jco/collectOptions"], function (collectParameters,collectOptions) {
+	
+	function displayMessage(text, user) {
+		
+		var watson = 'Bot';
 
-function handleBotReply(reply) {
+	    if (text && text != "") {
+	        var chat = document.getElementById('chatBox');
+	        var bubble = document.createElement('div');
+
+	        // Set chat bubble color and position based on the user parameter
+	        if (user === watson) {
+	            bubble.className = 'bot_message';  // Bot text formatting
+	            bubble.innerHTML = "<div class='bot'>" + text + "</div>";
+	        } else {
+	            bubble.className = 'user_message';  // User text formatting
+	            bubble.innerHTML = "<div class='user'>" + text + "</div>";
+	        }
+
+	        chat.appendChild(bubble);
+	        chat.scrollTop = chat.scrollHeight;  // Move chat down to the last message displayed
+	    }
+
+	    return null;
+	}
+
+	function displayImage(url) {
+
+	    if (url) {
+	        var image = document.createElement("img");
+	        image.src = url;
+	        image.alt = url;
+	        image.className = 'thumbnail';  // Image formatting
+
+	        document.body.appendChild(image);
+
+	        var chat = document.getElementById('chatBox');
+	        chat.appendChild(image);
+	        chat.scrollTop = chat.scrollHeight;  // Move chat down to the last message displayed
+	    }
+
+	    return null;
+	}
+
+
+var handleBotReply = function (reply) {
 		if (reply != null) {
    		 if (reply.hasOwnProperty('error')) {
      			    if (reply.error == "session invalid") {
@@ -57,7 +100,7 @@ function handleBotReply(reply) {
   		   			}
    			    	else if ((responsetype == "option") && 
 	   		   		   reply.assistantdata.hasOwnProperty('context')) {
-	   		   			      displayOptions(reply.assistantdata,
+	   		   			     collectOptions(reply.assistantdata,
 	   		   			    		  function(reply){handleBotReply(reply)});
 	   		   	    }
    			    }
@@ -68,7 +111,7 @@ function handleBotReply(reply) {
    			     if ((activity != undefined) && (operation != undefined)) {
    			    	 if ((operation == 'collectparameters') && 
    			    	    (operationdata != undefined) && (operationstatus != 'complete')){
-   			    			 displayCollectParameters(reply.assistantdata,appdata,
+   			    			 collectParameters(reply.assistantdata,appdata,
    			    					function(reply){handleBotReply(reply)});  			    					 
    			    	 }
    			    	 else if ((operation == 'showresults') && 
@@ -81,7 +124,7 @@ function handleBotReply(reply) {
      		   			     displayMessage(reply.assistantdata.output.generic[topindex].text, 'Bot');
      		   			}
       			    	else if (responsetype == "option") {
-   	   		   			      displayOptions(reply.assistantdata,
+   	   		   			      collectOptions(reply.assistantdata,
    	   		   			    		  function(reply){handleBotReply(reply)});
    	   		   	        }
    			         }			     
@@ -92,32 +135,6 @@ function handleBotReply(reply) {
             }
    		}
      }
+     return handleBotReply;
+});
  
-     $(document).ready(function() {
-            var data = new Object();
-            $('form#emit').submit(function(event) {
-            	event.preventDefault();
-            	// important to resend the location.search as the uuid is used to decode lastreply by server
-            	var chatpath = window.location.pathname;
-            	var $chaturl = window.location.origin + "/JChatOrchestrator/chat/" + document.title + window.location.search;
-            	data.assistantdata = new Object();
-            	data.assistantdata.input = $('#emit_data').val();
-            	$.ajax({
-            		type: "POST",
-            		url: $chaturl,
-            		contentType:'application/json',
-            		timeout: 30000,
-            		data: JSON.stringify(data),
-            		beforeSend: function() {
-            			displayMessage($('#emit_data').val(), 'NotWatsonBot');
-                        $("#emit")[0].reset();       			
-            		},
-            		complete: function() {          			
-            		},
-            		success: function(reply) { handleBotReply(reply); },
-            		fail: function(data) {   
-            		}     		
-            	});
-                return false;
-            });
-         });
