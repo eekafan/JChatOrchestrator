@@ -141,7 +141,16 @@ public class EventAnalyticsServlet extends HttpServlet {
 					    if (context.get("activity").toString().equals("searchrelatedevents")) {
 					    	// appdata activity
 						    JsonElement resultType = new JsonParser().parse("related-groups-topn-bysize");
-						    JsonArray resultRows = RelatedEventsDAO.fetchGroupsTopN(10, request.getServletContext());
+						    
+						    String minLastFired = "2000-01-01 00:00:00"; // default in case parameter not present
+						    if (appData.has("parameters")){  
+                               for (JsonElement parameter : appData.getAsJsonArray("parameters")) {
+                            	 if (parameter.getAsJsonObject().has("startdate")) {
+                            		 minLastFired = parameter.getAsJsonObject().get("startdate").getAsJsonObject().get("sql").getAsString();
+                            	 }
+                               }
+						    }
+						    JsonArray resultRows = RelatedEventsDAO.fetchGroupsTopN(10, minLastFired, request.getServletContext());
 							appData.add("result_type",resultType);
 							appData.add("result_rows",resultRows);
 							// assistantdata activity
@@ -159,11 +168,14 @@ public class EventAnalyticsServlet extends HttpServlet {
 			 }
 		 
 		     catch( UnauthorizedException e) {
+		    	 System.out.println(e.getMessage());
 		    	 botException.addProperty("error","Assistant Access Authorisation problem"); 
 		    	 request.setAttribute("botexception",botException);
 		     }
 	         catch (Exception e) {
+	        	 System.out.println(e.getMessage());
 		    	 botException.addProperty("error","Assistant Request error"); 
+		    	 
 		    	 request.setAttribute("botexception",botException);
 		     }
 

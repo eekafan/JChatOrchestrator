@@ -1,5 +1,7 @@
-define(["jco/display/botMessage","jco/display/Image","jco/collect/Parameters","jco/collect/Options"], 
-		function (displayBotMessage,displayImage,collectParameters,collectOptions) {
+define(["jco/display/botMessage","jco/display/Image",
+	    "jco/collect/Parameters","jco/collect/Options",
+	    "jco/show/relatedEvents"], 
+		function (displayBotMessage,displayImage,collectParameters,collectOptions,showRelatedEvents) {
 
 var BotReply = function (reply) {
 		if (reply != null) {
@@ -8,7 +10,7 @@ var BotReply = function (reply) {
      			     window.location.href = "../JChatOrchestrator/chatsessioninvalid.html";
      			    }
      			    else {
-   		    	     displayMessage(reply.error, 'Bot');           		    	
+   		    	     displayBotMessage(reply.error);           		    	
    		            } 
      	 } else { 
      		  var activity = undefined;
@@ -63,19 +65,23 @@ var BotReply = function (reply) {
 	   		   	    }
    			    }
    			    
-   			     // If incomplete activity-operation, then process them 
-   			     // If complete then handle as plain bot dialogues
+   			     // If  activity-operation, then process them 
    			     
    			     if ((activity != undefined) && (operation != undefined)) {
+   			    	 // collectparameters is set complete by the client ie by collectParameters
    			    	 if ((operation == 'collectparameters') && 
    			    	    (operationdata != undefined) && (operationstatus != 'complete')){
    			    			 collectParameters(reply.assistantdata,appdata,
    			    					function(reply){BotReply(reply)});  			    					 
    			    	 }
+   			    	 //showresults is set complete by the server - if report is ok to display
    			    	 else if ((operation == 'showresults') && 
-   	   			    	    (operationdata != undefined) && (operationstatus != 'complete')){
-   			    		     displayResults(reply.assistantdata,
-			    					function(reply){BotReply(reply)});  	  					 
+   	   			    	    (operationdata != undefined) && (operationstatus == 'complete')){
+   			    		 if (activity == 'searchrelatedevents') {
+   			    			 showRelatedEvents(reply.assistantdata,appdata,
+			    					function(reply){BotReply(reply)});
+   			    		 }
+  	  					 
    	   			     }
    			    	 else {
    	  			    	if (responsetype == "text") {

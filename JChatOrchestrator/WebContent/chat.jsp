@@ -33,8 +33,8 @@
             chatReady();
         });
      });
-     </script>
-     
+     </script>  
+        
 </head>
 <body class="claro">
 <div class="container">
@@ -51,6 +51,5 @@
         
     </div>
 </div>
-<!-- Use bot.js to give us a nice chatbot UI. -->
 </body>
 </html>

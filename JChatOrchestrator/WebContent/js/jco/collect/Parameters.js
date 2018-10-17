@@ -265,6 +265,7 @@ function getISO(localdatetime) {
 }
 
 
+
 function readParametersForm(name,parameters)  {
 	var searchparameters = new Array();
 	
@@ -276,7 +277,9 @@ function readParametersForm(name,parameters)  {
        			 localtime.getTime() - (localdate.getTimezoneOffset()*60*1000))/1000);
        	    var localdatetime = new Date(localdatetime_epoch*1000);  
        	    var searchparameter = new Object();
-       		searchparameter[parameters[index].name] = {iso:getISO(localdatetime),utc:localdatetime.toJSON(),epoch:localdatetime_epoch};
+       		searchparameter[parameters[index].name] = {iso:getISO(localdatetime),
+       				utc:localdatetime.toJSON(),epoch:localdatetime_epoch,
+       	    		sql: localdatetime.toISOString().split('T')[0]+' '+localdatetime.toTimeString().split(' ')[0]};
     		searchparameters.push(searchparameter);
     	} 	
        	if (parameters[index].type == 'simplefilter') { 
@@ -290,7 +293,8 @@ function readParametersForm(name,parameters)  {
            			 localtime.getTime() - (localdate.getTimezoneOffset()*60*1000))/1000);
            	    var localdatetime = new Date(localdatetime_epoch*1000);
            	    
-           	    value = {iso:getISO(localdatetime),utc:localdatetime.toJSON(),epoch:localdatetime_epoch};
+           	    value = {iso:getISO(localdatetime),utc:localdatetime.toJSON(),epoch:localdatetime_epoch,
+           	    		sql: localdatetime.toISOString().split('T')[0]+' '+localdatetime.toTimeString().split(' ')[0]};
         	}
         	if (field.type == "CHARACTER VARYING") {
         		value = "'"+dijit.byId(name+String(index)+'valuediv-textinput').get('value')+"'";
