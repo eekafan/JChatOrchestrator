@@ -21,7 +21,7 @@
 				packages: [{ name: 'jco',location: location.pathname.replace(/\/[^/]+$/, '') + '/js/jco'}]
 			};
     </script>
-       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/dojo/1.7.12/dojo/dojo.js" data-dojo-config="isDebug: 1, async: 1, parseOnLoad: 1"></script>
+       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/dojo/1.7.12/dojo/dojo.js" data-dojo-config="async: 1, parseOnLoad: 1"></script>
     <script type="text/javascript">  
     require([
     	"jco/chatReady",

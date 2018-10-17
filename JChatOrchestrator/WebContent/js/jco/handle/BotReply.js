@@ -1,49 +1,7 @@
-define(["jco/collectParameters","jco/collectOptions"], function (collectParameters,collectOptions) {
-	
-	function displayMessage(text, user) {
-		
-		var watson = 'Bot';
+define(["jco/display/botMessage","jco/display/Image","jco/collect/Parameters","jco/collect/Options"], 
+		function (displayBotMessage,displayImage,collectParameters,collectOptions) {
 
-	    if (text && text != "") {
-	        var chat = document.getElementById('chatBox');
-	        var bubble = document.createElement('div');
-
-	        // Set chat bubble color and position based on the user parameter
-	        if (user === watson) {
-	            bubble.className = 'bot_message';  // Bot text formatting
-	            bubble.innerHTML = "<div class='bot'>" + text + "</div>";
-	        } else {
-	            bubble.className = 'user_message';  // User text formatting
-	            bubble.innerHTML = "<div class='user'>" + text + "</div>";
-	        }
-
-	        chat.appendChild(bubble);
-	        chat.scrollTop = chat.scrollHeight;  // Move chat down to the last message displayed
-	    }
-
-	    return null;
-	}
-
-	function displayImage(url) {
-
-	    if (url) {
-	        var image = document.createElement("img");
-	        image.src = url;
-	        image.alt = url;
-	        image.className = 'thumbnail';  // Image formatting
-
-	        document.body.appendChild(image);
-
-	        var chat = document.getElementById('chatBox');
-	        chat.appendChild(image);
-	        chat.scrollTop = chat.scrollHeight;  // Move chat down to the last message displayed
-	    }
-
-	    return null;
-	}
-
-
-var handleBotReply = function (reply) {
+var BotReply = function (reply) {
 		if (reply != null) {
    		 if (reply.hasOwnProperty('error')) {
      			    if (reply.error == "session invalid") {
@@ -96,12 +54,12 @@ var handleBotReply = function (reply) {
    			     
    			    if ((activity == undefined) && (operation == undefined)) {
    			    	if (responsetype == "text") {
-  		   			     displayMessage(reply.assistantdata.output.generic[topindex].text, 'Bot');
+  		   			     displayBotMessage(reply.assistantdata.output.generic[topindex].text);
   		   			}
    			    	else if ((responsetype == "option") && 
 	   		   		   reply.assistantdata.hasOwnProperty('context')) {
 	   		   			     collectOptions(reply.assistantdata,
-	   		   			    		  function(reply){handleBotReply(reply)});
+	   		   			    		  function(reply){BotReply(reply)});
 	   		   	    }
    			    }
    			    
@@ -112,20 +70,20 @@ var handleBotReply = function (reply) {
    			    	 if ((operation == 'collectparameters') && 
    			    	    (operationdata != undefined) && (operationstatus != 'complete')){
    			    			 collectParameters(reply.assistantdata,appdata,
-   			    					function(reply){handleBotReply(reply)});  			    					 
+   			    					function(reply){BotReply(reply)});  			    					 
    			    	 }
    			    	 else if ((operation == 'showresults') && 
    	   			    	    (operationdata != undefined) && (operationstatus != 'complete')){
    			    		     displayResults(reply.assistantdata,
-			    					function(reply){handleBotReply(reply)});  	  					 
+			    					function(reply){BotReply(reply)});  	  					 
    	   			     }
    			    	 else {
    	  			    	if (responsetype == "text") {
-     		   			     displayMessage(reply.assistantdata.output.generic[topindex].text, 'Bot');
+     		   			     displayBotMessage(reply.assistantdata.output.generic[topindex].text);
      		   			}
       			    	else if (responsetype == "option") {
    	   		   			      collectOptions(reply.assistantdata,
-   	   		   			    		  function(reply){handleBotReply(reply)});
+   	   		   			    		  function(reply){BotReply(reply)});
    	   		   	        }
    			         }			     
    			      }			     
@@ -135,6 +93,6 @@ var handleBotReply = function (reply) {
             }
    		}
      }
-     return handleBotReply;
+     return BotReply;
 });
  

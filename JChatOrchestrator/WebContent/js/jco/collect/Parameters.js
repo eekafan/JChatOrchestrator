@@ -1,9 +1,9 @@
-define(["jco/handleBotReply","jco/displayBotMessage","dojo/dom-construct",
+define(["jco/display/botMessage","dojo/dom-construct",
 	"dijit/form/TextBox","dijit/form/DateTextBox","dijit/form/TimeTextBox",
     "dijit/form/FilteringSelect","dojo/store/Memory"],
-    function (handleBotReply,displayBotMessage,domconstruct,textbox,datetextbox,timetextbox,filteringselect,memory) {
+    function (displayBotMessage,domconstruct,textbox,datetextbox,timetextbox,filteringselect,memory) {
 	
-var collectParameters = function (assistantdata,appdata,handleBotReply) {
+var Parameters = function (assistantdata,appdata,handler) {
 	// The bot will prompt for parameters and maybe provide a context variable default
 	// The client will return the text of the option which can be used as an entity for dialog logic
 	// The turn counter is used to uniquely identify the radio form
@@ -16,7 +16,7 @@ var collectParameters = function (assistantdata,appdata,handleBotReply) {
 	  
 	  for (var index in output) {
 		   if (output[index].response_type == 'text') {
-			   displayBotMessage(chat,output[index].text)
+			   displayBotMessage(output[index].text)
 		   }
 	  }
 	  displayParametersForm(chat,dpname,activity,operationdata,appdata);
@@ -47,7 +47,7 @@ var collectParameters = function (assistantdata,appdata,handleBotReply) {
               $("#emit")[0].reset();       			
   		 },
   		 complete: function() {},
-  		 success: function(reply) {handleBotReply(reply);},
+  		 success: function(reply) {handler(reply);},
   		 fail: function(data) {}     		
   	     });
   	    }
@@ -307,6 +307,6 @@ function readParametersForm(name,parameters)  {
    return searchparameters;
 }
 
-return collectParameters;
+return Parameters;
 
 });

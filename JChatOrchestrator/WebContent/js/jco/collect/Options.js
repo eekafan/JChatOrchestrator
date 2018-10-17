@@ -1,30 +1,7 @@
-define (["jco/handleBotReply","jco/displayBotMessage"],function (handleBotreply,displayBotMessage) {
+define (["jco/display/botMessage","jco/display/Radio"],function (displayBotMessage,displayRadio) {
 
-function displayRadio(chat,name,options,defaultoption) {
-    var radioform = document.createElement('form');
-        radioform.id = name;
-        chat.appendChild(radioform);
-    for (var index in options) {
-    	var input = document.createElement('input');
-    	input.type = 'radio';
-    	input.name = name;
-        input.value = options[index].value.input.text;
-        if ((defaultoption != undefined) && (input.value == defaultoption)){
-        	input.checked = true;
-        }	            
-        var label = document.createElement('label');
-        label.innerHTML = options[index].label;
-        label.className = 'bot_message'; 
-        radioform.appendChild(input);
-        radioform.appendChild(label);
-        radioform.appendChild(document.createElement('br'));
-    }
-    var radiosend =  document.createElement('button');
-        radiosend.innerHTML = 'Send';
-        radioform.appendChild(radiosend);
-}
 
-var collectOptions = function (assistantdata,handler) {
+var Options = function (assistantdata,handler) {
 	// The bot will prompt for options and maybe extract a context defaultoption
 	// The client will return the text of the option which can be used as an entity for dialog logic
 	// The turn counter is used to uniquely identify the radio form
@@ -35,15 +12,15 @@ var collectOptions = function (assistantdata,handler) {
 
 	  for (var index in output) {
 	   if (output[index].response_type == 'text') {
-		   displayBotMessage(chat,output[index].text)
+		   displayBotMessage(output[index].text)
 	   }
 	   if (output[index].response_type == 'option') {
-		    displayBotMessage(chat,output[index].description)
+		    displayBotMessage(output[index].description)
 	        var radioname = "radio" + String(context.system.dialog_turn_counter);
 	        if (context.hasOwnProperty("defaultoption")) {
-	        	displayRadio(chat,radioname,output[index].options,context.defaultoption);
+	        	displayRadio(radioname,output[index].options,context.defaultoption);
 	        } else {
-	        displayRadio(chat,radioname,output[index].options)
+	        displayRadio(radioname,output[index].options)
 	        }
 	   }
 	  }
@@ -79,6 +56,6 @@ var collectOptions = function (assistantdata,handler) {
 	  
 }
 
- return collectOptions;
+ return Options;
 
 });

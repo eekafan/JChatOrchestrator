@@ -1,4 +1,4 @@
-define (["jco/handleBotReply"],function (handleBotReply) {
+define (["jco/handle/BotReply","jco/display/userMessage"],function (handleBotReply,userMessage) {
     var chatReady = function () {  
     	$(document).ready(function() {
         var data = new Object();
@@ -16,7 +16,7 @@ define (["jco/handleBotReply"],function (handleBotReply) {
         		timeout: 30000,
         		data: JSON.stringify(data),
         		beforeSend: function() {
-        			displayMessage($('#emit_data').val(), 'NotWatsonBot');
+        			userMessage($('#emit_data').val());
                     $("#emit")[0].reset();       			
         		},
         		complete: function() {          			
@@ -29,29 +29,6 @@ define (["jco/handleBotReply"],function (handleBotReply) {
         });
        });
      }
-    
-	function displayMessage(text, user) {
-		
-		var watson = 'Bot';
-
-	    if (text && text != "") {
-	        var chat = document.getElementById('chatBox');
-	        var bubble = document.createElement('div');
-
-	        // Set chat bubble color and position based on the user parameter
-	        if (user === watson) {
-	            bubble.className = 'bot_message';  // Bot text formatting
-	            bubble.innerHTML = "<div class='bot'>" + text + "</div>";
-	        } else {
-	            bubble.className = 'user_message';  // User text formatting
-	            bubble.innerHTML = "<div class='user'>" + text + "</div>";
-	        }
-
-	        chat.appendChild(bubble);
-	        chat.scrollTop = chat.scrollHeight;  // Move chat down to the last message displayed
-	    }
-
-	}
 	
 	return chatReady;
 });
