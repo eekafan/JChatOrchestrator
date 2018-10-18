@@ -65,6 +65,32 @@
           <warSourceDirectory>WebContent</warSourceDirectory>
         </configuration>
       </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+                <execution>
+                    <id>unpackDojo</id>
+                    <phase>generate-sources</phase>
+                    <goals>
+                        <goal>unpack</goal>
+                    </goals>
+                    <configuration>
+                        <artifactItems>
+                            <artifactItem>
+                                <groupId>org.dojotoolkit</groupId>
+                                <artifactId>dojo</artifactId>
+                                <version>1.8.0</version>
+                                <type>zip</type>
+                                <outputDirectory>
+                                    ${basedir}/WebContent/js
+                                </outputDirectory>
+                            </artifactItem>
+                        </artifactItems>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
     </plugins>
   </build>
 </project>

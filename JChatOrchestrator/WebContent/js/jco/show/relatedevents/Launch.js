@@ -1,15 +1,12 @@
-define(["jco/display/botMessage","dojo/dom-construct",
-	"dijit/form/TextBox","dijit/form/DateTextBox","dijit/form/TimeTextBox",
-    "dijit/form/FilteringSelect","dojo/store/Memory"],
-    function (displayBotMessage,domconstruct,textbox,datetextbox,timetextbox,filteringselect,memory) {
+define(["jco/display/botMessage","jco/utils/uuid"],  function (displayBotMessage,uuid) {
 	
-var relatedEvents = function (assistantdata,appdata,handler) {
+var Launch = function (assistantdata,appdata) {
 	
 	  var chat = document.getElementById('chatBox');
 	  var activity = assistantdata.context.activity;
 	  var operationdata = assistantdata.context.operationdata;
 	  var output = assistantdata.output.generic;
-	  var relname = "showre" + String(assistantdata.context.system.dialog_turn_counter);
+	  var relname = "showrel" + String(assistantdata.context.system.dialog_turn_counter);
 	  
 	  for (var index in output) {
 		   if (output[index].response_type == 'text') {
@@ -19,12 +16,15 @@ var relatedEvents = function (assistantdata,appdata,handler) {
 	  
 	  displayForm(chat,relname,activity,operationdata,appdata);
 	  
-	     $('form#'+rename).on('submit',{'name':relname,'appdata':appdata},function(event) {
+	     $('form#'+relname).on('submit',{'name':relname,'appdata':appdata},function(event) {
 	    	 event.preventDefault();
-	    	 var thischat = window.open(url,'_blank','location=no,scrollbars=yes,left=500,height=800,width=650');        
-			   var thischatClosed = setInterval(function () {
-				    if (thischat.closed) {
-				        clearInterval(thischatClosed);
+       	   var url = new URL(window.location.origin + "/JChatOrchestrator/showresults/eventanalytics");  
+     	     url.searchParams.append("type","relatedevents");
+     	     url.searchParams.append("uuid",uuid());
+	    	 var show = window.open(url,'_blank','location=no,scrollbars=yes,left=500,height=800,width=650');        
+			   var showClosed = setInterval(function () {
+				    if (show.closed) {
+				        clearInterval(showClosed);
 				    }
 				  }, 1000);
 	     });
@@ -41,6 +41,6 @@ function displayForm(chat,name,activity,parameters,appdata)  {
     form.appendChild(send);
 }
 
-return relatedEvents;
+return Launch;
 
 });

@@ -62,6 +62,11 @@
 		<servlet-name>com.rombachuk.jchatorchestrator.EventAnalyticsServlet</servlet-name>
 	<servlet-class>com.rombachuk.jchatorchestrator.EventAnalyticsServlet</servlet-class>
 	</servlet>
+		<servlet>
+		<display-name>EventAnalyticsShowResultsServlet</display-name>
+		<servlet-name>com.rombachuk.jchatorchestrator.EventAnalyticsShowResultsServlet</servlet-name>
+	<servlet-class>com.rombachuk.jchatorchestrator.EventAnalyticsShowResultsServlet</servlet-class>
+	</servlet>
 	<servlet>
 		<display-name>CustomerServiceServlet</display-name>
 		<servlet-name>com.rombachuk.jchatorchestrator.CustomerServiceServlet</servlet-name>
@@ -117,4 +122,8 @@
 		<param-name>eventbotProperties</param-name>
 		<param-value>/WEB-INF/eventbot.props</param-value>
 	</context-param>
+	<servlet-mapping>
+		<servlet-name>com.rombachuk.jchatorchestrator.EventAnalyticsShowResultsServlet</servlet-name>
+		<url-pattern>/showresults/eventanalytics</url-pattern>
+	</servlet-mapping>
 </web-app>

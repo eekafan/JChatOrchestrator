@@ -1,7 +1,7 @@
 define(["jco/display/botMessage","jco/display/Image",
 	    "jco/collect/Parameters","jco/collect/Options",
-	    "jco/show/relatedEvents"], 
-		function (displayBotMessage,displayImage,collectParameters,collectOptions,showRelatedEvents) {
+	    "jco/show/relatedevents/Launch"], 
+		function (displayBotMessage,displayImage,collectParameters,collectOptions,launchRelatedEvents) {
 
 var BotReply = function (reply) {
 		if (reply != null) {
@@ -78,8 +78,7 @@ var BotReply = function (reply) {
    			    	 else if ((operation == 'showresults') && 
    	   			    	    (operationdata != undefined) && (operationstatus == 'complete')){
    			    		 if (activity == 'searchrelatedevents') {
-   			    			 showRelatedEvents(reply.assistantdata,appdata,
-			    					function(reply){BotReply(reply)});
+   			    			 launchRelatedEvents(reply.assistantdata,appdata);
    			    		 }
   	  					 
    	   			     }
