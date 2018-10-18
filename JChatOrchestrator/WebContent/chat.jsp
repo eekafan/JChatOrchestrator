@@ -2,15 +2,14 @@
     pageEncoding="UTF-8"%>
 <%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix = "c" %>
 <!DOCTYPE html>
-<html>
 <head>
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="stylesheet" href="css/bot.css">
     <link rel="stylesheet" href="css/jco.css">
-    <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/dojo/1.7.12/dojo/resources/dojo.css"> 
-    <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/dojo/1.7.12/dijit/themes/claro/claro.css">
+    <link rel="stylesheet" type="text/css" href="js/dojo-1.8.0/dojo/resources/dojo.css"> 
+    <link rel="stylesheet" type="text/css" href="js/dojo-1.8.0/dijit/themes/claro/claro.css">
     <title><c:out value="${workspacename}"/>  </title>
     <script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
@@ -21,7 +20,7 @@
 				packages: [{ name: 'jco',location: location.pathname.replace(/\/[^/]+$/, '') + '/js/jco'}]
 			};
     </script>
-       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/dojo/1.7.12/dojo/dojo.js" data-dojo-config="async: 1, parseOnLoad: 1"></script>
+       <script type="text/javascript" src="js/dojo-1.8.0/dojo/dojo.js" data-dojo-config="async: 1, parseOnLoad: 1"></script>
     <script type="text/javascript">  
     require([
     	"jco/chatReady",

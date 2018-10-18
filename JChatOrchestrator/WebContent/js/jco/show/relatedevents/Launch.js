@@ -1,6 +1,7 @@
-define(["jco/display/botMessage","jco/utils/uuid"],  function (displayBotMessage,uuid) {
+define(["jco/display/botMessage","jco/display/userMessage","jco/utils/uuid"],  
+		  function (displayBotMessage,displayUserMessage,uuid) {
 	
-var Launch = function (assistantdata,appdata) {
+var Launch = function (assistantdata,appdata,handler) {
 	
 	  var chat = document.getElementById('chatBox');
 	  var activity = assistantdata.context.activity;
@@ -14,31 +15,65 @@ var Launch = function (assistantdata,appdata) {
 		   }
 	  }
 	  
-	  displayForm(chat,relname,activity,operationdata,appdata);
+	  displayForm(chat,relname,appdata);
+	     
 	  
-	     $('form#'+relname).on('submit',{'name':relname,'appdata':appdata},function(event) {
+	  
+	     $('form#'+relname).on('submit',{'dataform':relname},function(event) {
 	    	 event.preventDefault();
-       	   var url = new URL(window.location.origin + "/JChatOrchestrator/showresults/eventanalytics");  
+	    	 
+	    	 // launch popup for user to view the data
+       	     var url = new URL(window.location.origin + "/JChatOrchestrator/showresults/eventanalytics");  
      	     url.searchParams.append("type","relatedevents");
      	     url.searchParams.append("uuid",uuid());
-	    	 var show = window.open(url,'_blank','location=no,scrollbars=yes,left=500,height=800,width=650');        
-			   var showClosed = setInterval(function () {
-				    if (show.closed) {
-				        clearInterval(showClosed);
+     	     url.searchParams.append("dataform",event.data['dataform']);
+	    	 var popup = window.open(url,'_blank','location=no,scrollbars=yes,left=700,height=600,width=800');        
+			   var popupClosed = setInterval(function () {
+				    if (popup.closed) {
+				        clearInterval(popupClosed);
 				    }
 				  }, 1000);
-	     });
+			   
+			 // send reply to assistant to carry on a new conversation
+			   var data = new Object();
+
+			  // important to resend the location.search as the uuid is used to decode lastreply by server
+			   var chatpath = window.location.pathname;
+			   var $chaturl = window.location.origin + "/JChatOrchestrator/chat/" + document.title + window.location.search;
+
+			  	  data.assistantdata = new Object();
+			  	  data.assistantdata.input = 'What can i do';
+			  	  data.assistantdata.contextinput = {activity  : '',operation:'',operationdata:'',operationstatus:''};
+			  	  data.appdata = new Object();
+
+			  	    $.ajax({
+			  		 type: "POST",
+			  	 	 url: $chaturl,
+			  		 contentType:'application/json',
+			  		 timeout: 30000,
+			  		 data: JSON.stringify(data),
+			  		 beforeSend: function() {
+			              $("#emit")[0].reset();       			
+			  		 },
+			  		 complete: function() {},
+			  		 success: function(reply) {handler(reply);},
+			  		 fail: function(data) {}     		
+			  	     });
+			      });
 
 }
 
-function displayForm(chat,name,activity,parameters,appdata)  {
+function displayForm(chat,name,appdata)  {
     var form = document.createElement('form');
-    form.id = name; form.className = "showreform";
+    form.id = name; 
     chat.appendChild(form);
+    form.setAttribute('appdata',JSON.stringify(appdata));
     
     var send =  document.createElement('button');
     send.innerHTML = 'View';
     form.appendChild(send);
+  
+    
 }
 
 return Launch;

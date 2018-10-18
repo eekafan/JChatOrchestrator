@@ -78,7 +78,8 @@ var BotReply = function (reply) {
    			    	 else if ((operation == 'showresults') && 
    	   			    	    (operationdata != undefined) && (operationstatus == 'complete')){
    			    		 if (activity == 'searchrelatedevents') {
-   			    			 launchRelatedEvents(reply.assistantdata,appdata);
+   			    			 launchRelatedEvents(reply.assistantdata,appdata,
+   			    					function(reply){BotReply(reply)});
    			    		 }
   	  					 
    	   			     }
