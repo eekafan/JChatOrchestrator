@@ -45,11 +45,11 @@
 </head>
 <body class="claro">
 
-<div dojoType="dijit.layout.BorderContainer" id="topPane" design="screenDesign" style="width: 100%; height: 25%; border: none 0;">
+<div dojoType="dijit.layout.BorderContainer" id="topPane" design="screenDesign" style="width: 100%; height: 99%; border: none 0;">
 
-<div dojoType="dijit.layout.ContentPane" id="summaryRegion" region="summary"
-    style="width: 98%;  margin: 0px; padding-right: 1px">
-<div id="summaryDisplay" style="height:30%;min-height:10%;padding-top:5px;">
+<div dojoType="dijit.layout.ContentPane" id="summaryRegion" region="top"
+    style="width: 98%;  height: 15%; min-height:15%; margin: 0px; padding-right: 1px">
+<div id="summaryDisplay" style="height:100%;min-height:100%;padding-top:1px;">
 <h3 id="SummaryResults">Related Event Top10</h2>
 <p class="action-bar"></p>
 <dl>
@@ -57,46 +57,39 @@
 </dl>
 </div>
 </div>
-</div>
-
-<div dojoType="dijit.layout.BorderContainer" id="mainPane" design="screenDesign" style="width: 100%; height: 75%; border: none 0;">
 
 
-<div dojoType="dijit.layout.ContentPane" id="groupsRegion" region="groups"
-    style="width: 30%;  min-height: 100%; margin: 0px; padding-right: 5px">
-<div id="groupsDisplay" style="min-height:50%;padding-top:5px;">
+<div dojoType="dijit.layout.ContentPane" id="groupsRegion" region="left"    
+   style="width: 45%;  height: 85%; min-height:85%; margin: 0px; padding-right: 5px">
+<div id="groupsDisplay" style="width:98%;height:50%;min-height:50%;padding-top:1px;">
 <h3 id="GroupResults">Related Event-Groups</h2>
 <p class="action-bar"></p>
 <dl>
       <dt><label id="listGroupsLabel"></label></dt>
-      <dd><div id="listGroupsContainer" style="width:100%;height:95%;min-height:10%"> </div></dd>
+      <dd><div id="listGroupsContainer" style="width:96%"> </div></dd>
 </dl>
 </div>
-<div id="instancesDisplay" style="min-height:50%;padding-top:5px;">
+<div id="instancesDisplay" style="width:98%;height:50%;min-height:50%;;padding-top:1px;">
 <h3 id="InstancesResults">Related Event-Group Firing Times</h2>
 <p class="action-bar"></p>
 <dl>
       <dt><label id="listInstancesLabel"></label></dt>
-      <dd><div id="listInstancesContainer" style="width:100%;height:95%;min-height:10%"> </div></dd>
+      <dd><div id="listInstancesContainer" style="width:96%"> </div></dd>
 </dl>
 </div>
 </div>
 
-<div dojoType="dijit.layout.ContentPane" id="eventsRegion"  region="events" style="width: 68%; min-height:100%"> 
-<div id="eventsDisplay" style=" min-height:100%;padding-top:5px;">
+<div dojoType="dijit.layout.ContentPane" id="eventsRegion"  region="center"  
+   style="width: 55%; height:85%; min-height:75%;margin: 0px; padding-right: 5px"> 
+<div id="eventsDisplay" style="width:98%;height:100%;min-height:100%;padding-top:1px;">
 <h3 id="EventResults">Related Event-Group Constituent Events</h2>
 <p class="action-bar"></p>
 <dl>
       <dt><label id="listEventsLabel"></label></dt>
-      <dd><div id="listEventsContainer" style="width:100%;height:95%;min-height:10%"> </div></dd>
+      <dd><div id="listEventsContainer" style="width:96%"> </div></dd>
 </dl>
 </div>
 </div>
-
-
-
 </div>
-
-
 </body>
 </html>
