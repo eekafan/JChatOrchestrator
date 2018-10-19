@@ -27,7 +27,7 @@ var Launch = function (assistantdata,appdata,handler) {
      	     url.searchParams.append("type","relatedevents");
      	     url.searchParams.append("uuid",uuid());
      	     url.searchParams.append("dataform",event.data['dataform']);
-	    	 var popup = window.open(url,'_blank','location=no,scrollbars=yes,left=700,height=600,width=800');        
+	    	 var popup = window.open(url,'_blank','location=no,scrollbars=yes,left=200,height=800,width=1200');        
 			   var popupClosed = setInterval(function () {
 				    if (popup.closed) {
 				        clearInterval(popupClosed);
