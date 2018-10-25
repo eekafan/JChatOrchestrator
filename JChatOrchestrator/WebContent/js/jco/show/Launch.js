@@ -1,13 +1,13 @@
 define(["jco/display/botMessage","jco/display/userMessage","jco/utils/uuid"],  
 		  function (displayBotMessage,displayUserMessage,uuid) {
 	
-var Launch = function (assistantdata,appdata,handler) {
+var Launch = function (name,assistantdata,appdata,handler) {
 	
 	  var chat = document.getElementById('chatBox');
 	  var activity = assistantdata.context.activity;
 	  var operationdata = assistantdata.context.operationdata;
 	  var output = assistantdata.output.generic;
-	  var relname = "showrel" + String(assistantdata.context.system.dialog_turn_counter);
+	  var formname = "show" + String(assistantdata.context.system.dialog_turn_counter);
 	  
 	  for (var index in output) {
 		   if (output[index].response_type == 'text') {
@@ -15,19 +15,17 @@ var Launch = function (assistantdata,appdata,handler) {
 		   }
 	  }
 	  
-	  displayForm(chat,relname,appdata);
-	     
+	  displayForm(chat,formname,appdata);
 	  
-	  
-	     $('form#'+relname).on('submit',{'dataform':relname},function(event) {
+	     $('form#'+formname).on('submit',{'dataform':formname},function(event) {
 	    	 event.preventDefault();
 	    	 
 	    	 // launch popup for user to view the data
-       	     var url = new URL(window.location.origin + "/JChatOrchestrator/showresults/eventanalytics");  
-     	     url.searchParams.append("type","relatedevents");
+       	     var url = new URL(window.location.origin + "/JChatOrchestrator/showstart");  
+       	     url.searchParams.append("name",name);
      	     url.searchParams.append("uuid",uuid());
      	     url.searchParams.append("dataform",event.data['dataform']);
-	    	 var popup = window.open(url,'_blank','location=no,scrollbars=yes,left=200,height=800,width=1200');        
+	    	 var popup = window.open(url,'_blank','location=no,scrollbars=yes,left=200,height=1200,width=1200');        
 			   var popupClosed = setInterval(function () {
 				    if (popup.closed) {
 				        clearInterval(popupClosed);

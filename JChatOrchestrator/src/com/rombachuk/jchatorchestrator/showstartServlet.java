@@ -16,16 +16,16 @@ import com.ibm.watson.developer_cloud.assistant.v1.model.MessageOptions;
 import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
 
 /**
- * Servlet implementation class EventAnalyticsShowResultsServlet
+ * Servlet implementation class showstartServlet
  */
 
-public class EventAnalyticsShowResultsServlet extends HttpServlet {
+public class showstartServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public EventAnalyticsShowResultsServlet() {
+    public showstartServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -40,21 +40,14 @@ public class EventAnalyticsShowResultsServlet extends HttpServlet {
 				PrintWriter out = response.getWriter();  
 				HttpSession session = request.getSession(true); // new session if not exist
 
-			    request.setAttribute("workspacename", request.getParameter("name"));
-
-			    
-			    if (request.getParameter("type").equals("relatedevents")) {
-		         RequestDispatcher dispatcher = request.getServletContext().getRequestDispatcher("relatedevents.jsp");
-		         dispatcher.forward(request, response);
-			    }
-			    
-			    if (request.getParameter("type").equals("seasonalevents")) {
-			         RequestDispatcher dispatcher = request.getServletContext().getRequestDispatcher("seasonalevents.jsp");
-			         dispatcher.forward(request, response);
-				    }
-		        
-			    out.close();
-		  
+				String target = request.getParameter("name");
+				if ((target != null) && (target.length()>0)) {
+		          String jsp = request.getParameter("name")+".jsp";
+		          request.setAttribute("name", request.getParameter("name"));
+		          RequestDispatcher dispatcher = request.getServletContext().getRequestDispatcher(jsp);
+		          dispatcher.forward(request, response);
+			      out.close();
+				}
 			 }
 		     catch( IOException e) {
 		    	 System.out.println(e.getMessage());

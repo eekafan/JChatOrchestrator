@@ -19,6 +19,16 @@
 		<filter-name>ChatFilter</filter-name>
 		<url-pattern>/chat/*</url-pattern>
 		<dispatcher>REQUEST</dispatcher></filter-mapping>
+	    <filter>
+		<filter-name>ShowFilter</filter-name>
+		<filter-class>
+			com.rombachuk.jchatorchestrator.ShowFilter
+		</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>ShowFilter</filter-name>
+		<url-pattern>/show/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher></filter-mapping>
 	<listener>
 	<description>SessionListener</description>
 	<listener-class>
@@ -63,9 +73,9 @@
 	<servlet-class>com.rombachuk.jchatorchestrator.EventAnalyticsServlet</servlet-class>
 	</servlet>
 		<servlet>
-		<display-name>EventAnalyticsShowResultsServlet</display-name>
-		<servlet-name>com.rombachuk.jchatorchestrator.EventAnalyticsShowResultsServlet</servlet-name>
-	<servlet-class>com.rombachuk.jchatorchestrator.EventAnalyticsShowResultsServlet</servlet-class>
+		<display-name>RelatedEventsServlet</display-name>
+		<servlet-name>com.rombachuk.jchatorchestrator.RelatedEventsServlet</servlet-name>
+	<servlet-class>com.rombachuk.jchatorchestrator.RelatedEventsServlet</servlet-class>
 	</servlet>
 	<servlet>
 		<display-name>CustomerServiceServlet</display-name>
@@ -84,6 +94,19 @@
 			com.rombachuk.jchatorchestrator.chatstartServlet
 		</servlet-name>
 		<url-pattern>/chatstart</url-pattern>
+	</servlet-mapping>
+		<servlet>
+		<display-name>showstartServlet</display-name>
+		<servlet-name>
+			com.rombachuk.jchatorchestrator.showstartServlet
+	</servlet-name>
+	<servlet-class>com.rombachuk.jchatorchestrator.showstartServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>
+			com.rombachuk.jchatorchestrator.showstartServlet
+		</servlet-name>
+		<url-pattern>/showstart</url-pattern>
 	</servlet-mapping>
 		<servlet>
 		<display-name>LaunchSessionCheckServlet</display-name>
@@ -123,7 +146,7 @@
 		<param-value>/WEB-INF/eventbot.props</param-value>
 	</context-param>
 	<servlet-mapping>
-		<servlet-name>com.rombachuk.jchatorchestrator.EventAnalyticsShowResultsServlet</servlet-name>
-		<url-pattern>/showresults/eventanalytics</url-pattern>
+		<servlet-name>com.rombachuk.jchatorchestrator.RelatedEventsServlet</servlet-name>
+		<url-pattern>/show/relatedevents</url-pattern>
 	</servlet-mapping>
 </web-app>

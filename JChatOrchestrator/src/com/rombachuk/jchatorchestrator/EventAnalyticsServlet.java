@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 
 import javax.servlet.http.HttpServlet;
@@ -45,7 +46,8 @@ public class EventAnalyticsServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	    		
+        RequestDispatcher dispatcher = request.getServletContext().getRequestDispatcher("relatedevents.jsp");
+        dispatcher.forward(request, response);
 	}
 
 	/**
@@ -122,43 +124,6 @@ public class EventAnalyticsServlet extends HttpServlet {
 					    }
 					}
 					
-					// showresults (run report) operations
-					if (context.get("operation").toString().equals("showresults") && 
-							!context.get("operationstatus").toString().equals("complete")) {
-						
-					    if (context.get("activity").toString().equals("searchseasonalevents")) {
-					    	// appdata activity
-						    JsonElement resultType = new JsonParser().parse("seasonal");
-						    JsonArray resultRows = new JsonArray();
-						    resultRows.add(new JsonParser().parse("{\"name\":\"aname\",\"field1\":\"345\"}"));
-							appData.add("result_type",resultType);
-							appData.add("result_rows",resultRows);
-							// assistantdata activity
-							context.put("operationstatus", "complete");	
-							botReply.put("context", context);
-						}
-					    
-					    if (context.get("activity").toString().equals("searchrelatedevents")) {
-					    	// appdata activity
-						    JsonElement resultType = new JsonParser().parse("related-groups-topn-bysize");
-						    
-						    String minLastFired = "2000-01-01 00:00:00"; // default in case parameter not present
-						    if (appData.has("parameters")){  
-                               for (JsonElement parameter : appData.getAsJsonArray("parameters")) {
-                            	 if (parameter.getAsJsonObject().has("startdate")) {
-                            		 minLastFired = parameter.getAsJsonObject().get("startdate").getAsJsonObject().get("sql").getAsString();
-                            	 }
-                               }
-						    }
-						    JsonArray resultRows = RelatedEventsDAO.fetchGroupsTopN(10, minLastFired, request.getServletContext());
-							appData.add("result_type",resultType);
-							appData.add("result_rows",resultRows);
-							// assistantdata activity
-							context.put("operationstatus", "complete");
-							botReply.put("context", context);
-							
-						}
-				    }
 				}
 				
 				// send app specific response to chatclient via ChatFilter
