@@ -1,7 +1,7 @@
 define (["jco/show/relatedevents/instancesPane",
 	"dojo/_base/array","dojo/data/ItemFileReadStore","dojox/grid/EnhancedGrid",
-    "dojox/grid/enhanced/plugins/Menu","dijit/Menu"],
-    function (instancesPane,array,ItemFileReadStore,EnhancedGrid,enhancedMenu,Menu) {
+    "dojox/grid/enhanced/plugins/Menu","dijit/Menu","dijit/registry"],
+    function (instancesPane,array,ItemFileReadStore,EnhancedGrid,enhancedMenu,Menu,registry) {
 	
     var groupsPane = function (group_rows) {
  
@@ -11,8 +11,8 @@ define (["jco/show/relatedevents/instancesPane",
         var layout = buildLayout();
         var menusObject = buildMenus();
     	
-    	if (dojo.byId('listGroupsGrid')) {
-    	       dojo.byId('listGroupsGrid').destroyRecursive();
+    	if (registry.byId('listGroupsGrid')) {
+    	       registry.byId('listGroupsGrid').destroyRecursive();
     	}
         var grid = new EnhancedGrid({
             jsId: 'listGroupsGrid',
@@ -36,7 +36,19 @@ define (["jco/show/relatedevents/instancesPane",
         		 array.forEach(selecteditems, function(selectedItem){
         			 if (selectedItem !== null) {
         					 var groupname = grid.store.getValues(selectedItem, 'groupname');
-        					 instancesPane(groupname);
+        					 var $showurl = window.location.origin + 
+        					 "/JChatOrchestrator/show/relatedevents?groupname=" + groupname;
+                					 $.ajax({
+        					  		 type: "GET",
+        					  	 	 url: $showurl,
+        					  		 contentType:'application/json',
+        					  		 timeout: 30000,
+        					  		 beforeSend: function() {},
+        					  		 complete: function() {},
+        					  		 success: function(reply) {instancesHandler(reply,groupname);},
+        					  		 fail: function(data) {}     		
+        					  	     }); 	  
+  
         				 }
         	     });
         	}
@@ -65,6 +77,20 @@ define (["jco/show/relatedevents/instancesPane",
     return menusObject;
     
     }
+    
+    function instancesHandler (reply,groupname) {
+ 		if (reply != null) {
+    		 if (reply.hasOwnProperty('error')) {
+      			     window.location.href = "../JChatOrchestrator/chatsessioninvalid.html";
+      	 } else if (reply.hasOwnProperty('appdata')){
+      		  var appdata = reply.appdata;
+      		  if (appdata.hasOwnProperty('result_rows')) {
+      			 instancesPane(groupname,appdata.result_rows);
+               }
+  
+          }
+        }
+     }
     
     
 	return groupsPane;

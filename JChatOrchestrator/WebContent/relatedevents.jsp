@@ -61,19 +61,19 @@
 <div dojoType="dijit.layout.ContentPane" id="groupsRegion" region="left"    
    style="width: 45%;  height: 85%; min-height:85%; margin: 0px; padding-top: 1px">
 <div id="groupsDisplay" style="width:98%;height:50%;min-height:50%;padding-top:1px;">
-<h3 id="groupResults">Event-Groups</h3>
-<div id="listGroupsContainer" style="width:96%;height:85%;min-height:85%"> </div>
+<h3 id="groupResults">Groups</h3>
+<div id="listGroupsContainer" style="width:96%;height:85%;min-height:85%"></div>
 </div>
 <div id="instancesDisplay" style="width:98%;height:50%;min-height:50%;;padding-top:1px;">
-<h3 id="instancesResults">Related Event-Group Firing Times</h3>
-<div id="listInstancesContainer" style="width:96%;height:85%;min-height:85%"> </div>
+<h3 id="instanceResults">Occurences</h3>
+<div id="listInstancesContainer" style="width:96%;height:85%;min-height:85%"></div>
 </div>
 </div>
 
 <div dojoType="dijit.layout.ContentPane" id="eventsRegion"  region="center"  
    style="width: 55%; height:85%; min-height:75%;margin: 0px; padding-top: 1px"> 
 <div id="eventsDisplay" style="width:98%;height:98%;min-height:98%;padding-top:1px;">
-<h3 id="eventResults">Related Event-Group Constituent Events</h3>
+<h3 id="eventResults">Constituent Events</h3>
 <div id="listEventsContainer" style="width:96%;height:90%;min-height:90%"> </div>
 </div>
 </div>

@@ -41,19 +41,21 @@ public class RelatedEventsServlet extends HttpServlet {
 		 JsonObject showException = new JsonObject(); 
 		 try {
 
-                String groupid = request.getParameter("groupid");
-                String instanceid = request.getParameter("instanceid");
-                String startdate = request.getParameter("startdate");
-                
-                if (startdate == null) {
-                	startdate = "2000-01-01 00:00:00";
+                String groupname = request.getParameter("groupname");
+                String index = request.getParameter("observationindex");
+  
+                if ((groupname != null) && (index == null)){
+   	             JsonArray resultRows = RelatedEventsDAO.fetchGroupMembers(groupname, request.getServletContext());
+			     JsonObject appData = new JsonObject();
+				 appData.add("result_rows",resultRows);
+				 request.setAttribute("appdata", appData);
                 }
                 
-                if (groupid != null) {
-   	            JsonArray resultRows = RelatedEventsDAO.fetchInstances(groupid, startdate, request.getServletContext());
-			    JsonObject appData = new JsonObject();
-				appData.add("result_rows",resultRows);
-				request.setAttribute("appdata", appData);
+                if ((groupname != null) && (index != null)){
+       	         JsonArray resultRows = RelatedEventsDAO.fetchInstanceEvents(groupname, index, request.getServletContext());
+    			 JsonObject appData = new JsonObject();
+    		     appData.add("result_rows",resultRows);
+    			 request.setAttribute("appdata", appData);
                 }
 		  
 			 }

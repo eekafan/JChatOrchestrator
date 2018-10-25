@@ -94,13 +94,16 @@ public class ShowFilter implements Filter {
 					 HttpSession session = httprequest.getSession(true);
 					 
 			          //J7 Servlet3 fix for read request once problem - do this first
-			          // J8 -> InputData input = new InputData.Builder(IOUtils.toString(req.getReader())).build();
+			          // J8 -> x = IOUtils.toString(req.getReader()));
+					 // body is empty for GETs but populated for POSTs
 					  String bodyString = getRequestBody(httprequest);
-				      JsonObject showclientInput = new JsonParser().parse(bodyString).getAsJsonObject();
-				      JsonObject showclientAppInput = new JsonObject();
-				      if (showclientInput.has("appdata")) {
+					  JsonObject showclientAppInput = new JsonObject();
+					  if (!bodyString.isEmpty()) { 
+				       JsonObject showclientInput = new JsonParser().parse(bodyString).getAsJsonObject();
+				       if (showclientInput.has("appdata")) {
 				    	  showclientAppInput  = showclientInput.getAsJsonObject("appdata");
-
+				       }
+					  }
 					   request.setAttribute("showclientappinput", showclientAppInput);
 					   request.setAttribute("showexception", showException);
  				   
@@ -122,12 +125,6 @@ public class ShowFilter implements Filter {
 						   out.write(showException.toString());
 					   }
 					   out.close(); 
-				      }
-					  else {
-						  showException.addProperty("error","input problem");  
-					      out.write(showException.toString());
-					      out.close(); 
-					  }	
 				  }
 			 }
 		     catch( IOException e) {

@@ -9,15 +9,15 @@ define (["jco/show/relatedevents/groupsPane"],function (groupsPane) {
  
 			  // important to resend the location.search as the uuid is used to decode lastreply by server
            
-    	   var chatpath = window.location.pathname;
-			   var $chaturl = window.location.origin + "/JChatOrchestrator/show/relatedevents";
+    	   
+			   var $showurl = window.location.origin + "/JChatOrchestrator/show/relatedevents";
 			   var data = new Object();
 			  	  data.appdata = appdata;
 			  	  
             
 			  	    $.ajax({
 			  		 type: "POST",
-			  	 	 url: $chaturl,
+			  	 	 url: $showurl,
 			  		 contentType:'application/json',
 			  		 timeout: 30000,
 			  		 data: JSON.stringify(data),
@@ -31,7 +31,6 @@ define (["jco/show/relatedevents/groupsPane"],function (groupsPane) {
     
  
    function groupsHandler (reply) {
-	   console.log(reply);
 		if (reply != null) {
    		 if (reply.hasOwnProperty('error')) {
      			     window.location.href = "../JChatOrchestrator/chatsessioninvalid.html";
