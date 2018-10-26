@@ -44,8 +44,7 @@ public class RelatedEventsDAO {
 	        }
 	    } 
 		catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println(e.toString());
 		}
 	    catch (IOException ex) {
 	        
@@ -63,28 +62,32 @@ public class RelatedEventsDAO {
 	
 	public static JsonArray fetchGroupsTopN(Integer topn, String minLastFired, ServletContext context) {
 		
-     try {
-		Connection impactconn = (Connection) context.getAttribute("eventbotimpactconnection");
-		String impactconntype = (String) context.getAttribute("eventbotimpactconntype");
-		JsonArray groups = new JsonArray();
-		
-		String fetchQuery = "";
-		
-		if (impactconntype.equals("derby")) {
+     JsonArray groups = new JsonArray();	
+     try { 
+		 ImpactConnection impactconn = (ImpactConnection) context.getAttribute("eventbotimpactconnection");	
+		 if (!impactconn.status) {
+		   // retry		
+		   EventbotProps eventbotprops = (EventbotProps) context.getAttribute("eventbotprops");
+		   impactconn = new ImpactConnection(eventbotprops);	   
+		 } 
+
+		// recheck status and validity 
+		 if ((impactconn.status) && 
+	        impactconn.connection.isValid(200)) {
+		  String fetchQuery = "";		
+		  if (impactconn.type.equals("derby")) {
 			fetchQuery = "select groupname,type,instances,totalevents,uniqueevents," +
-		"lastfired,timesfired,timesfiredmonthly,"+
-		"instances*uniqueevents as size from RELATEDEVENTS.RE_GROUPS" +
+		"lastfired,timesfired,timesfiredmonthly from RELATEDEVENTS.RE_GROUPS" +
 		" where lastfired > '"+ minLastFired+"'"+
 		" order by totalevents desc " +
 					"fetch first "+ topn.toString() + "rows only";
-		}
+		 }		
+		 if (impactconn.type.equals("db2")) {	
+		 }
 		
-		if (impactconntype.equals("db2")) {	
-		}
-		
-        Statement statement = impactconn.createStatement();  
-        ResultSet rs = statement.executeQuery(fetchQuery);
-        while(rs.next()){
+         Statement statement = impactconn.connection.createStatement();  
+         ResultSet rs = statement.executeQuery(fetchQuery);
+         while(rs.next()){
         	JsonObject group = new JsonObject();
         	group.add("groupname", new JsonPrimitive(rs.getString("groupname")));
         	group.add("type", new JsonPrimitive(rs.getString("type")));
@@ -94,21 +97,20 @@ public class RelatedEventsDAO {
           	group.add("lastfired", new JsonPrimitive(rs.getTimestamp("lastfired").toString()));
            	group.add("timesfired", new JsonPrimitive(Integer.toString(rs.getInt("timesfired"))));
           	group.add("timesfiredmonthly", new JsonPrimitive(Integer.toString(rs.getInt("timesfiredmonthly"))));
-          	group.add("size", new JsonPrimitive(rs.getString("size")));
 
         	groups.add(group);   
+		 }         
 		}
-		
-        return groups;
+		 return groups;
      }
      catch (SQLException e) {
     	 System.out.println("RelatedEventsDAO : JDBC SQL Error: "+e.getMessage());
-    	 JsonArray groups = new JsonArray();
+    	 groups = new JsonArray();
     	 return groups;	 
      }
      catch (Exception e) {
        	 System.out.println("RelatedEventsDAO : Other Error: "+e.getMessage());
-    	 JsonArray groups = new JsonArray();
+       	 groups = new JsonArray();
     	 return groups;	 
      }
 	}
@@ -117,36 +119,47 @@ public class RelatedEventsDAO {
 		
 		 JsonArray groupMembers = new JsonArray();
 	     try {
-			Connection impactconn = (Connection) context.getAttribute("eventbotimpactconnection");
-			String impactconntype = (String) context.getAttribute("eventbotimpactconntype");
+			 ImpactConnection impactconn = (ImpactConnection) context.getAttribute("eventbotimpactconnection");	
+			 if (!impactconn.status) {
+			   // retry		
+			   EventbotProps eventbotprops = (EventbotProps) context.getAttribute("eventbotprops");
+			   impactconn = new ImpactConnection(eventbotprops);	   
+			 } 
+
+			// recheck status and validity 
+			 if ((impactconn.status) && 
+		        impactconn.connection.isValid(200)) {
 			
-			String fetchQuery = "";
+			   String fetchQuery = "";
 			
-			if (impactconntype.equals("derby")) {
+		      if (impactconn.type.equals("derby")) {
 				fetchQuery = "select groupasc from RELATEDEVENTS.RE_GROUPS" +
 			                 " where groupname = '"+ groupname+"'";
 			
-	         Statement statement = impactconn.createStatement();  
-	         ResultSet rs = statement.executeQuery(fetchQuery);
-	         while(rs.next()){
+	            Statement statement = impactconn.connection.createStatement();  
+	            ResultSet rs = statement.executeQuery(fetchQuery);
+	            while(rs.next()){
 	        	Clob clob = (Clob) rs.getClob(1);
 	            JsonObject groupasc = clobToJson(clob);
 	            if (groupasc.has("groupMembers")) {
 	            	return groupasc.getAsJsonArray("groupMembers");
 	            }
-			 }
-			}
+			   }
+			  }
 	        
-			if (impactconntype.equals("db2")) {	
+			  if (impactconn.type.equals("db2")) {	
+			  }
 			}
 			return groupMembers;
 	     }
 	     catch (SQLException e) {
-	    	 System.out.println("RelatedEventsDAO : JDBC SQL Error: "+e.getMessage());   	 
+	    	 System.out.println("RelatedEventsDAO : JDBC SQL Error: "+e.toString()); 
+	    	 groupMembers = new JsonArray();
 	    	 return groupMembers;	 
 	     }
 	     catch (Exception e) {
 	       	 System.out.println("RelatedEventsDAO : Other Error: "+e.getMessage());
+	       	 groupMembers = new JsonArray();
 	    	 return groupMembers; 
 	     }
 		}
@@ -156,18 +169,27 @@ public class RelatedEventsDAO {
 		 JsonArray events = new JsonArray();
 		 Integer oindex = Integer.parseInt(index);
 	     try {
-			Connection impactconn = (Connection) context.getAttribute("eventbotimpactconnection");
-			String impactconntype = (String) context.getAttribute("eventbotimpactconntype");
+			 ImpactConnection impactconn = (ImpactConnection) context.getAttribute("eventbotimpactconnection");	
+			 if (!impactconn.status) {
+			   // retry		
+			   EventbotProps eventbotprops = (EventbotProps) context.getAttribute("eventbotprops");
+			   impactconn = new ImpactConnection(eventbotprops);	   
+			 } 
+
+			// recheck status and validity 
+			 if ((impactconn.status) && 
+		        impactconn.connection.isValid(200)) {
 			
-			String fetchQuery = "";
+				
+			  String fetchQuery = "";
 			
-			if (impactconntype.equals("derby")) {
+			  if (impactconn.type.equals("derby")) {
 				fetchQuery = "select groupasc from RELATEDEVENTS.RE_GROUPS" +
 			                 " where groupname = '"+ groupname+"'";
 			
-	         Statement statement = impactconn.createStatement();  
-	         ResultSet rs = statement.executeQuery(fetchQuery);
-	         while(rs.next()){
+	          Statement statement = impactconn.connection.createStatement();  
+	          ResultSet rs = statement.executeQuery(fetchQuery);
+	          while(rs.next()){
 	        	Clob clob = (Clob) rs.getClob(1);
 	            JsonObject groupasc = clobToJson(clob);
 	            if (groupasc.has("groupMembers")) {
@@ -180,19 +202,22 @@ public class RelatedEventsDAO {
 	            		events.add(event);
 	            	}
 	            }
-			 }
+			  }
 			}
 	        
-			if (impactconntype.equals("db2")) {	
+			  if (impactconn.type.equals("db2")) {	
+			  }
 			}
 			return events;
 	     }
 	     catch (SQLException e) {
-	    	 System.out.println("RelatedEventsDAO : JDBC SQL Error: "+e.getMessage());   	 
+	    	 System.out.println("RelatedEventsDAO : JDBC SQL Error: "+e.toString());   	
+	    	 events = new JsonArray();
 	    	 return events;	 
 	     }
 	     catch (Exception e) {
 	       	 System.out.println("RelatedEventsDAO : Other Error: "+e.getMessage());
+	       	events = new JsonArray();
 	    	 return events; 
 	     }
 		}

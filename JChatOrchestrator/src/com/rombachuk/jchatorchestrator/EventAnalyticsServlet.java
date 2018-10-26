@@ -110,11 +110,14 @@ public class EventAnalyticsServlet extends HttpServlet {
 							!context.get("operationstatus").toString().equals("complete")) {
 						
 						if (context.get("activity").toString().equals("searchseasonalevents") ||
-						 context.get("activity").toString().equals("searchrelatedevents") ||
-						 context.get("activity").toString().equals("searchhistoricevents")) {
+						 context.get("activity").toString().equals("searchrelatedevents")) {
 					     // appdata activity
-						 JsonArray historyfields = (JsonArray) request.getSession().getServletContext().getAttribute("eventbothistoryfields");
-						 appData.add("filter_fields",historyfields);
+					    }
+						
+						if (context.get("activity").toString().equals("searchhistoricevents")) {
+					     // appdata activity
+						 HistoricEventsConnection historyconn = (HistoricEventsConnection) request.getSession().getServletContext().getAttribute("eventbothistoryconnection");
+						 appData.add("filter_fields",historyconn.fields);
 					    }
 
 					    if (context.get("activity").toString().equals("searchcurrentevents")) {

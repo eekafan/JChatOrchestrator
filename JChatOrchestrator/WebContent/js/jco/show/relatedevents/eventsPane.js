@@ -41,8 +41,8 @@ define ([
     
     function buildLayout() {
 
-    var layout =  [[{ field: 'eventepoch', name:'time', width:'30%',},                 
-                    { field: 'identifier', name:'event', width:'70%'}]];  
+    var layout =  [[{ field: 'eventepoch', name:'time', width:'20%',},                 
+                    { field: 'identifier', name:'event', width:'80%'}]];  
     return layout;
     }
     

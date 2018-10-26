@@ -163,24 +163,22 @@ public class EventbotContextListener implements ServletContextListener {
         	     InputStream propsfile = this.context.getResourceAsStream(this.context.getInitParameter("eventbotProperties"));
                  EventbotProps eventbotprops = new EventbotProps(propsfile);   
                  propsfile.close();
-                
-                 Class.forName("com.ibm.db2.jcc.DB2Driver");
-                 Connection historyconn = (Connection) this.context.getAttribute("eventbothistoryconnection");
-                 if (historyconn.isValid(1000)) {
-                   historyconn.close();
-                 }
-                 historyconn = DriverManager.getConnection (eventbotprops.getHistoryurl(), 
-                		eventbotprops.getHistoryuser(), eventbotprops.getHistorypassword());
-                 this.context.setAttribute("eventbothistoryconn", historyconn);  
                  this.context.setAttribute("eventbotprops", eventbotprops);
+                
+ 
+                 HistoricEventsConnection historyconn = (HistoricEventsConnection) this.context.getAttribute("eventbothistoryconnection");
+                 if ((historyconn.status) && (historyconn.connection.isValid(1000))) {
+                   historyconn.connection.close();
+                 }
+                 historyconn = new HistoricEventsConnection (eventbotprops);
+                 this.context.setAttribute("eventbothistoryconn", historyconn);  
                  
-                 Class.forName("org.apache.derby.jdbc.ClientDriver");
-                 Connection impactconn = (Connection) this.context.getAttribute("eventbotimpactconnection");
-                 if (impactconn.isValid(1000)) {
-                     impactconn.close();
+                 
+                 ImpactConnection impactconn = (ImpactConnection) this.context.getAttribute("eventbotimpactconnection");
+                 if ((impactconn.status) && (impactconn.connection.isValid(1000))) {
+                     impactconn.connection.close();
                    }
-                 impactconn = DriverManager.getConnection (eventbotprops.getImpactserverurl(), 
-                 		eventbotprops.getImpactserveruser(), eventbotprops.getImpactserverpassword());
+                 impactconn = new ImpactConnection (eventbotprops);
                  this.context.setAttribute("eventbotimpactconnection",impactconn);
  
             	}
@@ -238,31 +236,12 @@ public class EventbotContextListener implements ServletContextListener {
         EventbotProps eventbotprops = new EventbotProps(propsfile);   
         ctx.setAttribute("eventbotprops", eventbotprops);
         propsfile.close();
-        
-        Class.forName("com.ibm.db2.jcc.DB2Driver");
-        Connection historyconn = DriverManager.getConnection (eventbotprops.getHistoryurl(), 
-        		eventbotprops.getHistoryuser(), eventbotprops.getHistorypassword());
-        Statement statement = historyconn.createStatement();
-        JsonArray history_fields = new JsonArray();
-        ResultSet rs = statement.executeQuery("select column_name,data_type,character_maximum_length from sysibm.columns where table_name='REPORTER_STATUS'");
-        while(rs.next()){
-        	JsonObject field_def = new JsonObject();
-		      field_def.add("id", new JsonPrimitive(rs.getString("column_name")));
-		      field_def.add("name", new JsonPrimitive(rs.getString("column_name")));
-		      field_def.add("type", new JsonPrimitive(rs.getString("data_type")));
-		      field_def.add("length", new JsonPrimitive(Integer.toString(rs.getInt("character_maximum_length"))));
-		      history_fields.add(field_def);
-         }
+ 
+        HistoricEventsConnection historyconn = new HistoricEventsConnection (eventbotprops);
         ctx.setAttribute("eventbothistoryconnection",historyconn);
-        ctx.setAttribute("eventbothistoryfields",history_fields);
+  
         
-        String impactconntype = eventbotprops.getImpactservertype();
-        ctx.setAttribute("eventbotimpactconntype",impactconntype);
-        if (impactconntype.equals("derby")) {
-         Class.forName("org.apache.derby.jdbc.ClientDriver");
-        }
-        Connection impactconn = DriverManager.getConnection (eventbotprops.getImpactserverurl(), 
-        		eventbotprops.getImpactserveruser(), eventbotprops.getImpactserverpassword());
+        ImpactConnection impactconn = new ImpactConnection (eventbotprops);
         ctx.setAttribute("eventbotimpactconnection",impactconn);
         
         FileAlterationObserver fao = new FileAlterationObserver(ctx.getRealPath("/")+"/WEB-INF");
