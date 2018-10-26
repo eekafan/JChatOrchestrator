@@ -92,7 +92,7 @@ define (["jco/show/relatedevents/eventsPane",
  	   console.log(reply);
  		if (reply != null) {
     		 if (reply.hasOwnProperty('error')) {
-      			     window.location.href = "../JChatOrchestrator/chatsessioninvalid.html";
+      			     window.location.href = "../JChatOrchestrator/connectioninvalid.html";
       	 } else if (reply.hasOwnProperty('appdata')){
       		  var appdata = reply.appdata;
       		  if (appdata.hasOwnProperty('result_rows')) {

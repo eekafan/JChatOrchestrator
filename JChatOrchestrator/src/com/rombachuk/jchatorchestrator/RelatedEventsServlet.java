@@ -39,28 +39,37 @@ public class RelatedEventsServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		 JsonObject showException = new JsonObject(); 
+		 JsonArray resultRows = new JsonArray();
 		 try {
 
                 String groupname = request.getParameter("groupname");
                 String index = request.getParameter("observationindex");
   
                 if ((groupname != null) && (index == null)){
-   	             JsonArray resultRows = RelatedEventsDAO.fetchGroupMembers(groupname, request.getServletContext());
-			     JsonObject appData = new JsonObject();
-				 appData.add("result_rows",resultRows);
-				 request.setAttribute("appdata", appData);
+   	             resultRows = RelatedEventsDAO.fetchGroupMembers(groupname, request.getServletContext());
+  
                 }
                 
                 if ((groupname != null) && (index != null)){
-       	         JsonArray resultRows = RelatedEventsDAO.fetchInstanceEvents(groupname, index, request.getServletContext());
-    			 JsonObject appData = new JsonObject();
-    		     appData.add("result_rows",resultRows);
-    			 request.setAttribute("appdata", appData);
+       	         resultRows = RelatedEventsDAO.fetchInstanceEvents(groupname, index, request.getServletContext());
                 }
+                
+	           if (resultRows.size() == 0) {
+	   	         ImpactConnection impactconn = (ImpactConnection) request.getServletContext().getAttribute("eventbotimpactconnection");
+	   	         if (!impactconn.status) {
+	   	            		showException = (JsonObject) new JsonParser().parse("{error:\"Data Source Connection Error\"}");
+	   	            		request.setAttribute("showexception", showException);
+	   	         }
+	   	       }
+			   JsonObject appData = new JsonObject();
+			   appData.add("result_rows",resultRows);
+			   request.setAttribute("appdata", appData);
 		  
 			 }
 		     catch( Exception e) {
 		      	System.out.println(e.getMessage());
+		      	showException = (JsonObject) new JsonParser().parse("{error:\"Other Error\"}");
+           		request.setAttribute("showexception", showException);
 		     }
 	}
 
@@ -86,6 +95,13 @@ public class RelatedEventsServlet extends HttpServlet {
 			    }
 			    JsonArray resultRows = RelatedEventsDAO.fetchGroupsTopN(10, minLastFired, request.getServletContext());
 
+		        if (resultRows.size() == 0) {
+			   	    ImpactConnection impactconn = (ImpactConnection) request.getServletContext().getAttribute("eventbotimpactconnection");
+			   	    if (!impactconn.status) {
+			   	    	showException = (JsonObject) new JsonParser().parse("{error:\"Data Source Connection Error\"}");
+			   	    	request.setAttribute("showexception", showException);
+			   	   }
+			   	}
 			    JsonObject appData = new JsonObject();
 			    appData.add("result_type",resultType);
 				appData.add("result_rows",resultRows);
@@ -94,6 +110,8 @@ public class RelatedEventsServlet extends HttpServlet {
 			 }
 		     catch( Exception e) {
 		      	System.out.println(e.getMessage());
+		      	showException = (JsonObject) new JsonParser().parse("{error:\"Other Error\"}");
+           		request.setAttribute("showexception", showException);
 		     }
 	}
 

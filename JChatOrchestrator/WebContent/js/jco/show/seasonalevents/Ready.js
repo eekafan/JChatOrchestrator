@@ -1,4 +1,4 @@
-define (["jco/show/relatedevents/groupsPane"],function (groupsPane) {
+define (["jco/show/seasonalevents/entriesPane"],function (entriesPane) {
     var Ready = function () {  		
     	 var urlParams = new URLSearchParams(window.location.search);
     	 if (urlParams.has('dataform')) {		 
@@ -10,7 +10,7 @@ define (["jco/show/relatedevents/groupsPane"],function (groupsPane) {
 			  // important to resend the location.search as the uuid is used to decode lastreply by server
            
     	   
-			   var $showurl = window.location.origin + "/JChatOrchestrator/show/relatedevents";
+			   var $showurl = window.location.origin + "/JChatOrchestrator/show/seasonalevents";
 			   var data = new Object();
 			  	  data.appdata = appdata;
 			  	  
@@ -23,22 +23,21 @@ define (["jco/show/relatedevents/groupsPane"],function (groupsPane) {
 			  		 data: JSON.stringify(data),
 			  		 beforeSend: function() {},
 			  		 complete: function() {},
-			  		 success: function(reply) {groupsHandler(reply);},
+			  		 success: function(reply) {entriesHandler(reply);},
 			  		 fail: function(data) {}     		
 			  	     }); 	   
     	 } 
      }	
     
  
-   function groupsHandler (reply) {
-	   console.log(reply);
+   function entriesHandler (reply) {
 		if (reply != null) {
    		 if (reply.hasOwnProperty('error')) {
      			     window.location.href = "../JChatOrchestrator/connectioninvalid.html";
      	 } else if (reply.hasOwnProperty('appdata')){
      		  var appdata = reply.appdata;
      		  if (appdata.hasOwnProperty('result_rows')) {
-     			 groupsPane(appdata.result_rows);
+     			 entriesPane(appdata.result_rows);
               }
  
          }

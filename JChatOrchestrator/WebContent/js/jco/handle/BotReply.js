@@ -81,6 +81,10 @@ var BotReply = function (reply) {
    			    			 showLaunch('relatedevents',reply.assistantdata,appdata,
    			    					function(reply){BotReply(reply)});
    			    		 }
+   			    		 if (activity == 'searchseasonalevents') {
+   			    			 showLaunch('seasonalevents',reply.assistantdata,appdata,
+   			    					function(reply){BotReply(reply)});
+   			    		 }
   	  					 
    	   			     }
    			    	 else {
