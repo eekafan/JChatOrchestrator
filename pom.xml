@@ -1,0 +1,96 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>JChatOrchestrator</groupId>
+  <artifactId>JChatOrchestrator</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>war</packaging>
+  <repositories>
+	<repository>
+	    <id>db2repository</id>
+	    <url>https://artifacts.alfresco.com/nexus/content/repositories/public/</url>
+	</repository>
+    </repositories>
+  <dependencies>
+	<dependency>
+		  		<groupId>com.cloudant</groupId>
+		  		<artifactId>cloudant-client</artifactId>
+		  		<version>2.12.0</version>
+   </dependency>
+   <dependency>
+    <groupId>com.unboundid</groupId>
+    <artifactId>unboundid-ldapsdk</artifactId>
+    <version>4.0.6</version>
+</dependency>
+<dependency>
+  <groupId>com.ibm.watson.developer_cloud</groupId>
+  <artifactId>java-sdk</artifactId>
+  <version>6.5.1</version>
+</dependency>
+<dependency>
+    <groupId>javax.servlet</groupId>
+    <artifactId>javax.servlet-api</artifactId>
+    <version>3.0.1</version>
+</dependency>
+<dependency>
+    <groupId>jstl</groupId>
+    <artifactId>jstl</artifactId>
+    <version>1.2</version>
+</dependency>
+<dependency>
+    <groupId>com.ibm.db2.jcc</groupId>
+    <artifactId>db2jcc4</artifactId>
+    <version>10.1</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.derby</groupId>
+    <artifactId>derbyclient</artifactId>
+    <version>10.8.3.0</version>
+</dependency>
+  </dependencies>
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.7.0</version>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>3.2.1</version>
+        <configuration>
+          <warSourceDirectory>WebContent</warSourceDirectory>
+        </configuration>
+      </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+                <execution>
+                    <id>unpackDojo</id>
+                    <phase>generate-sources</phase>
+                    <goals>
+                        <goal>unpack</goal>
+                    </goals>
+                    <configuration>
+                        <artifactItems>
+                            <artifactItem>
+                                <groupId>org.dojotoolkit</groupId>
+                                <artifactId>dojo</artifactId>
+                                <version>1.8.0</version>
+                                <type>zip</type>
+                                <outputDirectory>
+                                    ${basedir}/WebContent/js
+                                </outputDirectory>
+                            </artifactItem>
+                        </artifactItems>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+  </build>
+</project>
