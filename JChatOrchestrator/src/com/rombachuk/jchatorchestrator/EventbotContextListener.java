@@ -164,28 +164,28 @@ public class EventbotContextListener implements ServletContextListener {
                  EventbotProps eventbotprops = new EventbotProps(propsfile);   
                  propsfile.close();
                  this.context.setAttribute("eventbotprops", eventbotprops);
-                
  
                  HistoricEventsConnection historyconn = (HistoricEventsConnection) this.context.getAttribute("eventbothistoryconnection");
-                 if ((historyconn.status) && (historyconn.connection.isValid(1000))) {
+                 if ((historyconn.status) && (historyconn.isValidSupported) && (historyconn.connection.isValid(1000))) {
                    historyconn.connection.close();
                  }
                  historyconn = new HistoricEventsConnection (eventbotprops);
                  this.context.setAttribute("eventbothistoryconn", historyconn);  
-                 
-                 
+ 
                  ImpactConnection impactconn = (ImpactConnection) this.context.getAttribute("eventbotimpactconnection");
                  if ((impactconn.status) && (impactconn.connection.isValid(1000))) {
                      impactconn.connection.close();
                    }
                  impactconn = new ImpactConnection (eventbotprops);
                  this.context.setAttribute("eventbotimpactconnection",impactconn);
+     
  
-            	}
-        	    catch (Exception e) {
-				e.printStackTrace();
-			    }
+                 }
+          	     catch (Exception e) {
+    				e.printStackTrace();
+    	         }  
             }
+            	
     }
 
 	    /**
@@ -236,10 +236,9 @@ public class EventbotContextListener implements ServletContextListener {
         EventbotProps eventbotprops = new EventbotProps(propsfile);   
         ctx.setAttribute("eventbotprops", eventbotprops);
         propsfile.close();
- 
+
         HistoricEventsConnection historyconn = new HistoricEventsConnection (eventbotprops);
         ctx.setAttribute("eventbothistoryconnection",historyconn);
-  
         
         ImpactConnection impactconn = new ImpactConnection (eventbotprops);
         ctx.setAttribute("eventbotimpactconnection",impactconn);
@@ -255,7 +254,7 @@ public class EventbotContextListener implements ServletContextListener {
     }	     
      catch (Exception e) {
    	    System.out.println("Exception processing file");	
-    	e.printStackTrace();
+    	System.out.println(e.getStackTrace());
     }	
    }
     

@@ -157,5 +157,5 @@
 		<servlet-mapping>
 		<servlet-name>com.rombachuk.jchatorchestrator.SeasonalEventsServlet</servlet-name>
 		<url-pattern>/show/seasonalevents</url-pattern>
-	</servlet-mapping>
+	</servlet-mapping> 
 </web-app>

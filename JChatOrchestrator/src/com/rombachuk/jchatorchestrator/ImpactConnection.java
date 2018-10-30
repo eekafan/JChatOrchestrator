@@ -10,6 +10,7 @@ public class ImpactConnection {
 	Boolean status = false;
 	
 	public ImpactConnection (EventbotProps eventbotprops)   {
+		this.connection = null;
 		this.status = false;
 		this.type = eventbotprops.getImpactservertype();
 	   	   
@@ -26,9 +27,12 @@ public class ImpactConnection {
 		catch (SQLException e ) {
 			System.out.println(e.toString());
 		}
-        catch (ClassNotFoundException e ) {
-			
-		}
+	    catch (ClassNotFoundException e ) {
+	        	 System.out.println(e.getStackTrace());
+			}
+	    catch (Exception e ) {
+				 System.out.println(e.getStackTrace());
+			}
 	}
 
 }

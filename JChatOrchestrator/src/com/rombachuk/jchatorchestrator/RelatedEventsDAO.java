@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -104,12 +105,13 @@ public class RelatedEventsDAO {
 		 return groups;
      }
      catch (SQLException e) {
-    	 System.out.println("RelatedEventsDAO : JDBC SQL Error: "+e.getMessage());
+    	 System.out.println("RelatedEventsDAO fetchGroupsTopN: JDBC SQL Error: "+e.getMessage());
     	 groups = new JsonArray();
     	 return groups;	 
      }
      catch (Exception e) {
-       	 System.out.println("RelatedEventsDAO : Other Error: "+e.getMessage());
+       	 System.out.println("RelatedEventsDAO fetchGroupsTopN: Other Error: "+e.getCause());
+       	 System.out.println(Arrays.toString(Thread.currentThread().getStackTrace()));
        	 groups = new JsonArray();
     	 return groups;	 
      }
@@ -153,12 +155,13 @@ public class RelatedEventsDAO {
 			return groupMembers;
 	     }
 	     catch (SQLException e) {
-	    	 System.out.println("RelatedEventsDAO : JDBC SQL Error: "+e.toString()); 
+	    	 System.out.println("RelatedEventsDAO fetchGroupMembers: JDBC SQL Error: "+e.toString()); 
 	    	 groupMembers = new JsonArray();
 	    	 return groupMembers;	 
 	     }
 	     catch (Exception e) {
-	       	 System.out.println("RelatedEventsDAO : Other Error: "+e.getMessage());
+	       	 System.out.println("RelatedEventsDAO fetchGroupMembers: Other Error: "+e.getMessage());
+	         System.out.println(e.getStackTrace());
 	       	 groupMembers = new JsonArray();
 	    	 return groupMembers; 
 	     }
@@ -211,12 +214,13 @@ public class RelatedEventsDAO {
 			return events;
 	     }
 	     catch (SQLException e) {
-	    	 System.out.println("RelatedEventsDAO : JDBC SQL Error: "+e.toString());   	
+	    	 System.out.println("RelatedEventsDAO fetchInstanceEvents: JDBC SQL Error: "+e.toString());   	
 	    	 events = new JsonArray();
 	    	 return events;	 
 	     }
 	     catch (Exception e) {
-	       	 System.out.println("RelatedEventsDAO : Other Error: "+e.getMessage());
+	       	 System.out.println("RelatedEventsDAO fetchInstanceEvents: Other Error: "+e.getMessage());
+	       	System.out.println(e.getStackTrace());
 	       	events = new JsonArray();
 	    	 return events; 
 	     }
