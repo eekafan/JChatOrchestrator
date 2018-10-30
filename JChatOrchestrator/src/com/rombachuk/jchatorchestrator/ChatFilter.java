@@ -30,7 +30,7 @@ import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
 import com.ibm.watson.developer_cloud.service.exception.UnauthorizedException;
 
 /**
- * Servlet Filter implementation class ChatFilter
+ * Servlet Filter implementation class ChatFilter 
  */
 
 
