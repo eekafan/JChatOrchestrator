@@ -4,8 +4,8 @@ define (["jco/show/relatedevents/groupsPane"],function (groupsPane) {
     	 if (urlParams.has('dataform')) {		 
     	   var launchdataform = window.opener.document.getElementById(urlParams.get('dataform'));
     	   var appdata = JSON.parse(launchdataform.getAttribute('appdata'));
-    	   var firedafter = document.getElementById('FiredAfterDatetime');
-    	   firedafter.innerHTML = appdata.parameters[0]['startdate']['sql'];
+    	   var detectedafter = document.getElementById('DetectedAfterDatetime');
+    	   detectedafter.innerHTML = appdata.parameters[0]['startdate']['sql'];
  
 			  // important to resend the location.search as the uuid is used to decode lastreply by server
            

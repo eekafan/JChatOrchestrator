@@ -71,12 +71,15 @@ define (["jco/show/relatedevents/instancesPane",
         }
    }
     
+    
     function buildLayout() {
 
     var layout =  [[{ field: 'groupname', name:'Name', width:'20%'},
-                    { field: 'type', name:'Type', width:'20%' },
-                    { field: 'instances', name:'TimesFired', width:'20%' },                 
-                    { field: 'unique_events', name:'#Events', width:'20%'}]];  
+                    { field: 'type', name:'RuleStatus', width:'17%' },
+                    { field: 'instances', name:'Times', width:'12%' },                 
+                    { field: 'unique_events', name:'#Events', width:'14%'},
+                    { field: 'lastfired', name:'LastDetected', width:'40%'},
+                    ]];  
     return layout;
     }
     

@@ -50,7 +50,7 @@
 <table >
 <tr><td style="padding-right: 30px"><b>Related Events: Top10 Groups by Size & Frequency<b></td>
 <td style="padding-right: 3px"><b>Detected After</b></td>
-<td style="padding-right: 20px"><p id="FiredAfterDatetime"></p></td>
+<td style="padding-right: 20px"><p id="DetectedAfterDatetime"></p></td>
 <td style="padding-right: 3px"><b>Report Generated at</b></td>
 <td style="padding-right: 3px"><p id="GeneratedAtDatetime"></p></td>
 </tr></table>
