@@ -56,6 +56,21 @@ define (["jco/show/relatedevents/instancesPane",
       
      }
     
+    function formatEpochToDate(field) {
+        if (isNaN(field)) {
+        return "";
+        } else {
+        var thisdate = new Date(field);
+        year = "" + thisdate.getFullYear();
+        month = "" + (thisdate.getMonth() + 1); if (month.length == 1) { month = "0" + month; }
+        day = "" + thisdate.getDate(); if (day.length == 1) { day = "0" + day; }
+        hour = "" + thisdate.getHours(); if (hour.length == 1) { hour = "0" + hour; }
+        minute = "" + thisdate.getMinutes(); if (minute.length == 1) { minute = "0" + minute; }
+        second = "" + thisdate.getSeconds(); if (second.length == 1) { second = "0" + second; }
+        return year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
+        }
+   }
+    
     function buildLayout() {
 
     var layout =  [[{ field: 'groupname', name:'Name', width:'20%'},

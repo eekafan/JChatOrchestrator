@@ -39,10 +39,25 @@ define ([
   
      }
     
+    function formatEpochToDate(field) {
+        if (isNaN(field)) {
+        return "";
+        } else {
+        var thisdate = new Date(field/1);
+        year = "" + thisdate.getFullYear();
+        month = "" + (thisdate.getMonth() + 1); if (month.length == 1) { month = "0" + month; }
+        day = "" + thisdate.getDate(); if (day.length == 1) { day = "0" + day; }
+        hour = "" + thisdate.getHours(); if (hour.length == 1) { hour = "0" + hour; }
+        minute = "" + thisdate.getMinutes(); if (minute.length == 1) { minute = "0" + minute; }
+        second = "" + thisdate.getSeconds(); if (second.length == 1) { second = "0" + second; }
+        return year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
+        }
+   }
+    
     function buildLayout() {
 
-    var layout =  [[{ field: 'eventepoch', name:'time', width:'20%',},                 
-                    { field: 'identifier', name:'event', width:'80%'}]];  
+    var layout =  [[{ field: 'eventepoch', name:'time', width:'30%',formatter:formatEpochToDate},                 
+                    { field: 'identifier', name:'event', width:'70%'}]];  
     return layout;
     }
     
