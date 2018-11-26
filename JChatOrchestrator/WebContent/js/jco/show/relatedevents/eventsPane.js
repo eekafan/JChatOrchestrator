@@ -43,7 +43,7 @@ define ([
         if (isNaN(field)) {
         return "";
         } else {
-        var thisdate = new Date(field/1);
+        var thisdate = new Date(parseInt(field));
         year = "" + thisdate.getFullYear();
         month = "" + (thisdate.getMonth() + 1); if (month.length == 1) { month = "0" + month; }
         day = "" + thisdate.getDate(); if (day.length == 1) { day = "0" + day; }
