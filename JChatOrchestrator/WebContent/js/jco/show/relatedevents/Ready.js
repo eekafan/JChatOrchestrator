@@ -31,7 +31,6 @@ define (["jco/show/relatedevents/groupsPane"],function (groupsPane) {
     
  
    function groupsHandler (reply) {
-	   console.log(reply);
 		if (reply != null) {
    		 if (reply.hasOwnProperty('error')) {
      			     window.location.href = "../JChatOrchestrator/connectioninvalid.html";

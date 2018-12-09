@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -79,7 +80,7 @@ public class RelatedEventsDAO {
 		  if (impactconn.type.equals("derby")) {
 			fetchQuery = "select groupname,type,instances,totalevents,uniqueevents," +
 		"lastfired,timesfired,timesfiredmonthly from RELATEDEVENTS.RE_GROUPS" +
-		" where lastfired > '"+ minLastFired+"'"+
+		" where lastfired > '"+ minLastFired+"' or lastfired is null"+
 		" order by totalevents desc " +
 					"fetch first "+ topn.toString() + "rows only";
 		 }		
@@ -95,7 +96,11 @@ public class RelatedEventsDAO {
         	group.add("instances", new JsonPrimitive(Integer.toString(rs.getInt("instances"))));
         	group.add("total_events", new JsonPrimitive(Integer.toString(rs.getInt("totalevents"))));
         	group.add("unique_events", new JsonPrimitive(Integer.toString(rs.getInt("uniqueevents"))));
+        	if (rs.getTimestamp("lastfired") == null) {
+        		group.add("lastfired", new JsonPrimitive("new"));
+        	} else {
           	group.add("lastfired", new JsonPrimitive(rs.getTimestamp("lastfired").toString()));
+        	}
            	group.add("timesfired", new JsonPrimitive(Integer.toString(rs.getInt("timesfired"))));
           	group.add("timesfiredmonthly", new JsonPrimitive(Integer.toString(rs.getInt("timesfiredmonthly"))));
 
@@ -135,7 +140,7 @@ public class RelatedEventsDAO {
 			   String fetchQuery = "";
 			
 		      if (impactconn.type.equals("derby")) {
-				fetchQuery = "select groupasc from RELATEDEVENTS.RE_GROUPS" +
+				fetchQuery = "select groupasc from RELATEDEVENTS.RE_GROUPASC" +
 			                 " where groupname = '"+ groupname+"'";
 			
 	            Statement statement = impactconn.connection.createStatement();  
@@ -143,11 +148,14 @@ public class RelatedEventsDAO {
 	            while(rs.next()){
 	        	Clob clob = (Clob) rs.getClob(1);
 	            JsonObject groupasc = clobToJson(clob);
-	            if (groupasc.has("groupMembers")) {
-	            	return groupasc.getAsJsonArray("groupMembers");
-	            }
-			   }
-			  }
+	            if (groupasc.has("group")) {
+	            	JsonObject group = groupasc.getAsJsonObject("group");
+	            	if (group.has("groupMembers")) {
+	            	return group.getAsJsonArray("groupMembers");
+	                }
+			    }
+			    }
+		      }
 	        
 			  if (impactconn.type.equals("db2")) {	
 			  }
@@ -187,7 +195,7 @@ public class RelatedEventsDAO {
 			  String fetchQuery = "";
 			
 			  if (impactconn.type.equals("derby")) {
-				fetchQuery = "select groupasc from RELATEDEVENTS.RE_GROUPS" +
+				fetchQuery = "select groupasc from RELATEDEVENTS.RE_GROUPASC" +
 			                 " where groupname = '"+ groupname+"'";
 			
 	          Statement statement = impactconn.connection.createStatement();  
@@ -195,15 +203,23 @@ public class RelatedEventsDAO {
 	          while(rs.next()){
 	        	Clob clob = (Clob) rs.getClob(1);
 	            JsonObject groupasc = clobToJson(clob);
-	            if (groupasc.has("groupMembers")) {
-	            	JsonArray members =  groupasc.getAsJsonArray("groupMembers");
+	            if (groupasc.has("group")) {
+	            	JsonObject group = groupasc.getAsJsonObject("group");
+	              if (group.has("groupMembers")) { 
+	            	JsonArray members =  group.getAsJsonArray("groupMembers");
 	            	for (JsonElement member : members) {
 	            		JsonObject thismember = member.getAsJsonObject();
 	            		JsonObject event = new JsonObject();
-	            		event.add("identifier", thismember.getAsJsonObject("id").getAsJsonObject("attributes").get("IDENTIFIER"));
+	            		Set<String> identifierset = thismember.getAsJsonObject("id").getAsJsonObject("attributes").keySet();
+	            		JsonPrimitive identifier = new JsonPrimitive("");
+	            		for (String key : identifierset) {
+	            			identifier =  thismember.getAsJsonObject("id").getAsJsonObject("attributes").getAsJsonPrimitive(key);
+	            		}
+	            	    event.add("identifier",identifier);
 	            		event.add("eventepoch",thismember.getAsJsonArray("observations").get(oindex));
 	            		events.add(event);
 	            	}
+	              }
 	            }
 			  }
 			}
