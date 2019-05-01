@@ -14,6 +14,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
+
+
+
 import com.cloudant.client.api.Database;
 import com.ibm.watson.developer_cloud.assistant.v1.model.InputData;
 import com.ibm.watson.developer_cloud.assistant.v1.model.MessageOptions;
@@ -26,6 +30,8 @@ import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
 
 public class chatstartServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	
+	static Logger logger = Logger.getLogger(chatstartServlet.class);
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -34,6 +40,41 @@ public class chatstartServlet extends HttpServlet {
         super();
         // TODO Auto-generated constructor stub
     }
+    
+    private static String formatLogBotReply(String level, MessageResponse botReply) {
+    	String logEntry = "empty";
+    	String cvid = "empty";String turn = "empty"; String in = "empty"; String out = "empty";
+    	if (!botReply.getContext().getConversationId().isEmpty()) {
+    		cvid = botReply.getContext().getConversationId();
+    	}
+    	if (!botReply.getContext().getSystem().get("dialog_turn_counter").toString().isEmpty()) {
+    		turn = botReply.getContext().getSystem().get("dialog_turn_counter").toString();
+    	}
+    	if (!botReply.getInput().getText().isEmpty()) {
+    		in = botReply.getInput().getText();
+    	}
+    	if (!botReply.getOutput().getGeneric().isEmpty()) {
+    		String response_type = botReply.getOutput().getGeneric().get(0).getResponseType();
+    		if (response_type.equals("text")) {
+    			out = response_type+":"+botReply.getOutput().getGeneric().get(0).getText();
+    		} else {
+    		if (response_type.equals("option")) {
+    			out = response_type+":"+botReply.getOutput().getGeneric().get(0).getDescription();
+    		} else {
+    			out = response_type+":unprocessed by logger";
+    		}
+    		}
+    	}
+	    	
+	    	if (level.equals("DEBUG")) {
+	    		logEntry = "cv=[id={"+cvid+"},"+
+	    				   "turn={"+turn+"},"+
+	    				   "in={"+in+"},"+
+	    				   "out0={"+out+"}"+
+	    				   "]";
+	    	}
+	    	return logEntry;
+	    }
 
 
 	/**
@@ -42,6 +83,7 @@ public class chatstartServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	 try {
 
+        
 	    response.setContentType("text/html");  
 		PrintWriter out = response.getWriter();  
 		HttpSession session = request.getSession(true); // new session if not exist
@@ -71,6 +113,8 @@ public class chatstartServlet extends HttpServlet {
 
 	    request.setAttribute("workspacename", request.getParameter("name"));
 	    request.setAttribute("welcome", botReply.getOutput().getText().get(0));
+	    logger.debug("chatstart chatid={"+ request.getParameter("uuid")+ "} ws={"+request.getParameter("name")+"} "+
+	    		formatLogBotReply("DEBUG",botReply));
 
         RequestDispatcher dispatcher = request.getServletContext().getRequestDispatcher("chat.jsp");
         dispatcher.forward(request, response);

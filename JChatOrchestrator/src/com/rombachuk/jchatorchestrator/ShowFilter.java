@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -27,6 +29,8 @@ import com.google.gson.JsonParser;
  */
 
 public class ShowFilter implements Filter {
+	
+	  static Logger logger = Logger.getLogger(ShowFilter.class);
 	
 	  private String getRequestBody (final HttpServletRequest request) 
 
@@ -104,6 +108,10 @@ public class ShowFilter implements Filter {
 				    	  showclientAppInput  = showclientInput.getAsJsonObject("appdata");
 				       }
 					  }
+					  
+				       String servletpath[] = httprequest.getServletPath().split("/");
+				       String chatname = servletpath[servletpath.length-1];
+				       String urlparameters = httprequest.getQueryString();
 					   request.setAttribute("showclientappinput", showclientAppInput);
 					   request.setAttribute("showexception", showException);
  				   
@@ -120,9 +128,15 @@ public class ShowFilter implements Filter {
 						  JsonObject reply = new JsonObject();
 						  reply.add("appdata", appdata);
 						  out.write(reply.toString());
+						  if (!(showclientAppInput.size() == 0)) {
+							  logger.debug("showop POST op={"+chatname+"} urlparams= {"+urlparameters+"} body={"+showclientAppInput.toString()+"} replydata={"+appdata.toString()+"}");
+						  } else {
+							  logger.debug("showop GET op={"+chatname+"} urlparams= {"+urlparameters+"} replydata={"+appdata.toString()+"}");
+						  }
 					   } 
 					   else {
 						   out.write(showException.toString());
+						   logger.debug("showop error={"+showException.toString()+"}");
 					   }
 					   out.close(); 
 				  }
