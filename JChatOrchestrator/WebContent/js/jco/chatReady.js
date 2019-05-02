@@ -4,7 +4,7 @@ define (["jco/handle/BotReply","jco/display/userMessage"],function (handleBotRep
         var data = new Object();
         $('form#emit').submit(function(event) {
         	event.preventDefault();
-        	// important to resend the location.search as the uuid is used to decode lastreply by server
+        	// important to resend the location.search as the chatid is used to decode lastreply by server
         	var chatpath = window.location.pathname;
         	var $chaturl = window.location.origin + "/JChatOrchestrator/chat/" + document.title + window.location.search;
         	data.assistantdata = new Object();

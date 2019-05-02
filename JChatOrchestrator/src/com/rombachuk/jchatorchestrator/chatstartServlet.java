@@ -106,14 +106,14 @@ public class chatstartServlet extends HttpServlet {
 
 		  MessageResponse botReply = watsonconnection.synchronousRequest(options);
 		  
-		  //session is shared by many chats, so use this uuid to store a specific session variable
+		  //session is shared by many chats, so use this chatid to store a specific session variable
 		  //for recovery by this chat dialogue
-		  String chatuuid_lastreply = request.getParameter("uuid")+"lastreply";
+		  String chatuuid_lastreply = request.getParameter("chatid")+"lastreply";
 		  session.setAttribute(chatuuid_lastreply, botReply);
 
 	    request.setAttribute("workspacename", request.getParameter("name"));
 	    request.setAttribute("welcome", botReply.getOutput().getText().get(0));
-	    logger.debug("chatstart chatid={"+ request.getParameter("uuid")+ "} ws={"+request.getParameter("name")+"} "+
+	    logger.debug("chatstart chatid={"+ request.getParameter("chatid")+ "} ws={"+request.getParameter("name")+"} "+
 	    		formatLogBotReply("DEBUG",botReply));
 
         RequestDispatcher dispatcher = request.getServletContext().getRequestDispatcher("chat.jsp");

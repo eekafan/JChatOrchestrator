@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Enumeration;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.Filter;
@@ -20,8 +22,10 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 
 
 /**
@@ -31,6 +35,45 @@ import com.google.gson.JsonParser;
 public class ShowFilter implements Filter {
 	
 	  static Logger logger = Logger.getLogger(ShowFilter.class);
+	  
+	  private JsonObject getUrlParameters (HttpServletRequest httprequest) {
+	   JsonObject urlparameters = new JsonObject();
+       Enumeration<String> parameterNames = httprequest.getParameterNames();
+       while (parameterNames.hasMoreElements()) {				 
+          String paramName = parameterNames.nextElement();
+          String paramValues[] = httprequest.getParameterValues(paramName);
+          urlparameters.addProperty(paramName, paramValues[0]);
+       }
+       return urlparameters;
+	  }
+	  
+	  
+	  private String formatLogShow(String level, String opname, JsonObject urlParams, JsonObject showclientAppInput, JsonObject appdata) {
+	      String logShow = "";
+		  String chatid = "unknown"; String showid = "unknown";
+	  if (urlParams.has("chatid")) {
+		  chatid = urlParams.get("chatid").getAsString();
+	  }
+	  if (urlParams.has("showid")) {
+		  showid = urlParams.get("showid").getAsString();
+	  }
+	  
+	  String otherparameters="";	  
+	  for (Map.Entry<String,JsonElement> entry : urlParams.entrySet()) {
+		  if (!(entry.getKey().equals("chatid")) && !(entry.getKey().equals("showid"))) {
+			  otherparameters = otherparameters + "&" + entry.getKey() + "=" + entry.getValue().getAsString();
+	   }
+	  }
+	 
+	  if (level.equals("DEBUG")) {
+       if (!(showclientAppInput.size() == 0)) {
+		  logShow = "showop chatid={"+chatid+"} op={"+opname+"} showid={"+showid+"} POST otherparams= {"+otherparameters+"} body={"+showclientAppInput.toString()+"} replydata={"+appdata.toString()+"}";
+	   } else {
+		  logShow = "showop chatid={"+chatid+"} op={"+opname+"} showid={"+showid+"} GET  otherparams= {"+otherparameters+"} replydata={"+appdata.toString()+"}";
+	   }
+	  }
+	  return logShow;
+	  }
 	
 	  private String getRequestBody (final HttpServletRequest request) 
 
@@ -100,6 +143,7 @@ public class ShowFilter implements Filter {
 			          //J7 Servlet3 fix for read request once problem - do this first
 			          // J8 -> x = IOUtils.toString(req.getReader()));
 					 // body is empty for GETs but populated for POSTs
+					  JsonObject urlParams = getUrlParameters(httprequest);
 					  String bodyString = getRequestBody(httprequest);
 					  JsonObject showclientAppInput = new JsonObject();
 					  if (!bodyString.isEmpty()) { 
@@ -111,7 +155,8 @@ public class ShowFilter implements Filter {
 					  
 				       String servletpath[] = httprequest.getServletPath().split("/");
 				       String chatname = servletpath[servletpath.length-1];
-				       String urlparameters = httprequest.getQueryString();
+				       // logger.debug("servlet:"+httprequest.getServletPath()+'?'+httprequest.getQueryString());
+
 					   request.setAttribute("showclientappinput", showclientAppInput);
 					   request.setAttribute("showexception", showException);
  				   
@@ -128,11 +173,8 @@ public class ShowFilter implements Filter {
 						  JsonObject reply = new JsonObject();
 						  reply.add("appdata", appdata);
 						  out.write(reply.toString());
-						  if (!(showclientAppInput.size() == 0)) {
-							  logger.debug("showop POST op={"+chatname+"} urlparams= {"+urlparameters+"} body={"+showclientAppInput.toString()+"} replydata={"+appdata.toString()+"}");
-						  } else {
-							  logger.debug("showop GET op={"+chatname+"} urlparams= {"+urlparameters+"} replydata={"+appdata.toString()+"}");
-						  }
+						  logger.debug(formatLogShow("DEBUG",chatname,urlParams,showclientAppInput,appdata));
+			
 					   } 
 					   else {
 						   out.write(showException.toString());

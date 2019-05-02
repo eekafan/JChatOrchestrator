@@ -199,6 +199,7 @@ public class ChatFilter implements Filter {
 					  JcoProps jcoprops = (JcoProps) session.getServletContext().getAttribute("jcoprops");   
 	
 				      String servletpath[] = httprequest.getServletPath().split("/");
+				      // logger.debug("servlet:"+httprequest.getServletPath()+'?'+httprequest.getQueryString());
 				      String chatname = servletpath[servletpath.length-1];
 				      String workspaceid = jcoworkspaces.findId(chatname);
 					
@@ -216,7 +217,7 @@ public class ChatFilter implements Filter {
 					   request.setAttribute("botreply", botReply);
 					   request.setAttribute("botexception", botException);
 
-					    String chatuuid = request.getParameter("uuid");
+					    String chatuuid = request.getParameter("chatid");
 					    String chatuuid_lastreply = chatuuid+"lastreply";
 					    MessageResponse lastReply = (MessageResponse) session.getAttribute(chatuuid_lastreply);
 					    Context latestContext = lastReply.getContext();

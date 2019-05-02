@@ -66,7 +66,7 @@ public class EventAnalyticsServlet extends HttpServlet {
 			 	
 			 	//get session variables - maintained over many requests in this session
 			 	WatsonConnection watsonconnection = (WatsonConnection) request.getSession().getAttribute("watsonconnection");
-			    String chatuuid_lastreply = request.getParameter("uuid")+"lastreply";
+			    String chatuuid_lastreply = request.getParameter("chatid")+"lastreply";
 			    MessageResponse lastReply = (MessageResponse) request.getSession().getAttribute(chatuuid_lastreply);
 
 			    

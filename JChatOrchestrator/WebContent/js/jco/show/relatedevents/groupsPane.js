@@ -35,9 +35,14 @@ define (["jco/show/relatedevents/instancesPane",
         	if (selecteditems.length == 1) {
         		 array.forEach(selecteditems, function(selectedItem){
         			 if (selectedItem !== null) {
+        				     var urlParams = new URLSearchParams(window.location.search);
+        			   	     var showname = 'relatedevents'; var chatid='unknown'; var showid = 'unknown';
+        		    	     if (urlParams.has('name')) {showname = urlParams.get('name');}
+        		    	     if (urlParams.has('chatid')) {chatid = urlParams.get('chatid');}
+        		    	     if (urlParams.has('showid')) {showid = urlParams.get('showid');}
         					 var groupname = grid.store.getValues(selectedItem, 'groupname');
-        					 var $showurl = window.location.origin + 
-        					 "/JChatOrchestrator/show/relatedevents?groupname=" + groupname;
+        					 var $showurl = window.location.origin + "/JChatOrchestrator/show/"+showname+
+        		      	     "?chatid="+chatid+"&showid="+showid+"&groupname=" + groupname;
                 					 $.ajax({
         					  		 type: "GET",
         					  	 	 url: $showurl,

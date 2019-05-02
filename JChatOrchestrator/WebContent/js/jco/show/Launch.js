@@ -9,6 +9,11 @@ var Launch = function (name,assistantdata,appdata,handler) {
 	  var output = assistantdata.output.generic;
 	  var formname = "show" + String(assistantdata.context.system.dialog_turn_counter);
 	  
+      var urlParams = new URLSearchParams(window.location.search);
+      var chatid='unknown';
+      if (urlParams.has('chatid')) {chatid = urlParams.get('chatid');}
+
+	  
 	  for (var index in output) {
 		   if (output[index].response_type == 'text') {
 			   displayBotMessage(output[index].text)
@@ -17,13 +22,14 @@ var Launch = function (name,assistantdata,appdata,handler) {
 	  
 	  displayForm(chat,formname,appdata);
 	  
-	     $('form#'+formname).on('submit',{'dataform':formname},function(event) {
+	     $('form#'+formname).on('submit',{'chatid':chatid,'dataform':formname},function(event) {
 	    	 event.preventDefault();
 	    	 
 	    	 // launch popup for user to view the data
        	     var url = new URL(window.location.origin + "/JChatOrchestrator/showstart");  
        	     url.searchParams.append("name",name);
-     	     url.searchParams.append("uuid",uuid());
+       	     url.searchParams.append("chatid",event.data['chatid']);
+     	     url.searchParams.append("showid",uuid());
      	     url.searchParams.append("dataform",event.data['dataform']);
 	    	 var popup = window.open(url,'_blank','location=no,scrollbars=yes,left=200,height=1200,width=1200');        
 			   var popupClosed = setInterval(function () {

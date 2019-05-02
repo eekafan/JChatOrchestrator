@@ -15,6 +15,12 @@ var Launch = function (assistantdata,appdata,handler) {
 		   }
 	  }
 	  
+	  var urlParams = new URLSearchParams(window.location.search);
+	  var chatid='unknown';
+	  if (urlParams.has('chatid')) {	
+		  chatid = urlParams.getParam('chatid');
+	  }
+	  
 	  displayForm(chat,relname,appdata);
 	  
 	     $('form#'+relname).on('submit',{'dataform':relname},function(event) {
@@ -23,7 +29,8 @@ var Launch = function (assistantdata,appdata,handler) {
 	    	 // launch popup for user to view the data
        	     var url = new URL(window.location.origin + "/JChatOrchestrator/showstart");  
        	     url.searchParams.append("name","relatedevents");
-     	     url.searchParams.append("uuid",uuid());
+       	     url.searchParams.append("chatid",chatid());
+     	     url.searchParams.append("showid",uuid());
      	     url.searchParams.append("dataform",event.data['dataform']);
 	    	 var popup = window.open(url,'_blank','location=no,scrollbars=yes,left=200,height=1200,width=800');        
 			   var popupClosed = setInterval(function () {
