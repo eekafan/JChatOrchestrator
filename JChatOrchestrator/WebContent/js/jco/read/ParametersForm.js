@@ -9,7 +9,7 @@ var ParametersForm = function (name,parameters)  {
     		searchparameters.push(readDatetimeParameter(name,index,parameters[index].name));
     	} 	
        	if (parameters[index].type == 'simplefilter') { 
-       		searchparameters.push(readSinglefilterParameter(name,index,parameters[index].name));
+       		searchparameters.push(readSimplefilterParameter(name,index,parameters[index].name));
     	} 	
     } 
    return searchparameters;

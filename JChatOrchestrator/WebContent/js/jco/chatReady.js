@@ -1,4 +1,5 @@
-define (["jco/handle/BotReply","jco/display/userMessage"],function (handleBotReply,userMessage) {
+define (["jco/handle/BotReply","jco/display/userMessage"],
+		function (handleBotReply,userMessage) {
     var chatReady = function () {  
     	$(document).ready(function() {
         var data = new Object();

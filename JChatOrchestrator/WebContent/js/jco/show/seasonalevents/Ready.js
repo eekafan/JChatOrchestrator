@@ -6,11 +6,15 @@ define (["jco/show/seasonalevents/entriesPane"],function (entriesPane) {
     	   var appdata = JSON.parse(launchdataform.getAttribute('appdata'));
     	   var firedafter = document.getElementById('FiredAfterDatetime');
     	   firedafter.innerHTML = appdata.parameters[0]['startdate']['sql'];
+       	   var showname = 'seasonalevents'; var chatid='unknown'; var showid = 'unknown';
+    	   if (urlParams.has('name')) {showname = urlParams.get('name');}
+	       if (urlParams.has('chatid')) {chatid = urlParams.get('chatid');}
+	       if (urlParams.has('showid')) {showid = urlParams.get('showid');}
+ 
  
 			  // important to resend the location.search as the uuid is used to decode lastreply by server
-           
-    	   
-			   var $showurl = window.location.origin + "/JChatOrchestrator/show/seasonalevents";
+		   var $showurl = window.location.origin + "/JChatOrchestrator/show/"+showname+
+    	     "?chatid="+chatid+"&showid="+showid;
 			   var data = new Object();
 			  	  data.appdata = appdata;
 			  	  

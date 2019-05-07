@@ -1,5 +1,7 @@
-define(["jco/display/DatetimeParameter","jco/display/SimplefilterParameter"],
-    function (displayDatetimeParameter,displaySimplefilterParameter) {
+define(["jco/display/DatetimeParameter","jco/display/SimplefilterParameter",
+	"jco/display/ComplexfilterParameter"],
+    function (displayDatetimeParameter,displaySimplefilterParameter,
+    		displayComplexfilterParameter) {
 
 var ParametersForm = function (chat,name,activity,parameters,appdata)  {
     var dpform = document.createElement('form');
@@ -15,6 +17,9 @@ var ParametersForm = function (chat,name,activity,parameters,appdata)  {
     	} 	
     	if ((parameters[index].type == 'simplefilter') && (appdata.hasOwnProperty('filter_fields'))){        	
     		displaySimplefilterParameter(paramdiv,parameters[index].name,appdata.filter_fields);
+    	} 
+    	if ((parameters[index].type == 'complexfilter') && (appdata.hasOwnProperty('filter_fields'))){        	
+    		displayComplexfilterParameter(paramdiv,parameters[index].name,appdata.filter_fields);
     	} 
     } 
     var dpsend =  document.createElement('button');
