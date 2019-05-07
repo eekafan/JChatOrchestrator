@@ -26,6 +26,9 @@ define (["jco/show/relatedevents/eventsPane",
     	if (registry.byId('listInstancesGrid')) {
     	       registry.byId('listInstancesGrid').destroyRecursive();
     	}
+       	if (registry.byId('listEventsGrid')) {
+   	       registry.byId('listEventsGrid').destroyRecursive();
+   	    }
         var grid = new EnhancedGrid({
             jsId: 'listInstancesGrid',
             style: "height: 100%; width: 100%; whitespace:pre",
@@ -101,8 +104,8 @@ define (["jco/show/relatedevents/eventsPane",
     	
     var menusObject = {rowMenu: new Menu()};
     
-    menusObject.rowMenu.addChild(new dijit.MenuItem({label: "Fetch FireTimes", onClick:function(){}}));
-    menusObject.rowMenu.addChild(new dijit.MenuItem({label: "Action2", onClick:function(){}}));
+    menusObject.rowMenu.addChild(new dijit.MenuItem({label: "Placeholder Action1", onClick:function(){}}));
+    menusObject.rowMenu.addChild(new dijit.MenuItem({label: "Placeholder Action2", onClick:function(){}}));
     menusObject.rowMenu.startup();
     
     return menusObject;
@@ -118,7 +121,6 @@ define (["jco/show/relatedevents/eventsPane",
       		  if (appdata.hasOwnProperty('result_rows')) {
       			 eventsPane(appdata.result_rows);
                }
-  
           }
         }
      }

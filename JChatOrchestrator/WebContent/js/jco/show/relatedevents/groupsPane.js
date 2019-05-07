@@ -14,6 +14,12 @@ define (["jco/show/relatedevents/instancesPane",
     	if (registry.byId('listGroupsGrid')) {
     	       registry.byId('listGroupsGrid').destroyRecursive();
     	}
+       	if (registry.byId('listInstancesGrid')) {
+ 	       registry.byId('listInstancesGrid').destroyRecursive();
+ 	    }
+       	if (registry.byId('listEventsGrid')) {
+  	       registry.byId('listEventsGrid').destroyRecursive();
+  	    }
         var grid = new EnhancedGrid({
             jsId: 'listGroupsGrid',
             style: "height: 100%; width: 100%; whitespace:pre",
@@ -27,6 +33,8 @@ define (["jco/show/relatedevents/instancesPane",
            structure:layout});
         grid.placeAt('listGroupsContainer');
         grid.startup();
+        grid.selection.setSelected(0, true); //default to first row selected on create
+
         
         // call instancesPane when a row is selected
         dojo.connect(grid,'onRowClick',function(e) {
@@ -93,8 +101,8 @@ define (["jco/show/relatedevents/instancesPane",
     	
     var menusObject = {rowMenu: new Menu()};
     
-    menusObject.rowMenu.addChild(new dijit.MenuItem({label: "Fetch FireTimes", onClick:function(){}}));
-    menusObject.rowMenu.addChild(new dijit.MenuItem({label: "Action2", onClick:function(){}}));
+    menusObject.rowMenu.addChild(new dijit.MenuItem({label: "Placeholder Action1", onClick:function(){}}));
+    menusObject.rowMenu.addChild(new dijit.MenuItem({label: "Placeholder Action2", onClick:function(){}}));
     menusObject.rowMenu.startup();
     
     return menusObject;
@@ -110,7 +118,6 @@ define (["jco/show/relatedevents/instancesPane",
       		  if (appdata.hasOwnProperty('result_rows')) {
       			 instancesPane(groupname,appdata.result_rows);
                }
-  
           }
         }
      }
