@@ -84,13 +84,13 @@ public class JcoContextListener implements ServletContextListener {
 	     */
 	    @Override
 	    public void onFileChange(final File file) {
-	        if (file.getName().equals("jco_dialogue_assistants.props")) {
-	        	InputStream dialogueassistantsfile = this.context.getResourceAsStream(
-	             		 this.context.getInitParameter("jcodialogueassistants"));
-	            JcoDialogueAssistants jcodialogueassistants = new JcoDialogueAssistants(dialogueassistantsfile); 
-	            this.context.setAttribute("jcodialogueassistants", jcodialogueassistants); 
+	        if (file.getName().equals("jco_workspaces.props")) {
+	        	InputStream workspacesfile = this.context.getResourceAsStream(
+	             		 this.context.getInitParameter("jcoWorkspaces"));
+	            JcoWorkspaces jcoworkspaces = new JcoWorkspaces(workspacesfile); 
+	            this.context.setAttribute("jcoworkspaces", jcoworkspaces); 
 	            try {
-	            	dialogueassistantsfile.close();
+	            	workspacesfile.close();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -150,11 +150,11 @@ public class JcoContextListener implements ServletContextListener {
 
     		ServletContext ctx=sce.getServletContext();  
     		
-          	InputStream dialogueassistantsfile = ctx.getResourceAsStream(
-             		 ctx.getInitParameter("jcoDialogueAssistants"));
-            JcoDialogueAssistants jcodialogueassistants = new JcoDialogueAssistants(dialogueassistantsfile); 
-            ctx.setAttribute("dialogueassistants", jcodialogueassistants); 
-            dialogueassistantsfile.close(); 
+          	InputStream workspacesfile = ctx.getResourceAsStream(
+            		 ctx.getInitParameter("jcoWorkspaces"));
+            JcoWorkspaces jcoworkspaces = new JcoWorkspaces(workspacesfile); 
+            ctx.setAttribute("jcoworkspaces", jcoworkspaces); 
+            workspacesfile.close();
             
     	    InputStream propsfile = ctx.getResourceAsStream(
 	        		 ctx.getInitParameter("jcoProperties"));

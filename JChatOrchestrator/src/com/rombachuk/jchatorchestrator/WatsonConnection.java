@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.ibm.cloud.sdk.core.service.exception.NotFoundException;
+import com.ibm.cloud.sdk.core.service.exception.RequestTooLargeException;
+import com.ibm.cloud.sdk.core.service.exception.ServiceResponseException;
 import com.ibm.cloud.sdk.core.service.security.IamOptions;
 import com.ibm.watson.assistant.v2.Assistant;
 import com.ibm.watson.assistant.v2.model.CreateSessionOptions;
@@ -23,7 +25,7 @@ public class WatsonConnection {
 	
 	private Map<String,String> sessions = new HashMap<String,String>();
 
-	public WatsonConnection (JcoProps props, List<String> dialogueassistants) {
+	public WatsonConnection (JcoProps props, JcoWorkspaces workspaces) {
 		
 		IamOptions iamoptions = new IamOptions.Builder()
 			    .apiKey(props.getWatsonassistantapikey())
@@ -37,13 +39,13 @@ public class WatsonConnection {
 		headers.put("X-Watson-Learning-Opt-Out", "true");
 
 		service.setDefaultHeaders(headers);
-		for (String da:dialogueassistants) {
+		for (Workspace w : workspaces.getList()) {
 			try {
-			CreateSessionOptions sessionoptions = new CreateSessionOptions.Builder(da).build();
+			CreateSessionOptions sessionoptions = new CreateSessionOptions.Builder(w.getId()).build();
 			SessionResponse response = service.createSession(sessionoptions).execute().getResult();
-		    sessions.put(da, response.getSessionId());
+		    sessions.put(w.getName(), response.getSessionId());
 			}catch (Exception e) {
-				sessions.put(da, null);
+				sessions.put(w.getName(), null);
     	    }
 		}
 	}
@@ -67,20 +69,20 @@ public class WatsonConnection {
 		  try {
 			  response = this.service.message(options).execute().getResult();
      	      } catch (RequestTooLargeException e) {
-     	    	 response.put("exception", e);
+     	    	 System.out.println("exception"+ e);
      	      } catch (ServiceResponseException e) {
-     	    	 response.put("exception", e);
+     	    	 System.out.println("exception"+ e);
      	      } catch (Exception e) {
-      	    	 response.put("exception", e);
+     	    	 System.out.println("exception"+ e);
      	      }
 		return response;
 	}
 	
 	public Assistant getAssistant() {
-		return assistant;
+		return service;
 	}
 
-	public void setAssistant(Assistant assistant) {
-		this.assistant = assistant;
+	public void setService(Assistant service) {
+		this.service = service;
 	}
 }

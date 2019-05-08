@@ -3,6 +3,8 @@ package com.rombachuk.jchatorchestrator;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.RequestDispatcher;
@@ -17,12 +19,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.ibm.watson.developer_cloud.assistant.v1.model.Context;
-import com.ibm.watson.developer_cloud.assistant.v1.model.InputData;
+import com.ibm.cloud.sdk.core.service.exception.UnauthorizedException;
+import com.ibm.watson.assistant.v1.model.Context;
+import com.ibm.watson.assistant.v2.model.MessageContext;
+import com.ibm.watson.assistant.v2.model.MessageInput;
+import com.ibm.watson.assistant.v2.model.MessageOptions;
+import com.ibm.watson.assistant.v2.model.MessageResponse;
 
-import com.ibm.watson.developer_cloud.assistant.v1.model.MessageOptions;
-import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
-import com.ibm.watson.developer_cloud.service.exception.UnauthorizedException;
 
 
 
@@ -59,27 +62,36 @@ public class EventAnalyticsServlet extends HttpServlet {
 			    // ChatFilter provides validated set of attributes for use by chat servlet
 			    // get request variables - specific to this request
 			    String chatname = (String) request.getAttribute("chatname"); //added by filter
+			    String dialogueassistantid = (String) request.getAttribute("dialogueassistantid"); //added by filter
+			    String dialoguesessionid = (String) request.getAttribute("dialoguesessionid"); //added by filter
 			 	JsonObject chatclientAssistantInput = (JsonObject) request.getAttribute("chatclientassistantinput"); //added by filter
 			 	JsonObject chatclientAppInput = (JsonObject) request.getAttribute("chatclientappinput"); //added by filter
-			    Context latestContext = (Context) request.getAttribute("latestcontext");			    
-			 	String workspaceid = (String) request.getAttribute("workspaceid"); //added by filter
+			    MessageContext latestContext = (MessageContext) request.getAttribute("latestcontext");	
+			    
+
 			 	
 			 	//get session variables - maintained over many requests in this session
 			 	WatsonConnection watsonconnection = (WatsonConnection) request.getSession().getAttribute("watsonconnection");
 			    String chatuuid_lastreply = request.getParameter("chatid")+"lastreply";
 			    MessageResponse lastReply = (MessageResponse) request.getSession().getAttribute(chatuuid_lastreply);
 
+
 			    
 			    //send message to watson assistant
-			    MessageOptions options = new MessageOptions.Builder(workspaceid).build();
+			    MessageOptions options = new MessageOptions.Builder(dialogueassistantid,dialoguesessionid).build();
+			    MessageInput input = new MessageInput.Builder()
+			    		  .messageType("text")
+			    		  .text(chatclientAssistantInput.get("input").getAsString())
+			    		  .build();
 			    
-			    InputData input = new InputData.Builder(chatclientAssistantInput.get("input").getAsString()).build();
-				if ((lastReply == null) || (lastReply.entrySet().size() == 0)) {
-						   options= new MessageOptions.Builder(workspaceid)
+	
+			    
+				if ((lastReply == null) ) {
+						   options= new MessageOptions.Builder(dialogueassistantid,dialoguesessionid)
 								    .input(input)
 								    .build();
 				} else {
-				  	    options = new MessageOptions.Builder(workspaceid)
+				  	    options = new MessageOptions.Builder(dialogueassistantid,dialoguesessionid)
 					    .input(input)
 					    //.intents(lastReply.getIntents())
 					    //.entities(lastReply.getEntities())
@@ -102,25 +114,25 @@ public class EventAnalyticsServlet extends HttpServlet {
 			    // context holds activity,operation,operationstatus which are set by client+bot
 			    // app responds to the operation+status and uses its private appdata 
 
-			    Context context = botReply.getContext();
-				if ((context.containsKey("activity") == true ) && (context.containsKey("operation") == true )){
+			    MessageContext context = botReply.getContext();
+				if ((context.getSkills().containsKey("activity") == true ) && (context.getSkills().containsKey("operation") == true )){
 					
 					// collectparameter operations 
-					if (context.get("operation").toString().equals("collectparameters") && 
-							!context.get("operationstatus").toString().equals("complete")) {
+					if (context.getSkills().get("operation").toString().equals("collectparameters") && 
+							!context.getSkills().get("operationstatus").toString().equals("complete")) {
 						
-						if (context.get("activity").toString().equals("searchseasonalevents") ||
-						 context.get("activity").toString().equals("searchrelatedevents")) {
+						if (context.getSkills().get("activity").toString().equals("searchseasonalevents") ||
+						 context.getSkills().get("activity").toString().equals("searchrelatedevents")) {
 					     // appdata activity
 					    }
 						
-						if (context.get("activity").toString().equals("searchhistoricevents")) {
+						if (context.getSkills().get("activity").toString().equals("searchhistoricevents")) {
 					     // appdata activity
 						 HistoricEventsConnection historyconn = (HistoricEventsConnection) request.getSession().getServletContext().getAttribute("eventbothistoryconnection");
 						 appData.add("filter_fields",historyconn.fields);
 					    }
 
-					    if (context.get("activity").toString().equals("searchcurrentevents")) {
+					    if (context.getSkills().get("activity").toString().equals("searchcurrentevents")) {
 					     // appdata activity
 						 JsonArray currentfields = (JsonArray) request.getSession().getServletContext().getAttribute("eventbotobjectserverfields");
 						 appData.add("filter_fields",currentfields);
@@ -136,12 +148,12 @@ public class EventAnalyticsServlet extends HttpServlet {
 			 }
 		 
 		     catch( UnauthorizedException e) {
-		    	 System.out.println(e.getMessage());
+		    	 System.out.println(e.toString());
 		    	 botException.addProperty("error","Assistant Access Authorisation problem"); 
 		    	 request.setAttribute("botexception",botException);
 		     }
 	         catch (Exception e) {
-	        	 System.out.println(e.getMessage());
+	        	 System.out.println(e.toString());
 		    	 botException.addProperty("error","Assistant Request error"); 
 		    	 
 		    	 request.setAttribute("botexception",botException);

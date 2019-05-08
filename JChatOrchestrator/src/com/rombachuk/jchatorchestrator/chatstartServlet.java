@@ -47,15 +47,7 @@ public class chatstartServlet extends HttpServlet {
     private static String formatLogBotReply(String level, MessageResponse botReply) {
     	String logEntry = "empty";
     	String cvid = "empty";String turn = "empty"; String in = "empty"; String out = "empty";
-    	if (!botReply.getOutput().getUserDefined(){
-    		cvid = botReply.getContext().getConversationId();
-    	}
-    	if (!botReply.getContext().getSystem().get("dialog_turn_counter").toString().isEmpty()) {
-    		turn = botReply.getContext().getSystem().get("dialog_turn_counter").toString();
-    	}
-    	if (!botReply.getInput().getText().isEmpty()) {
-    		in = botReply.getInput().getText();
-    	}
+  
     	if (!botReply.getOutput().getGeneric().isEmpty()) {
     		String response_type = botReply.getOutput().getGeneric().get(0).getResponseType();
     		if (response_type.equals("text")) {
@@ -91,13 +83,13 @@ public class chatstartServlet extends HttpServlet {
 		PrintWriter out = response.getWriter();  
 		HttpSession session = request.getSession(true); // new session if not exist
 
-        JcoDialogueAssistants jcodialogueassistants = (JcoDialogueAssistants) session.getServletContext().getAttribute("jcodialogueassistants");
- 
+	    JcoWorkspaces jcoworkspaces = (JcoWorkspaces) session.getServletContext().getAttribute("jcoworkspaces");
+	  	
 	    JcoProps jcoprops = (JcoProps) session.getServletContext().getAttribute("jcoprops");   
 	    
 	    WatsonConnection watsonconnection = (WatsonConnection) request.getSession().getAttribute("watsonconnection");
 	    if (watsonconnection == null) {
-		     watsonconnection = new WatsonConnection(jcoprops,jcodialogueassistants.getList());
+		     watsonconnection = new WatsonConnection(jcoprops,jcoworkspaces);
 		     session.setAttribute("watsonconnection", watsonconnection);
 	    }
 
@@ -107,9 +99,12 @@ public class chatstartServlet extends HttpServlet {
 	    		  .build();
 
          // use hello as default input to kick start a reply
-	     String dialogueassistantid = request.getParameter("name");
+	    
+	     String chatname = (String) request.getParameter("name");
+
+	     String dialogueassistantid = jcoworkspaces.findId(chatname);
 	     Map<String,String> dialoguesessions = watsonconnection.getSessions();
-	     String dialoguesessionid = dialoguesessions.get(dialogueassistantid);
+	     String dialoguesessionid = dialoguesessions.get(chatname);
 	     if (dialoguesessionid == null) {
 	    	 
 	     }

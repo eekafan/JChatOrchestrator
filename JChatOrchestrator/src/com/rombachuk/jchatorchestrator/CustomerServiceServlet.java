@@ -2,8 +2,7 @@ package com.rombachuk.jchatorchestrator;
 
 
 import java.io.IOException;
-
-
+import java.util.Map;
 
 import javax.servlet.ServletException;
 
@@ -15,12 +14,12 @@ import javax.servlet.http.HttpServletResponse;
 
 
 import com.google.gson.JsonObject;
-import com.ibm.watson.developer_cloud.assistant.v1.model.Context;
-import com.ibm.watson.developer_cloud.assistant.v1.model.InputData;
+import com.ibm.cloud.sdk.core.service.exception.UnauthorizedException;
+import com.ibm.watson.assistant.v2.model.MessageContext;
+import com.ibm.watson.assistant.v2.model.MessageInput;
+import com.ibm.watson.assistant.v2.model.MessageOptions;
+import com.ibm.watson.assistant.v2.model.MessageResponse;
 
-import com.ibm.watson.developer_cloud.assistant.v1.model.MessageOptions;
-import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
-import com.ibm.watson.developer_cloud.service.exception.UnauthorizedException;
 
 
 
@@ -59,32 +58,38 @@ public class CustomerServiceServlet extends HttpServlet {
 			    String chatname = (String) request.getAttribute("chatname"); //added by filter
 			 	JsonObject chatclientAssistantInput = (JsonObject) request.getAttribute("chatclientassistantinput"); //added by filter
 			 	JsonObject chatclientAppInput = (JsonObject) request.getAttribute("chatclientappinput"); //added by filter
-			    Context latestContext = (Context) request.getAttribute("latestcontext");			    
-			 	String workspaceid = (String) request.getAttribute("workspaceid"); //added by filter
-			 	
-			 	//get session variables - maintained over many requests in this session
+			    MessageContext latestContext = (MessageContext) request.getAttribute("latestcontext");	
 			 	WatsonConnection watsonconnection = (WatsonConnection) request.getSession().getAttribute("watsonconnection");
 			    String chatuuid_lastreply = request.getParameter("chatid")+"lastreply";
 			    MessageResponse lastReply = (MessageResponse) request.getSession().getAttribute(chatuuid_lastreply);
 
+			    String dialogueassistantid = request.getParameter("name");
+			     Map<String,String> dialoguesessions = watsonconnection.getSessions();
+			     String dialoguesessionid = dialoguesessions.get(dialogueassistantid);
 			    
 			    //send message to watson assistant
-			    MessageOptions options = new MessageOptions.Builder(workspaceid).build();
+			    MessageOptions options = new MessageOptions.Builder(dialogueassistantid,dialoguesessionid).build();
+			    MessageInput input = new MessageInput.Builder()
+			    		  .messageType("text")
+			    		  .text(chatclientAssistantInput.get("input").getAsString())
+			    		  .build();
 			    
-			    InputData input = new InputData.Builder(chatclientAssistantInput.get("input").getAsString()).build();
-				if ((lastReply == null) || (lastReply.entrySet().size() == 0)) {
-						   options= new MessageOptions.Builder(workspaceid)
+	
+			    
+				if ((lastReply == null) ) {
+						   options= new MessageOptions.Builder(dialogueassistantid,dialoguesessionid)
 								    .input(input)
 								    .build();
 				} else {
-				  	    options = new MessageOptions.Builder(workspaceid)
+				  	    options = new MessageOptions.Builder(dialogueassistantid,dialoguesessionid)
 					    .input(input)
 					    //.intents(lastReply.getIntents())
 					    //.entities(lastReply.getEntities())
-					    .context(latestContext)
+					    //.context(latestContext)
 					    //.output(lastReply.getOutput())
 					    .build();
 			    }
+
 				MessageResponse botReply = watsonconnection.synchronousRequest(options);
 				
 			    // process reply from watson assistant - 

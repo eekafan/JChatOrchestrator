@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.Filter;
@@ -28,6 +29,8 @@ import org.apache.log4j.Logger;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.ibm.cloud.sdk.core.service.exception.UnauthorizedException;
+import com.ibm.watson.assistant.v2.model.MessageContext;
 import com.ibm.watson.assistant.v2.model.MessageResponse;
 
 /**
@@ -42,15 +45,7 @@ public class ChatFilter implements Filter {
 	   private static String formatLogChatDialogue(String level, MessageResponse botReply) {
 	    	String logEntry = "empty";
 	    	String cvid = "empty";String turn = "empty"; String in = "empty"; String out = "empty";
-	    	if (!botReply.getContext().getConversationId().isEmpty()) {
-	    		cvid = botReply.getContext().getConversationId();
-	    	}
-	    	if (!botReply.getContext().getSystem().get("dialog_turn_counter").toString().isEmpty()) {
-	    		turn = botReply.getContext().getSystem().get("dialog_turn_counter").toString();
-	    	}
-	    	if (!botReply.getInput().getText().isEmpty()) {
-	    		in = botReply.getInput().getText();
-	    	}
+	
 	    	if (!botReply.getOutput().getGeneric().isEmpty()) {
 	    		String response_type = botReply.getOutput().getGeneric().get(0).getResponseType();
 	    		if (response_type.equals("text")) {
@@ -77,18 +72,7 @@ public class ChatFilter implements Filter {
 	   private static String formatLogChatOperation(String level, MessageResponse botReply) {
 	    	String logEntry = "empty";
 	    	String ac = "empty";String op = "empty"; String data = "empty"; String stat = "empty";
-	    	if (botReply.getContext().containsKey("activity")){
-	    		ac = botReply.getContext().get("activity").toString();
-	    	}
-	    	if (botReply.getContext().containsKey("operation")){
-	    		op = botReply.getContext().get("operation").toString();
-	    	}
-	    	if (botReply.getContext().containsKey("operationdata")){
-	    		data = botReply.getContext().get("operationdata").toString();
-	    	}
-	    	if (botReply.getContext().containsKey("operationstatus")){
-	    		stat = botReply.getContext().get("operationstatus").toString();
-	    	}
+
 	    	
 	    	if (level.equals("DEBUG")) {
 	    		logEntry = "ac={"+ac+"},"+
@@ -192,7 +176,7 @@ public class ChatFilter implements Filter {
 				    	  chatclientAppInput  = chatclientInput.getAsJsonObject("appdata");
 				      }
 				        
-				      JcoDialogueAssistants jcodialogueassistants = (JcoDialogueAssistants) session.getServletContext().getAttribute("jcodialogueassistants");
+				      JcoWorkspaces jcoworkspaces = (JcoWorkspaces) session.getServletContext().getAttribute("jcoworkspaces");
 				        
 				 
 					  JcoProps jcoprops = (JcoProps) session.getServletContext().getAttribute("jcoprops");   
@@ -200,13 +184,20 @@ public class ChatFilter implements Filter {
 				      String servletpath[] = httprequest.getServletPath().split("/");
 				      // logger.debug("servlet:"+httprequest.getServletPath()+'?'+httprequest.getQueryString());
 				      String chatname = servletpath[servletpath.length-1];
+	
 					
 					  WatsonConnection watsonconnection = (WatsonConnection) request.getAttribute("watsonconnection");
 					  if (watsonconnection == null) {
-						     watsonconnection = new WatsonConnection(jcoprops,jcodialogueassistants.getList());
+						     watsonconnection = new WatsonConnection(jcoprops,jcoworkspaces);
 						     session.setAttribute("watsonconnection", watsonconnection);
 					  }
+				         String dialogueassistantid = jcoworkspaces.findId(request.getParameter("name"));
+					     Map<String,String> dialoguesessions = watsonconnection.getSessions();
+					     String dialoguesessionid = dialoguesessions.get(request.getParameter("name"));
 
+					   request.setAttribute("dialoguesessionid", dialoguesessionid);
+					   request.setAttribute("dialogueassistantid", dialogueassistantid);
+					     
 					   request.setAttribute("chatname", chatname);
 					   request.setAttribute("chatclientassistantinput", chatclientAssistantInput);
 					   request.setAttribute("chatclientappinput", chatclientAppInput);
@@ -216,12 +207,12 @@ public class ChatFilter implements Filter {
 					    String chatuuid = request.getParameter("chatid");
 					    String chatuuid_lastreply = chatuuid+"lastreply";
 					    MessageResponse lastReply = (MessageResponse) session.getAttribute(chatuuid_lastreply);
-					    Context latestContext = lastReply.getContext();
+					    MessageContext latestContext = lastReply.getContext();
 					    if (chatclientAssistantInput.has("contextinput")) {
 					     JsonObject chatclientContextinput = chatclientAssistantInput.getAsJsonObject("contextinput");
 					     Set<String> keyset = chatclientContextinput.keySet();
 					     for (String key : keyset) {
-					    		latestContext.put(key, chatclientContextinput.get(key));
+					    		latestContext.getSkills().put(key, chatclientContextinput.get(key));
 					     }
 					    }
                  	    request.setAttribute("latestcontext", latestContext);	
@@ -246,8 +237,8 @@ public class ChatFilter implements Filter {
 						  reply.add("appdata", appdata);
 						  out.write(reply.toString());
 						  logger.debug("chatxchg chatid={"+ chatuuid+ "} ws={"+chatname+"} "+formatLogChatDialogue("DEBUG",botReply));
-						  if (botReply.getContext().containsKey("activity")) {
-							  if (!botReply.getContext().get("activity").equals(""))
+						  if (botReply.getContext().getSkills().containsKey("activity")) {
+							  if (!botReply.getContext().getSkills().get("activity").equals(""))
 					          logger.debug("chatop chatid={"+ chatuuid+ "} ws={"+chatname+"} "+formatLogChatOperation("DEBUG",botReply));
 						  }
 						  if (!(appdata.size() == 0)) {
@@ -259,13 +250,7 @@ public class ChatFilter implements Filter {
 						   logger.debug("chatxchg chatid={"+ chatuuid+ "} ws={"+chatname+"} error={"+botException.toString()+"}");
 					   }
 					   out.close(); 
-				      }
-					  else {
-						  botException.addProperty("error","input problem");  
-					      out.write(botException.toString());
-						   logger.debug("chatxchg chatid={unidentified} ws={unidentified} error={"+botException.toString()+"}");
-					      out.close(); 
-					  }			      
+				}		      
 
 			 }
 		     catch( IOException e) {
@@ -275,7 +260,7 @@ public class ChatFilter implements Filter {
 			      out.close(); 
 		     }
 		     catch( UnauthorizedException e) {
-		    	 System.out.println(e.getResponse());
+		    	 System.out.println(e.toString());
 		    	 botException.addProperty("error","input problem");  
 			      out.write(botException.toString());
 				   logger.debug("chatxchg chatid={unidentified} ws={unidentified} error={"+botException.toString()+"}");
