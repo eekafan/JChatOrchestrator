@@ -12,3 +12,4 @@ WatsonAssistantVersion		2018-07-10
 WatsonAssistantURL			https://gateway.watsonplatform.net/assistant/api
 WatsonAssistantUsername
 WatsonAssistantPassword
+WatsonAssistantAPIKey

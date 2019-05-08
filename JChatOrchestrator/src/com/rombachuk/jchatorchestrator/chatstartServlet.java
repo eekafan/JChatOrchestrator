@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -19,9 +20,11 @@ import org.apache.log4j.Logger;
 
 
 import com.cloudant.client.api.Database;
-import com.ibm.watson.developer_cloud.assistant.v1.model.InputData;
-import com.ibm.watson.developer_cloud.assistant.v1.model.MessageOptions;
-import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
+import com.ibm.watson.assistant.v2.model.MessageInput;
+import com.ibm.watson.assistant.v2.model.MessageInputOptions;
+import com.ibm.watson.assistant.v2.model.MessageOptions;
+import com.ibm.watson.assistant.v2.model.MessageResponse;
+
 
 
 /**
@@ -44,7 +47,7 @@ public class chatstartServlet extends HttpServlet {
     private static String formatLogBotReply(String level, MessageResponse botReply) {
     	String logEntry = "empty";
     	String cvid = "empty";String turn = "empty"; String in = "empty"; String out = "empty";
-    	if (!botReply.getContext().getConversationId().isEmpty()) {
+    	if (!botReply.getOutput().getUserDefined(){
     		cvid = botReply.getContext().getConversationId();
     	}
     	if (!botReply.getContext().getSystem().get("dialog_turn_counter").toString().isEmpty()) {
@@ -88,21 +91,31 @@ public class chatstartServlet extends HttpServlet {
 		PrintWriter out = response.getWriter();  
 		HttpSession session = request.getSession(true); // new session if not exist
 
-        JcoWorkspaces jcoworkspaces = (JcoWorkspaces) session.getServletContext().getAttribute("jcoworkspaces");
-        String workspaceid = jcoworkspaces.findId(request.getParameter("name"));
+        JcoDialogueAssistants jcodialogueassistants = (JcoDialogueAssistants) session.getServletContext().getAttribute("jcodialogueassistants");
  
 	    JcoProps jcoprops = (JcoProps) session.getServletContext().getAttribute("jcoprops");   
 	    
 	    WatsonConnection watsonconnection = (WatsonConnection) request.getSession().getAttribute("watsonconnection");
 	    if (watsonconnection == null) {
-		     watsonconnection = new WatsonConnection(jcoprops);
+		     watsonconnection = new WatsonConnection(jcoprops,jcodialogueassistants.getList());
 		     session.setAttribute("watsonconnection", watsonconnection);
 	    }
 
+	    MessageInput input = new MessageInput.Builder()
+	    		  .messageType("text")
+	    		  .text("Hello")
+	    		  .build();
+
          // use hello as default input to kick start a reply
-		 MessageOptions options = new MessageOptions.Builder(workspaceid)
-		    .input(new InputData.Builder("Hello").build())
-		    .build();
+	     String dialogueassistantid = request.getParameter("name");
+	     Map<String,String> dialoguesessions = watsonconnection.getSessions();
+	     String dialoguesessionid = dialoguesessions.get(dialogueassistantid);
+	     if (dialoguesessionid == null) {
+	    	 
+	     }
+		 MessageOptions options = new MessageOptions.Builder(dialogueassistantid,dialoguesessionid)
+		        .input(input)
+		        .build();
 
 		  MessageResponse botReply = watsonconnection.synchronousRequest(options);
 		  
@@ -112,7 +125,7 @@ public class chatstartServlet extends HttpServlet {
 		  session.setAttribute(chatuuid_lastreply, botReply);
 
 	    request.setAttribute("workspacename", request.getParameter("name"));
-	    request.setAttribute("welcome", botReply.getOutput().getText().get(0));
+	    request.setAttribute("welcome", botReply.getOutput().getGeneric().get(0).getText());
 	    logger.debug("chatstart chatid={"+ request.getParameter("chatid")+ "} ws={"+request.getParameter("name")+"} "+
 	    		formatLogBotReply("DEBUG",botReply));
 

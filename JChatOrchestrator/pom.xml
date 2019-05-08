@@ -22,9 +22,9 @@
     <version>4.0.6</version>
 </dependency>
 <dependency>
-  <groupId>com.ibm.watson.developer_cloud</groupId>
-  <artifactId>java-sdk</artifactId>
-  <version>6.5.1</version>
+  <groupId>com.ibm.watson</groupId>
+  <artifactId>ibm-watson</artifactId>
+  <version>7.0.0</version>
 </dependency>
 <dependency>
     <groupId>javax.servlet</groupId>

@@ -28,9 +28,7 @@ import org.apache.log4j.Logger;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.ibm.watson.developer_cloud.assistant.v1.model.Context;
-import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
-import com.ibm.watson.developer_cloud.service.exception.UnauthorizedException;
+import com.ibm.watson.assistant.v2.model.MessageResponse;
 
 /**
  * Servlet Filter implementation class ChatFilter 
@@ -194,24 +192,22 @@ public class ChatFilter implements Filter {
 				    	  chatclientAppInput  = chatclientInput.getAsJsonObject("appdata");
 				      }
 				        
-				      JcoWorkspaces jcoworkspaces = (JcoWorkspaces) session.getServletContext().getAttribute("jcoworkspaces");
+				      JcoDialogueAssistants jcodialogueassistants = (JcoDialogueAssistants) session.getServletContext().getAttribute("jcodialogueassistants");
+				        
 				 
 					  JcoProps jcoprops = (JcoProps) session.getServletContext().getAttribute("jcoprops");   
 	
 				      String servletpath[] = httprequest.getServletPath().split("/");
 				      // logger.debug("servlet:"+httprequest.getServletPath()+'?'+httprequest.getQueryString());
 				      String chatname = servletpath[servletpath.length-1];
-				      String workspaceid = jcoworkspaces.findId(chatname);
 					
 					  WatsonConnection watsonconnection = (WatsonConnection) request.getAttribute("watsonconnection");
 					  if (watsonconnection == null) {
-						     watsonconnection = new WatsonConnection(jcoprops);
+						     watsonconnection = new WatsonConnection(jcoprops,jcodialogueassistants.getList());
 						     session.setAttribute("watsonconnection", watsonconnection);
 					  }
 
-					  if  (workspaceid != null) {
 					   request.setAttribute("chatname", chatname);
-					   request.setAttribute("workspaceid", workspaceid);
 					   request.setAttribute("chatclientassistantinput", chatclientAssistantInput);
 					   request.setAttribute("chatclientappinput", chatclientAppInput);
 					   request.setAttribute("botreply", botReply);
@@ -270,7 +266,7 @@ public class ChatFilter implements Filter {
 						   logger.debug("chatxchg chatid={unidentified} ws={unidentified} error={"+botException.toString()+"}");
 					      out.close(); 
 					  }			      
-					}
+
 			 }
 		     catch( IOException e) {
 		    	  botException.addProperty("error","input problem");  

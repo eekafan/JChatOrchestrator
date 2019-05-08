@@ -1,38 +1,71 @@
 package com.rombachuk.jchatorchestrator;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import com.ibm.watson.developer_cloud.assistant.v1.Assistant;
-import com.ibm.watson.developer_cloud.assistant.v1.model.MessageOptions;
-import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
-import com.ibm.watson.developer_cloud.service.exception.NotFoundException;
-import com.ibm.watson.developer_cloud.service.exception.RequestTooLargeException;
-import com.ibm.watson.developer_cloud.service.exception.ServiceResponseException;
+import com.ibm.cloud.sdk.core.service.exception.NotFoundException;
+import com.ibm.cloud.sdk.core.service.security.IamOptions;
+import com.ibm.watson.assistant.v2.Assistant;
+import com.ibm.watson.assistant.v2.model.CreateSessionOptions;
+import com.ibm.watson.assistant.v2.model.MessageOptions;
+import com.ibm.watson.assistant.v2.model.MessageResponse;
+import com.ibm.watson.assistant.v2.model.SessionResponse;
+
+
 
 public class WatsonConnection {
 
 
-	private Assistant assistant = null;
+	private Assistant service = null;
 	
-	public WatsonConnection (JcoProps props) {
-		    this.assistant = new Assistant(props.getWatsonassistantversion(),
-		    props.getWatsonassistantusername(),
-		    props.getWatsonassistantpassword());
+	private Map<String,String> sessions = new HashMap<String,String>();
 
-		assistant.setEndPoint(props.getWatsonassistanturl());
+	public WatsonConnection (JcoProps props, List<String> dialogueassistants) {
+		
+		IamOptions iamoptions = new IamOptions.Builder()
+			    .apiKey(props.getWatsonassistantapikey())
+			    .build();
+		
+		    this.service = new Assistant(props.getWatsonassistantversion(), iamoptions);
+		    
+
+		service.setEndPoint(props.getWatsonassistanturl());
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("X-Watson-Learning-Opt-Out", "true");
 
-		assistant.setDefaultHeaders(headers);
+		service.setDefaultHeaders(headers);
+		for (String da:dialogueassistants) {
+			try {
+			CreateSessionOptions sessionoptions = new CreateSessionOptions.Builder(da).build();
+			SessionResponse response = service.createSession(sessionoptions).execute().getResult();
+		    sessions.put(da, response.getSessionId());
+			}catch (Exception e) {
+				sessions.put(da, null);
+    	    }
+		}
 	}
 	
+	
+	
+	public Map<String, String> getSessions() {
+		return sessions;
+	}
+
+
+
+	public void setSessions(Map<String, String> sessions) {
+		this.sessions = sessions;
+	}
+
+
+
 	public MessageResponse synchronousRequest(MessageOptions options) {
 		MessageResponse response = null;
 		  try {
-			  response = this.assistant.message(options).execute();
-              } catch (NotFoundException e) {
-     	       response.put("exception", e);
+			  response = this.service.message(options).execute().getResult();
      	      } catch (RequestTooLargeException e) {
      	    	 response.put("exception", e);
      	      } catch (ServiceResponseException e) {

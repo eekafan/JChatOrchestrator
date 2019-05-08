@@ -158,4 +158,8 @@
 		<servlet-name>com.rombachuk.jchatorchestrator.SeasonalEventsServlet</servlet-name>
 		<url-pattern>/show/seasonalevents</url-pattern>
 	</servlet-mapping> 
+		<context-param>
+			<param-name>jcoDialogueAssistants</param-name>
+			<param-value>/WEB-INF/jco_dialogue_assistants.props</param-value>
+		</context-param>
 </web-app>

@@ -22,6 +22,7 @@ public class JcoProps {
 	private String watsonassistanturl = null;
 	private String watsonassistantusername = null;
 	private String watsonassistantpassword = null;
+	private String watsonassistantapikey = null;
 	
 	public JcoProps (InputStream input) {	
 		
@@ -73,7 +74,10 @@ public class JcoProps {
 		    }
 		    if (nextLine[0].equalsIgnoreCase("WatsonAssistantPassword")) {
 		    	this.watsonassistantpassword = nextLine[1];
-		    }	    
+		    }	  
+		    if (nextLine[0].equalsIgnoreCase("WatsonAssistantAPIKey")) {
+		    	this.watsonassistantapikey = nextLine[1];
+		    }	  
 		}
 		reader.close();
      }
@@ -83,6 +87,14 @@ public class JcoProps {
 
 	}
 	
+	public String getWatsonassistantapikey() {
+		return watsonassistantapikey;
+	}
+
+	public void setWatsonassistantapikey(String watsonassistantapikey) {
+		this.watsonassistantapikey = watsonassistantapikey;
+	}
+
 	public String getCloudanturl() {
 		return cloudanturl;
 	}
