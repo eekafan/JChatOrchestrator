@@ -43,7 +43,7 @@ public class ChatFilter implements Filter {
 	
 	   static Logger logger = Logger.getLogger(ChatFilter.class);
 	
-	   private static String formatLogChatDialogue(String level, MessageResponse botReply) {
+	   private static String formatLogChatDialogue(String level, JsonObject input, MessageResponse botReply) {
 	    	String logEntry = "empty";
 	    	String cvid = "empty";String turn = "empty"; String in = "empty"; String out = "empty";
 	
@@ -61,9 +61,8 @@ public class ChatFilter implements Filter {
 	    	}
 	    	
 	    	if (level.equals("DEBUG")) {
-	    		logEntry = "cv=[id={"+cvid+"},"+
-	    				   "turn={"+turn+"},"+
-	    				   "in={"+in+"},"+
+	    		logEntry = "turn={"+turn+"},"+
+	    				   "in={"+input.get("input").getAsString()+"},"+
 	    				   "out0={"+out+"}"+
 	    				   "]";
 	    	}
@@ -183,21 +182,24 @@ public class ChatFilter implements Filter {
 					  JcoProps jcoprops = (JcoProps) session.getServletContext().getAttribute("jcoprops");   
 	
 				      String servletpath[] = httprequest.getServletPath().split("/");
-				      logger.debug("servlet2:"+httprequest.getServletPath()+'?'+httprequest.getQueryString());
+				      logger.debug("servlet4:"+httprequest.getServletPath()+'?'+httprequest.getQueryString());
 				      String chatname = servletpath[servletpath.length-1];
 	
 					
 					  WatsonConnection watsonconnection = (WatsonConnection) httprequest.getSession().getAttribute("watsonconnection");
 					  if (watsonconnection == null) {
-						     watsonconnection = new WatsonConnection(jcoprops,jcoworkspaces);
+						     watsonconnection = new WatsonConnection(jcoprops);
 						     session.setAttribute("watsonconnection", watsonconnection);
 					  }
-				         String dialogueassistantid = jcoworkspaces.findId(request.getParameter("name"));
-					     Map<String,String> dialoguesessions = watsonconnection.getSessions();
-					     String dialoguesessionid = dialoguesessions.get(dialogueassistantid);
+				         String chatassistantid = jcoworkspaces.findId(request.getParameter("name"));
+					     String chatid = request.getParameter("chatid");
+					     String chatsessionid  = watsonconnection.getSessions().get(chatid);
+					     if (chatsessionid == null) {
+					    	 chatsessionid = watsonconnection.addSession(chatassistantid, chatid);
+					     }
 
-					   request.setAttribute("dialoguesessionid", dialoguesessionid);
-					   request.setAttribute("dialogueassistantid", dialogueassistantid);
+					   request.setAttribute("chatsessionid", chatsessionid);
+					   request.setAttribute("chatassistantid", chatassistantid);
 					     
 					   request.setAttribute("chatname", chatname);
 					   request.setAttribute("chatclientassistantinput", chatclientAssistantInput);
@@ -205,9 +207,8 @@ public class ChatFilter implements Filter {
 					   request.setAttribute("botreply", botReply);
 					   request.setAttribute("botexception", botException);
 
-					    String chatuuid = request.getParameter("chatid");
-					    String chatuuid_lastreply = chatuuid+"lastreply";
-					    MessageResponse lastReply = (MessageResponse) session.getAttribute(chatuuid_lastreply);
+
+					    MessageResponse lastReply = (MessageResponse) session.getAttribute(chatid+"lastreply");
 					    MessageContext latestContext = lastReply.getContext();
 					    if (chatclientAssistantInput.has("contextinput")) {
 					     JsonObject chatclientContextinput = chatclientAssistantInput.getAsJsonObject("contextinput");
@@ -230,37 +231,44 @@ public class ChatFilter implements Filter {
 					   botReply = (MessageResponse) request.getAttribute("botreply");
 
 					   JsonObject assistantreply = (JsonObject) new JsonParser().parse(botReply.toString());
-					   assistantreply.addProperty("sessionid", dialoguesessionid);
-					   assistantreply.addProperty("assistantid", dialogueassistantid);
+					   assistantreply.addProperty("chatsessionid", chatsessionid);
+					   assistantreply.addProperty("chatassistantid", chatassistantid);
+					   assistantreply.addProperty("chatid", chatid);
 					   JsonObject appdata = (JsonObject)  request.getAttribute("appdata");
 					   if (botException.entrySet().isEmpty()) {
-						  session.setAttribute(chatuuid_lastreply, botReply);
+						  session.setAttribute(chatid+"lastreply", botReply);
 						  JsonObject reply = new JsonObject();
 						  reply.add("assistantdata",assistantreply);
 						  reply.add("appdata", appdata);
 						  out.write(reply.toString());
-						  logger.debug("chatxchg chatid={"+ chatuuid+ "} ws={"+chatname+"} wsid={"+
-								  dialogueassistantid + "} sess={"+ dialoguesessionid +"}"+
-								  formatLogChatDialogue("DEBUG",botReply));
+						  logger.debug("chatxchg chatid={"+ chatid+ "} ws={"+chatname+"} wsid={"+
+								  chatassistantid + "} sess={"+ chatsessionid +"}"+
+								  formatLogChatDialogue("DEBUG",chatclientAssistantInput,botReply));
 						  try {
 						   MessageContextSkills contextskills = botReply.getContext().getSkills();
-						   if (contextskills.containsKey("activity")) {
-							  if (!contextskills.get("activity").equals("")) {
-					          logger.debug("chatop chatid={"+ chatuuid+ "} ws={"+chatname+"} wsid={"+
-									  dialogueassistantid + "} sess={"+ dialoguesessionid +"}"+
+					       if (contextskills.containsKey("main skill") == true) {
+						   Map<String,Object> mainskill = (Map<String, Object>) contextskills.get("main skill");
+						    if (mainskill.containsKey("user_defined") == true) {
+						     Map<String,Object> userdefined = (Map<String, Object>) mainskill.get("user_defined");
+						     if (userdefined.containsKey("activity")) {
+							  if (!userdefined.get("activity").equals("")) {
+					          logger.debug("chatop chatid={"+ chatid+ "} ws={"+chatname+"} wsid={"+
+									  chatassistantid + "} sess={"+ chatsessionid +"}"+
 							  formatLogChatOperation("DEBUG",botReply));
 							  }
-						   }
+						     }
+						    }
+					       }
 						  } 
                             catch (Exception e) {	
 						  }
 						  if (!(appdata.size() == 0)) {
-							  logger.debug("appop chatid={"+ chatuuid+ "} ws={"+chatname+"} "+appdata.toString());
+							  logger.debug("appop chatid={"+ chatid+ "} ws={"+chatname+"} "+appdata.toString());
 						  }
 					   } 
 					   else {
 						   out.write(botException.toString());
-						   logger.debug("chatxchg chatid={"+ chatuuid+ "} ws={"+chatname+"} error={"+botException.toString()+"}");
+						   logger.debug("chatxchg chatid={"+ chatid+ "} ws={"+chatname+"} error={"+botException.toString()+"}");
 					   }
 					   out.close(); 
 				}		      

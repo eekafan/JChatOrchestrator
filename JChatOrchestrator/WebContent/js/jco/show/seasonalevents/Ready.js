@@ -5,7 +5,7 @@ define (["jco/show/seasonalevents/entriesPane"],function (entriesPane) {
     	   var launchdataform = window.opener.document.getElementById(urlParams.get('dataform'));
     	   var appdata = JSON.parse(launchdataform.getAttribute('appdata'));
     	   var firedafter = document.getElementById('FiredAfterDatetime');
-    	   firedafter.innerHTML = appdata.parameters[0]['startdate']['sql'];
+    	   firedafter.innerHTML = appdata.parameters[0].startdate.sql;
        	   var showname = 'seasonalevents'; var chatid='unknown'; var showid = 'unknown';
     	   if (urlParams.has('name')) {showname = urlParams.get('name');}
 	       if (urlParams.has('chatid')) {chatid = urlParams.get('chatid');}

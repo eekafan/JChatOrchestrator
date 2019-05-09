@@ -13,6 +13,7 @@ import com.ibm.cloud.sdk.core.service.exception.ServiceResponseException;
 import com.ibm.cloud.sdk.core.service.security.IamOptions;
 import com.ibm.watson.assistant.v2.Assistant;
 import com.ibm.watson.assistant.v2.model.CreateSessionOptions;
+import com.ibm.watson.assistant.v2.model.DeleteSessionOptions;
 import com.ibm.watson.assistant.v2.model.MessageOptions;
 import com.ibm.watson.assistant.v2.model.MessageResponse;
 import com.ibm.watson.assistant.v2.model.SessionResponse;
@@ -26,13 +27,7 @@ public class WatsonConnection {
 	
 	private Map<String,String> sessions = new HashMap<String,String>();
 	
-	private String CreateSession (String assistantid) {
-		CreateSessionOptions sessionoptions = new CreateSessionOptions.Builder(assistantid).build();
-		SessionResponse response = service.createSession(sessionoptions).execute().getResult();
-		return response.getSessionId();
-	}
-
-	public WatsonConnection (JcoProps props, JcoWorkspaces workspaces) {
+	public WatsonConnection (JcoProps props) {
 		
 		IamOptions iamoptions = new IamOptions.Builder()
 			    .apiKey(props.getWatsonassistantapikey())
@@ -46,30 +41,10 @@ public class WatsonConnection {
 		headers.put("X-Watson-Learning-Opt-Out", "true");
 
 		service.setDefaultHeaders(headers);
-		for (Workspace w : workspaces.getList()) {
-			try {
-			String sessionid = CreateSession(w.getId());
-		    sessions.put(w.getId(), sessionid);
-			}catch (Exception e) {
-				sessions.put(w.getId(), null);
-    	    }
-		}
+
 	}
 	
 	
-	
-	public Map<String, String> getSessions() {
-		return sessions;
-	}
-
-
-
-	public void setSessions(Map<String, String> sessions) {
-		this.sessions = sessions;
-	}
-
-
-
 	public MessageResponse synchronousRequest(MessageOptions options) {
 		MessageResponse response = null;
 		  try {
@@ -85,18 +60,36 @@ public class WatsonConnection {
 		return response;
 	}
 	
-	public String renewSession(String assistantid) {
-		   System.out.println("RENEW "+assistantid);
+	
+	public Map<String, String> getSessions() {
+		return sessions;
+	}
+
+	public String addSession(String assistantid,String chatid) {
+
 		        String sessionid = null;
 				try {
-					
-				    sessionid = CreateSession(assistantid);
-				    sessions.put(assistantid, sessionid);
+					CreateSessionOptions sessionoptions = new CreateSessionOptions.Builder(assistantid).build();
+					SessionResponse response = service.createSession(sessionoptions).execute().getResult();				
+				    sessionid = response.getSessionId();
+				    sessions.put(chatid, sessionid);
 					}catch (Exception e) {
-						sessions.put(assistantid, null);
+						sessions.put(chatid, null);
 		    	    }
-				System.out.println("RENEW "+assistantid+" Sessionid "+sessionid);
 		return sessionid;
+	}
+	
+	public Boolean deleteSession(String assistantid,String chatid) {
+
+		try {
+	        DeleteSessionOptions options = new DeleteSessionOptions.Builder(assistantid, sessions.get(chatid)).build();
+	        service.deleteSession(options).execute();
+	        sessions.remove(chatid);
+	        return true;
+		}catch (Exception e) {
+			sessions.remove(chatid);
+			return false;
+	    }
 	}
 	
 	public Assistant getAssistant() {

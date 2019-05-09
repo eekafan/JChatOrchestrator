@@ -63,8 +63,9 @@ public class EventAnalyticsServlet extends HttpServlet {
 			    // ChatFilter provides validated set of attributes for use by chat servlet
 			    // get request variables - specific to this request
 			    String chatname = (String) request.getAttribute("chatname"); //added by filter
-			    String dialogueassistantid = (String) request.getAttribute("dialogueassistantid"); //added by filter
-			    String dialoguesessionid = (String) request.getAttribute("dialoguesessionid"); //added by filter
+			    String chatid = (String) request.getAttribute("chatid"); //added by filter
+			    String chatassistantid = (String) request.getAttribute("chatassistantid"); //added by filter
+			    String chatsessionid = (String) request.getAttribute("chatsessionid"); //added by filter
 			 	JsonObject chatclientAssistantInput = (JsonObject) request.getAttribute("chatclientassistantinput"); //added by filter
 			 	JsonObject chatclientAppInput = (JsonObject) request.getAttribute("chatclientappinput"); //added by filter
 			    MessageContext latestContext = (MessageContext) request.getAttribute("latestcontext");	
@@ -87,13 +88,13 @@ public class EventAnalyticsServlet extends HttpServlet {
 			    		  .text(chatclientAssistantInput.get("input").getAsString())
 			    		  .build();
 			    
-			    MessageOptions options = new MessageOptions.Builder(dialogueassistantid,dialoguesessionid).build();
+			    MessageOptions options = new MessageOptions.Builder(chatassistantid,chatsessionid).build();
 				if ((lastReply == null) ) {
-						   options= new MessageOptions.Builder(dialogueassistantid,dialoguesessionid)
+						   options= new MessageOptions.Builder(chatassistantid,chatsessionid)
 								    .input(input)
 								    .build();
 				} else {
-				  	    options = new MessageOptions.Builder(dialogueassistantid,dialoguesessionid)
+				  	    options = new MessageOptions.Builder(chatassistantid,chatsessionid)
 					    .input(input)
 					    //.intents(lastReply.getIntents())
 					    //.entities(lastReply.getEntities())
@@ -106,15 +107,17 @@ public class EventAnalyticsServlet extends HttpServlet {
 				// process reply from watson assistant - 
 				if (botReply == null) {
 					// maybe timeout - try to build new session and resubmit
-					String renewsessionid = watsonconnection.renewSession(dialogueassistantid);
-					request.setAttribute("dialoguesessionid", renewsessionid);
-					    options = new MessageOptions.Builder(dialogueassistantid,renewsessionid).build();
+					Boolean deleteresult = watsonconnection.deleteSession(chatassistantid, chatid);
+					chatsessionid = watsonconnection.addSession(chatassistantid, chatid);
+					if (chatsessionid != null) {
+					request.setAttribute("chatsessionid", chatsessionid);
+					    options = new MessageOptions.Builder(chatassistantid,chatsessionid).build();
 						if ((lastReply == null) ) {
-								   options= new MessageOptions.Builder(dialogueassistantid,renewsessionid)
+								   options= new MessageOptions.Builder(chatassistantid,chatsessionid)
 										    .input(input)
 										    .build();
 						} else {
-						  	    options = new MessageOptions.Builder(dialogueassistantid,renewsessionid)
+						  	    options = new MessageOptions.Builder(chatassistantid,chatsessionid)
 							    .input(input)
 							    //.intents(lastReply.getIntents())
 							    //.entities(lastReply.getEntities())
@@ -124,6 +127,7 @@ public class EventAnalyticsServlet extends HttpServlet {
 					    }
 						botReply = watsonconnection.synchronousRequest(options);
 
+				    }
 				}
 				// appData is private to the app and the client, assistant does not see it.
 				
@@ -137,32 +141,37 @@ public class EventAnalyticsServlet extends HttpServlet {
 			    // app responds to the operation+status and uses its private appdata 
 			    try {
 			    	MessageContextSkills contextskills = botReply.getContext().getSkills();
-				    if ((contextskills.containsKey("activity") == true ) && 
-				    		(contextskills.containsKey("operation") == true )){
+			    	if (contextskills.containsKey("main skill") == true) {
+			    	 Map<String,Object> mainskill = (Map<String, Object>) contextskills.get("main skill");
+			    	 if (mainskill.containsKey("user_defined") == true) {
+			    		 Map<String,Object> userdefined = (Map<String, Object>) mainskill.get("user_defined");
+				     if ((userdefined.containsKey("activity") == true ) && 
+				    		(userdefined.containsKey("operation") == true )){
 					
 					// collectparameter operations 
-					if (contextskills.get("operation").toString().equals("collectparameters") && 
-							!contextskills.get("operationstatus").toString().equals("complete")) {
+					 if (userdefined.get("operation").toString().equals("collectparameters") && 
+							!userdefined.get("operationstatus").toString().equals("complete")) {
 						
-						if (contextskills.get("activity").toString().equals("searchseasonalevents") ||
-								contextskills.get("activity").toString().equals("searchrelatedevents")) {
+						if (userdefined.get("activity").toString().equals("searchseasonalevents") ||
+								userdefined.get("activity").toString().equals("searchrelatedevents")) {
 					     // appdata activity
 					    }
 						
-						if (contextskills.get("activity").toString().equals("searchhistoricevents")) {
+						if (userdefined.get("activity").toString().equals("searchhistoricevents")) {
 					     // appdata activity
 						 HistoricEventsConnection historyconn = (HistoricEventsConnection) request.getSession().getServletContext().getAttribute("eventbothistoryconnection");
 						 appData.add("filter_fields",historyconn.fields);
 					    }
 
-					    if (contextskills.get("activity").toString().equals("searchcurrentevents")) {
+					    if (userdefined.get("activity").toString().equals("searchcurrentevents")) {
 					     // appdata activity
 						 JsonArray currentfields = (JsonArray) request.getSession().getServletContext().getAttribute("eventbotobjectserverfields");
 						 appData.add("filter_fields",currentfields);
 					    }
-					}
-					
-				   }
+					  }				
+				     }
+			    	 }
+			    	}
 			     } catch (Exception e) {	
 			     }
 
