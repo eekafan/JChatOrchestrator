@@ -22,23 +22,27 @@ var BotReply = function (reply) {
        		  var topindex = undefined;
 
      		  if (reply.hasOwnProperty('assistantdata') && reply.assistantdata.hasOwnProperty('context') &&
-     				 reply.assistantdata.hasOwnProperty('output')) {   	
-   			     
-  			     if (reply.assistantdata.context.hasOwnProperty('activity')) {
-    			     activity = reply.assistantdata.context.activity;
+     				 reply.assistantdata.hasOwnProperty('output')) {
+     			  
+     			  
+   			     if (reply.assistantdata.context.hasOwnProperty('skills')) {
+   			     var userdefined = reply.assistantdata.context.skills['main skill']['user_defined'];
+  			     if (userdefined.hasOwnProperty('activity')) {
+    			     activity = userdefined.activity;
     			 }
   			     
-   			     if (reply.assistantdata.context.hasOwnProperty('operation')) {
-   			    	 operation = reply.assistantdata.context.operation;
+   			     if (userdefined.hasOwnProperty('operation')) {
+   			    	 operation = userdefined.operation;
    			     }
    			     
-   			     if (reply.assistantdata.context.hasOwnProperty('operationdata')) {
-   			    	 operationdata = reply.assistantdata.context.operationdata;
+   			     if (userdefined.hasOwnProperty('operationdata')) {
+   			    	 operationdata = userdefined.operationdata;
    			     }
    			     
- 			     if (reply.assistantdata.context.hasOwnProperty('operationstatus')) {
-    			     operationstatus = reply.assistantdata.context.operationstatus;
+ 			     if (userdefined.hasOwnProperty('operationstatus')) {
+    			     operationstatus = userdefined.operationstatus;
     			 } 
+   			     }
  			     
  			    if (reply.hasOwnProperty('appdata')) {
    			         appdata = reply.appdata;
