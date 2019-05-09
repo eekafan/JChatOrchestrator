@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.JsonObject;
 import com.ibm.cloud.sdk.core.service.exception.NotFoundException;
 import com.ibm.cloud.sdk.core.service.exception.RequestTooLargeException;
 import com.ibm.cloud.sdk.core.service.exception.ServiceResponseException;
@@ -24,6 +25,12 @@ public class WatsonConnection {
 	private Assistant service = null;
 	
 	private Map<String,String> sessions = new HashMap<String,String>();
+	
+	private String CreateSession (String assistantid) {
+		CreateSessionOptions sessionoptions = new CreateSessionOptions.Builder(assistantid).build();
+		SessionResponse response = service.createSession(sessionoptions).execute().getResult();
+		return response.getSessionId();
+	}
 
 	public WatsonConnection (JcoProps props, JcoWorkspaces workspaces) {
 		
@@ -41,11 +48,10 @@ public class WatsonConnection {
 		service.setDefaultHeaders(headers);
 		for (Workspace w : workspaces.getList()) {
 			try {
-			CreateSessionOptions sessionoptions = new CreateSessionOptions.Builder(w.getId()).build();
-			SessionResponse response = service.createSession(sessionoptions).execute().getResult();
-		    sessions.put(w.getName(), response.getSessionId());
+			String sessionid = CreateSession(w.getId());
+		    sessions.put(w.getId(), sessionid);
 			}catch (Exception e) {
-				sessions.put(w.getName(), null);
+				sessions.put(w.getId(), null);
     	    }
 		}
 	}
@@ -72,10 +78,25 @@ public class WatsonConnection {
      	    	 System.out.println("exception"+ e);
      	      } catch (ServiceResponseException e) {
      	    	 System.out.println("exception"+ e);
-     	      } catch (Exception e) {
+     	      } 
+		         catch (Exception e) {
      	    	 System.out.println("exception"+ e);
      	      }
 		return response;
+	}
+	
+	public String renewSession(String assistantid) {
+		   System.out.println("RENEW "+assistantid);
+		        String sessionid = null;
+				try {
+					
+				    sessionid = CreateSession(assistantid);
+				    sessions.put(assistantid, sessionid);
+					}catch (Exception e) {
+						sessions.put(assistantid, null);
+		    	    }
+				System.out.println("RENEW "+assistantid+" Sessionid "+sessionid);
+		return sessionid;
 	}
 	
 	public Assistant getAssistant() {

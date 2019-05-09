@@ -16,7 +16,7 @@ var Options = function (assistantdata,handler) {
 	   }
 	   if (output[index].response_type == 'option') {
 		    displayBotMessage(output[index].description)
-	        var radioname = "radio" + String(context.system.dialog_turn_counter);
+	        var radioname = "radio" + String(context.global.system.turn_count);
 	        if (context.hasOwnProperty("defaultoption")) {
 	        	displayRadio(radioname,output[index].options,context.defaultoption);
 	        } else {

@@ -20,9 +20,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.ibm.cloud.sdk.core.service.exception.UnauthorizedException;
-import com.ibm.watson.assistant.v1.model.Context;
 import com.ibm.watson.assistant.v2.model.MessageContext;
+import com.ibm.watson.assistant.v2.model.MessageContextSkills;
 import com.ibm.watson.assistant.v2.model.MessageInput;
+import com.ibm.watson.assistant.v2.model.MessageInputOptions;
 import com.ibm.watson.assistant.v2.model.MessageOptions;
 import com.ibm.watson.assistant.v2.model.MessageResponse;
 
@@ -78,14 +79,15 @@ public class EventAnalyticsServlet extends HttpServlet {
 
 			    
 			    //send message to watson assistant
-			    MessageOptions options = new MessageOptions.Builder(dialogueassistantid,dialoguesessionid).build();
+			    MessageInputOptions inputoptions = new MessageInputOptions();
+                inputoptions.setReturnContext(true);
 			    MessageInput input = new MessageInput.Builder()
 			    		  .messageType("text")
+			    		  .options(inputoptions)
 			    		  .text(chatclientAssistantInput.get("input").getAsString())
 			    		  .build();
 			    
-	
-			    
+			    MessageOptions options = new MessageOptions.Builder(dialogueassistantid,dialoguesessionid).build();
 				if ((lastReply == null) ) {
 						   options= new MessageOptions.Builder(dialogueassistantid,dialoguesessionid)
 								    .input(input)
@@ -102,7 +104,27 @@ public class EventAnalyticsServlet extends HttpServlet {
 				MessageResponse botReply = watsonconnection.synchronousRequest(options);
 
 				// process reply from watson assistant - 
-				
+				if (botReply == null) {
+					// maybe timeout - try to build new session and resubmit
+					String renewsessionid = watsonconnection.renewSession(dialogueassistantid);
+					request.setAttribute("dialoguesessionid", renewsessionid);
+					    options = new MessageOptions.Builder(dialogueassistantid,renewsessionid).build();
+						if ((lastReply == null) ) {
+								   options= new MessageOptions.Builder(dialogueassistantid,renewsessionid)
+										    .input(input)
+										    .build();
+						} else {
+						  	    options = new MessageOptions.Builder(dialogueassistantid,renewsessionid)
+							    .input(input)
+							    //.intents(lastReply.getIntents())
+							    //.entities(lastReply.getEntities())
+							    .context(latestContext)
+							    //.output(lastReply.getOutput())
+							    .build();
+					    }
+						botReply = watsonconnection.synchronousRequest(options);
+
+				}
 				// appData is private to the app and the client, assistant does not see it.
 				
 				JsonObject appData = new JsonObject();
@@ -113,34 +135,37 @@ public class EventAnalyticsServlet extends HttpServlet {
 			    // context is shared with assistant. 
 			    // context holds activity,operation,operationstatus which are set by client+bot
 			    // app responds to the operation+status and uses its private appdata 
-
-			    MessageContext context = botReply.getContext();
-				if ((context.getSkills().containsKey("activity") == true ) && (context.getSkills().containsKey("operation") == true )){
+			    try {
+			    	MessageContextSkills contextskills = botReply.getContext().getSkills();
+				    if ((contextskills.containsKey("activity") == true ) && 
+				    		(contextskills.containsKey("operation") == true )){
 					
 					// collectparameter operations 
-					if (context.getSkills().get("operation").toString().equals("collectparameters") && 
-							!context.getSkills().get("operationstatus").toString().equals("complete")) {
+					if (contextskills.get("operation").toString().equals("collectparameters") && 
+							!contextskills.get("operationstatus").toString().equals("complete")) {
 						
-						if (context.getSkills().get("activity").toString().equals("searchseasonalevents") ||
-						 context.getSkills().get("activity").toString().equals("searchrelatedevents")) {
+						if (contextskills.get("activity").toString().equals("searchseasonalevents") ||
+								contextskills.get("activity").toString().equals("searchrelatedevents")) {
 					     // appdata activity
 					    }
 						
-						if (context.getSkills().get("activity").toString().equals("searchhistoricevents")) {
+						if (contextskills.get("activity").toString().equals("searchhistoricevents")) {
 					     // appdata activity
 						 HistoricEventsConnection historyconn = (HistoricEventsConnection) request.getSession().getServletContext().getAttribute("eventbothistoryconnection");
 						 appData.add("filter_fields",historyconn.fields);
 					    }
 
-					    if (context.getSkills().get("activity").toString().equals("searchcurrentevents")) {
+					    if (contextskills.get("activity").toString().equals("searchcurrentevents")) {
 					     // appdata activity
 						 JsonArray currentfields = (JsonArray) request.getSession().getServletContext().getAttribute("eventbotobjectserverfields");
 						 appData.add("filter_fields",currentfields);
 					    }
 					}
 					
-				}
-				
+				   }
+			     } catch (Exception e) {	
+			     }
+
 				// send app specific response to chatclient via ChatFilter
 				request.setAttribute("appdata", appData);
 				// send bot response to chatclient via ChatFilter

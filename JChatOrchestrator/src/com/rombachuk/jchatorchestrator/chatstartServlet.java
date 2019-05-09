@@ -92,9 +92,13 @@ public class chatstartServlet extends HttpServlet {
 		     watsonconnection = new WatsonConnection(jcoprops,jcoworkspaces);
 		     session.setAttribute("watsonconnection", watsonconnection);
 	    }
+	    
+	    MessageInputOptions inputoptions = new MessageInputOptions();
+	                        inputoptions.setReturnContext(true);
 
 	    MessageInput input = new MessageInput.Builder()
 	    		  .messageType("text")
+	    		  .options(inputoptions)
 	    		  .text("Hello")
 	    		  .build();
 
@@ -104,10 +108,12 @@ public class chatstartServlet extends HttpServlet {
 
 	     String dialogueassistantid = jcoworkspaces.findId(chatname);
 	     Map<String,String> dialoguesessions = watsonconnection.getSessions();
-	     String dialoguesessionid = dialoguesessions.get(chatname);
+	     String dialoguesessionid = dialoguesessions.get(dialogueassistantid);
 	     if (dialoguesessionid == null) {
 	    	 
 	     }
+	     
+	     
 		 MessageOptions options = new MessageOptions.Builder(dialogueassistantid,dialoguesessionid)
 		        .input(input)
 		        .build();

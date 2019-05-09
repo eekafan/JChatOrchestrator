@@ -31,6 +31,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.ibm.cloud.sdk.core.service.exception.UnauthorizedException;
 import com.ibm.watson.assistant.v2.model.MessageContext;
+import com.ibm.watson.assistant.v2.model.MessageContextSkills;
 import com.ibm.watson.assistant.v2.model.MessageResponse;
 
 /**
@@ -182,18 +183,18 @@ public class ChatFilter implements Filter {
 					  JcoProps jcoprops = (JcoProps) session.getServletContext().getAttribute("jcoprops");   
 	
 				      String servletpath[] = httprequest.getServletPath().split("/");
-				      // logger.debug("servlet:"+httprequest.getServletPath()+'?'+httprequest.getQueryString());
+				      logger.debug("servlet2:"+httprequest.getServletPath()+'?'+httprequest.getQueryString());
 				      String chatname = servletpath[servletpath.length-1];
 	
 					
-					  WatsonConnection watsonconnection = (WatsonConnection) request.getAttribute("watsonconnection");
+					  WatsonConnection watsonconnection = (WatsonConnection) httprequest.getSession().getAttribute("watsonconnection");
 					  if (watsonconnection == null) {
 						     watsonconnection = new WatsonConnection(jcoprops,jcoworkspaces);
 						     session.setAttribute("watsonconnection", watsonconnection);
 					  }
 				         String dialogueassistantid = jcoworkspaces.findId(request.getParameter("name"));
 					     Map<String,String> dialoguesessions = watsonconnection.getSessions();
-					     String dialoguesessionid = dialoguesessions.get(request.getParameter("name"));
+					     String dialoguesessionid = dialoguesessions.get(dialogueassistantid);
 
 					   request.setAttribute("dialoguesessionid", dialoguesessionid);
 					   request.setAttribute("dialogueassistantid", dialogueassistantid);
@@ -229,6 +230,8 @@ public class ChatFilter implements Filter {
 					   botReply = (MessageResponse) request.getAttribute("botreply");
 
 					   JsonObject assistantreply = (JsonObject) new JsonParser().parse(botReply.toString());
+					   assistantreply.addProperty("sessionid", dialoguesessionid);
+					   assistantreply.addProperty("assistantid", dialogueassistantid);
 					   JsonObject appdata = (JsonObject)  request.getAttribute("appdata");
 					   if (botException.entrySet().isEmpty()) {
 						  session.setAttribute(chatuuid_lastreply, botReply);
@@ -236,10 +239,20 @@ public class ChatFilter implements Filter {
 						  reply.add("assistantdata",assistantreply);
 						  reply.add("appdata", appdata);
 						  out.write(reply.toString());
-						  logger.debug("chatxchg chatid={"+ chatuuid+ "} ws={"+chatname+"} "+formatLogChatDialogue("DEBUG",botReply));
-						  if (botReply.getContext().getSkills().containsKey("activity")) {
-							  if (!botReply.getContext().getSkills().get("activity").equals(""))
-					          logger.debug("chatop chatid={"+ chatuuid+ "} ws={"+chatname+"} "+formatLogChatOperation("DEBUG",botReply));
+						  logger.debug("chatxchg chatid={"+ chatuuid+ "} ws={"+chatname+"} wsid={"+
+								  dialogueassistantid + "} sess={"+ dialoguesessionid +"}"+
+								  formatLogChatDialogue("DEBUG",botReply));
+						  try {
+						   MessageContextSkills contextskills = botReply.getContext().getSkills();
+						   if (contextskills.containsKey("activity")) {
+							  if (!contextskills.get("activity").equals("")) {
+					          logger.debug("chatop chatid={"+ chatuuid+ "} ws={"+chatname+"} wsid={"+
+									  dialogueassistantid + "} sess={"+ dialoguesessionid +"}"+
+							  formatLogChatOperation("DEBUG",botReply));
+							  }
+						   }
+						  } 
+                            catch (Exception e) {	
 						  }
 						  if (!(appdata.size() == 0)) {
 							  logger.debug("appop chatid={"+ chatuuid+ "} ws={"+chatname+"} "+appdata.toString());
