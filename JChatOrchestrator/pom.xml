@@ -9,6 +9,10 @@
 	    <id>db2repository</id>
 	    <url>https://artifacts.alfresco.com/nexus/content/repositories/public/</url>
 	</repository>
+	<repository>
+	    <id>bintray-ibm-cloud-sdks-ibm-cloud-sdk-repo</id>
+	    <url>https://dl.bintray.com/ibm-cloud-sdks/ibm-cloud-sdk-repo</url>
+	</repository>
     </repositories>
   <dependencies>
 	<dependency>
@@ -22,9 +26,9 @@
     <version>4.0.6</version>
 </dependency>
 <dependency>
-  <groupId>com.ibm.watson.developer_cloud</groupId>
-  <artifactId>java-sdk</artifactId>
-  <version>6.5.1</version>
+  <groupId>com.ibm.watson</groupId>
+  <artifactId>ibm-watson</artifactId>
+  <version>7.0.0</version>
 </dependency>
 <dependency>
     <groupId>javax.servlet</groupId>

@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.JsonObject;
-import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
+
 
 /**
  * Servlet implementation class LaunchSessionCheckServlet

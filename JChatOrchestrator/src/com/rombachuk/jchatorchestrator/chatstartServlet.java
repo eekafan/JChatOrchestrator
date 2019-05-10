@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -19,9 +20,11 @@ import org.apache.log4j.Logger;
 
 
 import com.cloudant.client.api.Database;
-import com.ibm.watson.developer_cloud.assistant.v1.model.InputData;
-import com.ibm.watson.developer_cloud.assistant.v1.model.MessageOptions;
-import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
+import com.ibm.watson.assistant.v2.model.MessageInput;
+import com.ibm.watson.assistant.v2.model.MessageInputOptions;
+import com.ibm.watson.assistant.v2.model.MessageOptions;
+import com.ibm.watson.assistant.v2.model.MessageResponse;
+
 
 
 /**
@@ -44,15 +47,7 @@ public class chatstartServlet extends HttpServlet {
     private static String formatLogBotReply(String level, MessageResponse botReply) {
     	String logEntry = "empty";
     	String cvid = "empty";String turn = "empty"; String in = "empty"; String out = "empty";
-    	if (!botReply.getContext().getConversationId().isEmpty()) {
-    		cvid = botReply.getContext().getConversationId();
-    	}
-    	if (!botReply.getContext().getSystem().get("dialog_turn_counter").toString().isEmpty()) {
-    		turn = botReply.getContext().getSystem().get("dialog_turn_counter").toString();
-    	}
-    	if (!botReply.getInput().getText().isEmpty()) {
-    		in = botReply.getInput().getText();
-    	}
+  
     	if (!botReply.getOutput().getGeneric().isEmpty()) {
     		String response_type = botReply.getOutput().getGeneric().get(0).getResponseType();
     		if (response_type.equals("text")) {
@@ -88,9 +83,8 @@ public class chatstartServlet extends HttpServlet {
 		PrintWriter out = response.getWriter();  
 		HttpSession session = request.getSession(true); // new session if not exist
 
-        JcoWorkspaces jcoworkspaces = (JcoWorkspaces) session.getServletContext().getAttribute("jcoworkspaces");
-        String workspaceid = jcoworkspaces.findId(request.getParameter("name"));
- 
+	    JcoWorkspaces jcoworkspaces = (JcoWorkspaces) session.getServletContext().getAttribute("jcoworkspaces");
+	  	
 	    JcoProps jcoprops = (JcoProps) session.getServletContext().getAttribute("jcoprops");   
 	    
 	    WatsonConnection watsonconnection = (WatsonConnection) request.getSession().getAttribute("watsonconnection");
@@ -98,24 +92,41 @@ public class chatstartServlet extends HttpServlet {
 		     watsonconnection = new WatsonConnection(jcoprops);
 		     session.setAttribute("watsonconnection", watsonconnection);
 	    }
+	    
+	    MessageInputOptions inputoptions = new MessageInputOptions();
+	                        inputoptions.setReturnContext(true);
+
+	    MessageInput input = new MessageInput.Builder()
+	    		  .messageType("text")
+	    		  .options(inputoptions)
+	    		  .text("Hello")
+	    		  .build();
 
          // use hello as default input to kick start a reply
-		 MessageOptions options = new MessageOptions.Builder(workspaceid)
-		    .input(new InputData.Builder("Hello").build())
-		    .build();
+	    
+	     String chatname = (String) request.getParameter("name");
+	     String chatid = request.getParameter("chatid");
 
-		  MessageResponse botReply = watsonconnection.synchronousRequest(options);
-		  
-		  //session is shared by many chats, so use this chatid to store a specific session variable
-		  //for recovery by this chat dialogue
-		  String chatuuid_lastreply = request.getParameter("chatid")+"lastreply";
-		  session.setAttribute(chatuuid_lastreply, botReply);
+	     String chatassistantid = jcoworkspaces.findId(chatname);
+	     String chatsessionid = watsonconnection.addSession(chatassistantid, chatid);
+	     if (chatsessionid != null) {
+	     
+		 MessageOptions options = new MessageOptions.Builder(chatassistantid,chatsessionid)
+		        .input(input)
+		        .build();
+
+		 MessageResponse botReply = watsonconnection.synchronousRequest(options);
+	    
+		  //http session is shared by many chats, so use this chatid to store a specific session variable
+		 // watson session is local to this chat
+		  session.setAttribute(chatid+"lastreply", botReply);
 
 	    request.setAttribute("workspacename", request.getParameter("name"));
-	    request.setAttribute("welcome", botReply.getOutput().getText().get(0));
-	    logger.debug("chatstart chatid={"+ request.getParameter("chatid")+ "} ws={"+request.getParameter("name")+"} "+
+	    request.setAttribute("welcome", botReply.getOutput().getGeneric().get(0).getText());
+	    logger.debug("chatstart chatid={"+ chatid+ "} ws={"+chatname +"} "+
 	    		formatLogBotReply("DEBUG",botReply));
-
+	    }
+	     
         RequestDispatcher dispatcher = request.getServletContext().getRequestDispatcher("chat.jsp");
         dispatcher.forward(request, response);
 	    out.close();

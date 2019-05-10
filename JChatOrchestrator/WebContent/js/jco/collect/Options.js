@@ -1,4 +1,5 @@
-define (["jco/display/botMessage","jco/display/Radio"],function (displayBotMessage,displayRadio) {
+define (["jco/display/botMessage","jco/display/Radio","jco/utils/uuid"],
+		function (displayBotMessage,displayRadio,uuid) {
 
 
 var Options = function (assistantdata,handler) {
@@ -16,9 +17,10 @@ var Options = function (assistantdata,handler) {
 	   }
 	   if (output[index].response_type == 'option') {
 		    displayBotMessage(output[index].description)
-	        var radioname = "radio" + String(context.system.dialog_turn_counter);
-	        if (context.hasOwnProperty("defaultoption")) {
-	        	displayRadio(radioname,output[index].options,context.defaultoption);
+	        var radioname = "radio" + uuid();
+	        if (context.hasOwnProperty('skills')) {
+	        	displayRadio(radioname,output[index].options,
+	        			context.skills['main skill'].user_defined.defaultoption);
 	        } else {
 	        displayRadio(radioname,output[index].options)
 	        }

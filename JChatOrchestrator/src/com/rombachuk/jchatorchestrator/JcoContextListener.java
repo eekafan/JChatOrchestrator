@@ -90,7 +90,7 @@ public class JcoContextListener implements ServletContextListener {
 	            JcoWorkspaces jcoworkspaces = new JcoWorkspaces(workspacesfile); 
 	            this.context.setAttribute("jcoworkspaces", jcoworkspaces); 
 	            try {
-					workspacesfile.close();
+	            	workspacesfile.close();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -151,10 +151,10 @@ public class JcoContextListener implements ServletContextListener {
     		ServletContext ctx=sce.getServletContext();  
     		
           	InputStream workspacesfile = ctx.getResourceAsStream(
-             		 ctx.getInitParameter("jcoWorkspaces"));
+            		 ctx.getInitParameter("jcoWorkspaces"));
             JcoWorkspaces jcoworkspaces = new JcoWorkspaces(workspacesfile); 
             ctx.setAttribute("jcoworkspaces", jcoworkspaces); 
-            workspacesfile.close(); 
+            workspacesfile.close();
             
     	    InputStream propsfile = ctx.getResourceAsStream(
 	        		 ctx.getInitParameter("jcoProperties"));

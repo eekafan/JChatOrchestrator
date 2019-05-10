@@ -1,9 +1,6 @@
 define(["jco/display/DatetimePicker","jco/utils/childtable",
-	"jco/display/SimplefilterParameter",
-	"dijit/form/TextBox","dijit/form/DateTextBox","dijit/form/TimeTextBox",
-    "dijit/form/FilteringSelect","dojo/store/Memory"],
-    function (displayDatetimePicker,childtable,displaySimplefilterParameter,
-    		domconstruct,textbox,datetextbox,timetextbox,filteringselect,memory) {
+	"jco/display/SimplefilterParameter"],
+    function (displayDatetimePicker,childtable,displaySimplefilterParameter) {
 
 var ComplexfilterParameter = function (parent,name,filter_fields) {
 	 	var filtertable = childtable(parent,parent.id +'table',1,4);

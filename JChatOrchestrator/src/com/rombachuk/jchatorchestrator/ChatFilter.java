@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.Filter;
@@ -25,12 +26,19 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.ibm.watson.developer_cloud.assistant.v1.model.Context;
-import com.ibm.watson.developer_cloud.assistant.v1.model.MessageResponse;
-import com.ibm.watson.developer_cloud.service.exception.UnauthorizedException;
+import com.google.gson.reflect.TypeToken;
+import com.ibm.cloud.sdk.core.service.exception.UnauthorizedException;
+import com.ibm.watson.assistant.v2.model.MessageContext;
+import com.ibm.watson.assistant.v2.model.MessageContextGlobal;
+import com.ibm.watson.assistant.v2.model.MessageContextSkills;
+import com.ibm.watson.assistant.v2.model.MessageInput;
+import com.ibm.watson.assistant.v2.model.MessageInputOptions;
+import com.ibm.watson.assistant.v2.model.MessageOptions;
+import com.ibm.watson.assistant.v2.model.MessageResponse;
 
 /**
  * Servlet Filter implementation class ChatFilter 
@@ -41,18 +49,10 @@ public class ChatFilter implements Filter {
 	
 	   static Logger logger = Logger.getLogger(ChatFilter.class);
 	
-	   private static String formatLogChatDialogue(String level, MessageResponse botReply) {
+	   private static String formatLogChatDialogue(String level, JsonObject input, MessageResponse botReply) {
 	    	String logEntry = "empty";
 	    	String cvid = "empty";String turn = "empty"; String in = "empty"; String out = "empty";
-	    	if (!botReply.getContext().getConversationId().isEmpty()) {
-	    		cvid = botReply.getContext().getConversationId();
-	    	}
-	    	if (!botReply.getContext().getSystem().get("dialog_turn_counter").toString().isEmpty()) {
-	    		turn = botReply.getContext().getSystem().get("dialog_turn_counter").toString();
-	    	}
-	    	if (!botReply.getInput().getText().isEmpty()) {
-	    		in = botReply.getInput().getText();
-	    	}
+	
 	    	if (!botReply.getOutput().getGeneric().isEmpty()) {
 	    		String response_type = botReply.getOutput().getGeneric().get(0).getResponseType();
 	    		if (response_type.equals("text")) {
@@ -67,41 +67,143 @@ public class ChatFilter implements Filter {
 	    	}
 	    	
 	    	if (level.equals("DEBUG")) {
-	    		logEntry = "cv=[id={"+cvid+"},"+
-	    				   "turn={"+turn+"},"+
-	    				   "in={"+in+"},"+
+	    		logEntry = "turn={"+turn+"},"+
+	    				   "in={"+input.get("input").getAsString()+"},"+
 	    				   "out0={"+out+"}"+
 	    				   "]";
 	    	}
 	    	return logEntry;
 	    }
 	   
-	   private static String formatLogChatOperation(String level, MessageResponse botReply) {
+	   private static String formatLogChatOperation(String level, Map<String,Object> userdefined) {
 	    	String logEntry = "empty";
 	    	String ac = "empty";String op = "empty"; String data = "empty"; String stat = "empty";
-	    	if (botReply.getContext().containsKey("activity")){
-	    		ac = botReply.getContext().get("activity").toString();
-	    	}
-	    	if (botReply.getContext().containsKey("operation")){
-	    		op = botReply.getContext().get("operation").toString();
-	    	}
-	    	if (botReply.getContext().containsKey("operationdata")){
-	    		data = botReply.getContext().get("operationdata").toString();
-	    	}
-	    	if (botReply.getContext().containsKey("operationstatus")){
-	    		stat = botReply.getContext().get("operationstatus").toString();
-	    	}
+
 	    	
 	    	if (level.equals("DEBUG")) {
-	    		logEntry = "ac={"+ac+"},"+
-	    				   "op=[op="+op+"},"+
-	    				   "data={"+data+"},"+
-	    				   "status={"+stat+"}"+
+	    		logEntry = "ac={"+userdefined.get("activity").toString()+"},"+
+	    				   "op=[op="+userdefined.get("operation").toString()+"},"+
+	    				   "data={"+userdefined.get("data").toString()+"},"+
+	    				   "status={"+userdefined.get("operationstatus").toString()+"}"+
 	    				   "]";
 	    	}
 	    	return logEntry;
 	    }
-	  
+	   
+	   private static MessageContext generateContext (MessageResponse mresponse, JsonObject chatclientInput) {
+		    MessageContext context = new MessageContext();		   
+		     try {	
+
+		       context = mresponse.getContext();
+		       MessageContextGlobal global = context.getGlobal();
+		       Long tc = global.getSystem().getTurnCount();
+		       tc = tc + 1;
+		       global.getSystem().setTurnCount(tc);
+		       
+		       if (chatclientInput.has("contextinput")) {
+			     MessageContextSkills contextskills = context.getSkills();
+		         if (contextskills.containsKey("main skill") == true) {
+			     Map<String,Object> mainskill = (Map<String, Object>) contextskills.get("main skill");
+			      if (mainskill.containsKey("user_defined") == true) {
+			      Map<String,Object> userdefined = (Map<String, Object>) mainskill.get("user_defined");
+		          JsonObject chatclientContextinput = chatclientInput.getAsJsonObject("contextinput");
+		          Set<String> keyset = chatclientContextinput.keySet();
+		          for (String key : keyset) {
+
+		        	  if (chatclientContextinput.get(key).isJsonObject()) {
+		        	   String input = chatclientContextinput.get(key).getAsJsonObject().toString();
+		        	  
+		        	  Map<String, Object> inputAsMap = new Gson().fromJson(
+		        			  input, 
+		        			  new TypeToken<HashMap<String, Object>>() {}.getType()
+		        			);
+		    	 	  userdefined.put(key, inputAsMap);
+		        	  }
+		        	  if (chatclientContextinput.get(key).isJsonPrimitive()) {
+		        		  String input = chatclientContextinput.get(key).getAsString();
+		        		  userdefined.put(key, input);
+		        	  }
+		          }
+		         }
+		        }
+		       }
+		     }catch (Exception e) {	
+			}
+		    return context;
+	   }
+	   
+		private static MessageResponse  submitSynchronousWatsonAssistantRequest (HttpServletRequest request) {
+		    // ChatFilter provides validated set of attributes for use by chat servlet
+		    // get request variables - specific to this request
+		    String chatname = (String) request.getAttribute("chatname"); //added by filter
+		    String chatid = (String) request.getAttribute("chatid"); //added by filter
+		    String chatassistantid = (String) request.getAttribute("chatassistantid"); //added by filter
+		    String chatsessionid = (String) request.getAttribute("chatsessionid"); //added by filter
+		 	JsonObject chatclientAssistantInput = (JsonObject) request.getAttribute("chatclientassistantinput"); //added by filter
+		 	JsonObject chatclientAppInput = (JsonObject) request.getAttribute("chatclientappinput"); //added by filter
+		    MessageContext latestContext = (MessageContext) request.getAttribute("latestcontext");	
+		    
+
+		 	
+		 	//get session variables - maintained over many requests in this session
+		 	WatsonConnection watsonconnection = (WatsonConnection) request.getSession().getAttribute("watsonconnection");
+		    String chatuuid_lastreply = request.getParameter("chatid")+"lastreply";
+		    MessageResponse lastReply = (MessageResponse) request.getSession().getAttribute(chatuuid_lastreply);
+
+
+		    
+		    //send message to watson assistant
+		    MessageInputOptions inputoptions = new MessageInputOptions();
+	        inputoptions.setReturnContext(true);
+		    MessageInput input = new MessageInput.Builder()
+		    		  .messageType("text")
+		    		  .options(inputoptions)
+		    		  .text(chatclientAssistantInput.get("input").getAsString())
+		    		  .build();
+		    
+		    MessageOptions options = new MessageOptions.Builder(chatassistantid,chatsessionid).build();
+			if ((lastReply == null) ) {
+					   options= new MessageOptions.Builder(chatassistantid,chatsessionid)
+							    .input(input)
+							    .build();
+			} else {
+			  	    options = new MessageOptions.Builder(chatassistantid,chatsessionid)
+				    .input(input)
+				    //.intents(lastReply.getIntents())
+				    //.entities(lastReply.getEntities())
+				    .context(latestContext)
+				    //.output(lastReply.getOutput())
+				    .build();
+		    }
+			
+			MessageResponse reply = watsonconnection.synchronousRequest(options);
+			// process reply from watson assistant - 
+			if (reply == null) {
+				// maybe timeout - try to build new session and resubmit
+				Boolean deleteresult = watsonconnection.deleteSession(chatassistantid, chatid);
+				chatsessionid = watsonconnection.addSession(chatassistantid, chatid);
+				if (chatsessionid != null) {
+				request.setAttribute("chatsessionid", chatsessionid);
+				    options = new MessageOptions.Builder(chatassistantid,chatsessionid).build();
+					if ((lastReply == null) ) {
+							   options= new MessageOptions.Builder(chatassistantid,chatsessionid)
+									    .input(input)
+									    .build();
+					} else {
+					  	    options = new MessageOptions.Builder(chatassistantid,chatsessionid)
+						    .input(input)
+						    //.intents(lastReply.getIntents())
+						    //.entities(lastReply.getEntities())
+						    .context(latestContext)
+						    //.output(lastReply.getOutput())
+						    .build();
+				    }
+					reply = watsonconnection.synchronousRequest(options);
+
+			    }
+			}
+			return reply;		
+		}
 		
 	  private String getRequestBody (final HttpServletRequest request) 
 
@@ -195,82 +297,104 @@ public class ChatFilter implements Filter {
 				      }
 				        
 				      JcoWorkspaces jcoworkspaces = (JcoWorkspaces) session.getServletContext().getAttribute("jcoworkspaces");
+				        
 				 
 					  JcoProps jcoprops = (JcoProps) session.getServletContext().getAttribute("jcoprops");   
 	
 				      String servletpath[] = httprequest.getServletPath().split("/");
-				      // logger.debug("servlet:"+httprequest.getServletPath()+'?'+httprequest.getQueryString());
+				      logger.debug("servlet5:"+httprequest.getServletPath()+'?'+httprequest.getQueryString());
 				      String chatname = servletpath[servletpath.length-1];
-				      String workspaceid = jcoworkspaces.findId(chatname);
+	
 					
-					  WatsonConnection watsonconnection = (WatsonConnection) request.getAttribute("watsonconnection");
+					  WatsonConnection watsonconnection = (WatsonConnection) httprequest.getSession().getAttribute("watsonconnection");
 					  if (watsonconnection == null) {
 						     watsonconnection = new WatsonConnection(jcoprops);
 						     session.setAttribute("watsonconnection", watsonconnection);
 					  }
+				         String chatassistantid = jcoworkspaces.findId(request.getParameter("name"));
+					     String chatid = request.getParameter("chatid");
+					     String chatsessionid  = watsonconnection.getSessions().get(chatid);
+					     if (chatsessionid == null) {
+					    	 chatsessionid = watsonconnection.addSession(chatassistantid, chatid);
+					     }
 
-					  if  (workspaceid != null) {
+					   request.setAttribute("chatsessionid", chatsessionid);
+					   request.setAttribute("chatassistantid", chatassistantid);
+					     
 					   request.setAttribute("chatname", chatname);
-					   request.setAttribute("workspaceid", workspaceid);
 					   request.setAttribute("chatclientassistantinput", chatclientAssistantInput);
 					   request.setAttribute("chatclientappinput", chatclientAppInput);
 					   request.setAttribute("botreply", botReply);
 					   request.setAttribute("botexception", botException);
 
-					    String chatuuid = request.getParameter("chatid");
-					    String chatuuid_lastreply = chatuuid+"lastreply";
-					    MessageResponse lastReply = (MessageResponse) session.getAttribute(chatuuid_lastreply);
-					    Context latestContext = lastReply.getContext();
-					    if (chatclientAssistantInput.has("contextinput")) {
-					     JsonObject chatclientContextinput = chatclientAssistantInput.getAsJsonObject("contextinput");
-					     Set<String> keyset = chatclientContextinput.keySet();
-					     for (String key : keyset) {
-					    		latestContext.put(key, chatclientContextinput.get(key));
-					     }
-					    }
-                 	    request.setAttribute("latestcontext", latestContext);	
-  				   
-					   // pre-servlet processing complete - send to chatapp servlet
+
+					    MessageResponse lastReply = (MessageResponse) session.getAttribute(chatid+"lastreply");
+                	    request.setAttribute("latestcontext", generateContext(lastReply,chatclientAssistantInput));
+               		 try {
+                	       botReply = submitSynchronousWatsonAssistantRequest(httprequest);
+                	       request.setAttribute("botreply", botReply);
+               		 }	 
+        		     catch( UnauthorizedException e) {
+        		    	 botException.addProperty("error","Assistant Access Authorisation problem"); 
+        		     }
+        	         catch (Exception e) {
+        	        	 System.out.println(e.getMessage());
+        		    	 botException.addProperty("error","Assistant Request error"); 
+        		     }
+               		 if (botException.entrySet().isEmpty()) {
+					   // pre-servlet processing complete - send reply to specific servlet
 					   chain.doFilter(request, response); 
 					   // post-servlet processing starts - process reply from chatapp
-					   // expects good answer from assistant in request.botreply
-					   // expects errors in request.botexception
-					   // expects chatapp specific data in request.appdata
-					   // for non-error combine botreply and appdata
-					
-					   botException = (JsonObject)  request.getAttribute("botexception");
-					   botReply = (MessageResponse) request.getAttribute("botreply");
+					   // chatapp will process reply from bot and interface via appdata
+					 
+					   
+					   session.setAttribute(chatid+"lastreply",botReply);
 
 					   JsonObject assistantreply = (JsonObject) new JsonParser().parse(botReply.toString());
-					   JsonObject appdata = (JsonObject)  request.getAttribute("appdata");
-					   if (botException.entrySet().isEmpty()) {
-						  session.setAttribute(chatuuid_lastreply, botReply);
+					   assistantreply.addProperty("chatsessionid", chatsessionid);
+					   assistantreply.addProperty("chatassistantid", chatassistantid);
+					   assistantreply.addProperty("chatid", chatid);
+					   JsonObject appdata = (JsonObject)  request.getAttribute("appdata");					  
+					   session.setAttribute(chatid+"lastreply", botReply);
+					   
 						  JsonObject reply = new JsonObject();
 						  reply.add("assistantdata",assistantreply);
 						  reply.add("appdata", appdata);
 						  out.write(reply.toString());
-						  logger.debug("chatxchg chatid={"+ chatuuid+ "} ws={"+chatname+"} "+formatLogChatDialogue("DEBUG",botReply));
-						  if (botReply.getContext().containsKey("activity")) {
-							  if (!botReply.getContext().get("activity").equals(""))
-					          logger.debug("chatop chatid={"+ chatuuid+ "} ws={"+chatname+"} "+formatLogChatOperation("DEBUG",botReply));
+						  
+						  // logger section
+						  logger.debug("chatxchg chatid={"+ chatid+ "} ws={"+chatname+"} wsid={"+
+								  chatassistantid + "} sess={"+ chatsessionid +"}"+
+								  formatLogChatDialogue("DEBUG",chatclientAssistantInput,botReply));
+						  try {
+						   MessageContextSkills contextskills = botReply.getContext().getSkills();
+					       if (contextskills.containsKey("main skill") == true) {
+						   Map<String,Object> mainskill = (Map<String, Object>) contextskills.get("main skill");
+						    if (mainskill.containsKey("user_defined") == true) {
+						     Map<String,Object> userdefined = (Map<String, Object>) mainskill.get("user_defined");
+						     if (userdefined.containsKey("activity")) {
+							  if (!userdefined.get("activity").toString().equals("")) {
+					          logger.debug("chatop chatid={"+ chatid+ "} ws={"+chatname+"} wsid={"+
+									  chatassistantid + "} sess={"+ chatsessionid +"}"+
+							  formatLogChatOperation("DEBUG",userdefined));
+							  }
+						     }
+						    }
+					       }
+						  } 
+                            catch (Exception e) {	
 						  }
 						  if (!(appdata.size() == 0)) {
-							  logger.debug("appop chatid={"+ chatuuid+ "} ws={"+chatname+"} "+appdata.toString());
+							  logger.debug("appop chatid={"+ chatid+ "} ws={"+chatname+"} "+appdata.toString());
 						  }
+						  // end logger section
+						  
 					   } 
-					   else {
+					   else // bot error{
 						   out.write(botException.toString());
-						   logger.debug("chatxchg chatid={"+ chatuuid+ "} ws={"+chatname+"} error={"+botException.toString()+"}");
+						   logger.debug("chatxchg chatid={"+ chatid+ "} ws={"+chatname+"} error={"+botException.toString()+"}");
 					   }
 					   out.close(); 
-				      }
-					  else {
-						  botException.addProperty("error","input problem");  
-					      out.write(botException.toString());
-						   logger.debug("chatxchg chatid={unidentified} ws={unidentified} error={"+botException.toString()+"}");
-					      out.close(); 
-					  }			      
-					}
 			 }
 		     catch( IOException e) {
 		    	  botException.addProperty("error","input problem");  
@@ -279,7 +403,7 @@ public class ChatFilter implements Filter {
 			      out.close(); 
 		     }
 		     catch( UnauthorizedException e) {
-		    	 System.out.println(e.getResponse());
+		    	 System.out.println(e.toString());
 		    	 botException.addProperty("error","input problem");  
 			      out.write(botException.toString());
 				   logger.debug("chatxchg chatid={unidentified} ws={unidentified} error={"+botException.toString()+"}");

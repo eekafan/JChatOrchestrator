@@ -1,5 +1,5 @@
-define(["jco/display/botMessage","jco/display/ParametersForm","jco/read/ParametersForm"],
-    function (displayBotMessage,displayParametersForm,readParametersForm) {
+define(["jco/display/botMessage","jco/display/ParametersForm","jco/read/ParametersForm","jco/utils/uuid"],
+    function (displayBotMessage,displayParametersForm,readParametersForm,uuid) {
 	
 var Parameters = function (assistantdata,appdata,handler) {
 	// The bot will prompt for parameters and maybe provide a context variable default
@@ -7,10 +7,10 @@ var Parameters = function (assistantdata,appdata,handler) {
 	// The turn counter is used to uniquely identify the radio form
 	
 	  var chat = document.getElementById('chatBox');
-	  var activity = assistantdata.context.activity;
-	  var operationdata = assistantdata.context.operationdata;
+	  var activity = assistantdata.context.skills['main skill'].user_defined.activity;
+	  var operationdata = assistantdata.context.skills['main skill'].user_defined.operationdata;
 	  var output = assistantdata.output.generic;
-	  var dpname = "dp" + String(assistantdata.context.system.dialog_turn_counter);
+	  var dpname = "dp" + uuid();
 	  
 	  for (var index in output) {
 		   if (output[index].response_type == 'text') {

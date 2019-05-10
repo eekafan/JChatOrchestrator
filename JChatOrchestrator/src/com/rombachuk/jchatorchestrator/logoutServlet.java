@@ -34,6 +34,9 @@ public class logoutServlet extends HttpServlet {
 		 response.setContentType("text/html");  
 		  PrintWriter out = response.getWriter(); 
 	      HttpSession session = request.getSession(true); //creates a new one if timedout
+		  WatsonConnection watsonconnection = (WatsonConnection) request.getSession().getAttribute("watsonconnection");
+		  Boolean deleteresult = watsonconnection.deleteAllSessions();
+		  
 	      session.invalidate();
 	      response.sendRedirect("logout.html");
     	  out.close();  
