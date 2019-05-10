@@ -92,6 +92,27 @@ public class WatsonConnection {
 	    }
 	}
 	
+	public Boolean deleteAllSessions() {
+		System.out.println("DELETING ALL SESSIONS");
+		Integer errorcount = 0;
+		for ( String key : sessions.keySet()) {
+		try {
+	        DeleteSessionOptions options = new DeleteSessionOptions.Builder(key, sessions.get(key)).build();
+	        service.deleteSession(options).execute();
+	        sessions.remove(key);	      
+		}catch (Exception e) {
+			System.out.println(e.getMessage());
+			sessions.remove(key);
+			errorcount = errorcount + 1;
+	    }
+		}
+		if (errorcount > 0) {
+			return false;
+		} else {
+		return true;
+		}
+	}
+	
 	public Assistant getAssistant() {
 		return service;
 	}

@@ -36,6 +36,8 @@ import com.ibm.watson.assistant.v2.model.MessageResponse;
 
 public class EventAnalyticsServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	
+
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -60,78 +62,13 @@ public class EventAnalyticsServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		 JsonObject botException = new JsonObject();
 		 try {
-			    // ChatFilter provides validated set of attributes for use by chat servlet
-			    // get request variables - specific to this request
-			    String chatname = (String) request.getAttribute("chatname"); //added by filter
-			    String chatid = (String) request.getAttribute("chatid"); //added by filter
-			    String chatassistantid = (String) request.getAttribute("chatassistantid"); //added by filter
-			    String chatsessionid = (String) request.getAttribute("chatsessionid"); //added by filter
-			 	JsonObject chatclientAssistantInput = (JsonObject) request.getAttribute("chatclientassistantinput"); //added by filter
-			 	JsonObject chatclientAppInput = (JsonObject) request.getAttribute("chatclientappinput"); //added by filter
-			    MessageContext latestContext = (MessageContext) request.getAttribute("latestcontext");	
-			    
+	
+			    MessageResponse botReply = (MessageResponse) request.getAttribute("botreply");
 
-			 	
-			 	//get session variables - maintained over many requests in this session
-			 	WatsonConnection watsonconnection = (WatsonConnection) request.getSession().getAttribute("watsonconnection");
-			    String chatuuid_lastreply = request.getParameter("chatid")+"lastreply";
-			    MessageResponse lastReply = (MessageResponse) request.getSession().getAttribute(chatuuid_lastreply);
-
-
-			    
-			    //send message to watson assistant
-			    MessageInputOptions inputoptions = new MessageInputOptions();
-                inputoptions.setReturnContext(true);
-			    MessageInput input = new MessageInput.Builder()
-			    		  .messageType("text")
-			    		  .options(inputoptions)
-			    		  .text(chatclientAssistantInput.get("input").getAsString())
-			    		  .build();
-			    
-			    MessageOptions options = new MessageOptions.Builder(chatassistantid,chatsessionid).build();
-				if ((lastReply == null) ) {
-						   options= new MessageOptions.Builder(chatassistantid,chatsessionid)
-								    .input(input)
-								    .build();
-				} else {
-				  	    options = new MessageOptions.Builder(chatassistantid,chatsessionid)
-					    .input(input)
-					    //.intents(lastReply.getIntents())
-					    //.entities(lastReply.getEntities())
-					    .context(latestContext)
-					    //.output(lastReply.getOutput())
-					    .build();
-			    }
-				MessageResponse botReply = watsonconnection.synchronousRequest(options);
-
-				// process reply from watson assistant - 
-				if (botReply == null) {
-					// maybe timeout - try to build new session and resubmit
-					Boolean deleteresult = watsonconnection.deleteSession(chatassistantid, chatid);
-					chatsessionid = watsonconnection.addSession(chatassistantid, chatid);
-					if (chatsessionid != null) {
-					request.setAttribute("chatsessionid", chatsessionid);
-					    options = new MessageOptions.Builder(chatassistantid,chatsessionid).build();
-						if ((lastReply == null) ) {
-								   options= new MessageOptions.Builder(chatassistantid,chatsessionid)
-										    .input(input)
-										    .build();
-						} else {
-						  	    options = new MessageOptions.Builder(chatassistantid,chatsessionid)
-							    .input(input)
-							    //.intents(lastReply.getIntents())
-							    //.entities(lastReply.getEntities())
-							    .context(latestContext)
-							    //.output(lastReply.getOutput())
-							    .build();
-					    }
-						botReply = watsonconnection.synchronousRequest(options);
-
-				    }
-				}
 				// appData is private to the app and the client, assistant does not see it.
 				
 				JsonObject appData = new JsonObject();
+				JsonObject chatclientAppInput = (JsonObject) request.getAttribute("chatclientappinput");
 			    if (chatclientAppInput.has("parameters")) {
 			    	appData.add("parameters", chatclientAppInput.getAsJsonArray("parameters"));
 			    }
