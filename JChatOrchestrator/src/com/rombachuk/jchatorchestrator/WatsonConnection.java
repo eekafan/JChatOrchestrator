@@ -1,6 +1,7 @@
 package com.rombachuk.jchatorchestrator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -94,22 +95,21 @@ public class WatsonConnection {
 	
 	public Boolean deleteAllSessions() {
 		Integer errorcount = 0;
+
 		for ( String key : sessions.keySet()) {
-		try {
+		 try {
 	        DeleteSessionOptions options = new DeleteSessionOptions.Builder(key, sessions.get(key)).build();
-	        service.deleteSession(options).execute();
-	        sessions.remove(key);	      
-		}catch (Exception e) {
+	        service.deleteSession(options).execute();      
+		 }catch (Exception e) {
 			System.out.println(e.getMessage());
-			sessions.remove(key);
 			errorcount = errorcount + 1;
-	    }
+	    
+		 }
+		 sessions = new HashMap<String,String>();
 		}
-		if (errorcount > 0) {
-			return false;
-		} else {
-		return true;
-		}
+		
+		if (errorcount > 0) { return false;	} 
+		else { return true;	}
 	}
 	
 	public Assistant getService() {
