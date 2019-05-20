@@ -93,7 +93,6 @@ public class WatsonConnection {
 	}
 	
 	public Boolean deleteAllSessions() {
-		System.out.println("DELETING ALL SESSIONS");
 		Integer errorcount = 0;
 		for ( String key : sessions.keySet()) {
 		try {
@@ -113,7 +112,7 @@ public class WatsonConnection {
 		}
 	}
 	
-	public Assistant getAssistant() {
+	public Assistant getService() {
 		return service;
 	}
 
