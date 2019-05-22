@@ -56,7 +56,7 @@ define ([
     
     function buildLayout() {
 
-    var layout =  [[{ field: 'eventepoch', name:'time', width:'30%',formatter:formatEpochToDate},                 
+    var layout =  [[                 
                     { field: 'identifier', name:'event', width:'70%'}]];  
     return layout;
     }

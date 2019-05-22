@@ -60,7 +60,6 @@ public class HistoricEventsDAO {
         	for (JsonElement field:  historyconn.fields) {
              String name = field.getAsJsonObject().get("name").getAsString();
              String type = field.getAsJsonObject().get("type").getAsString();
-             logger.debug("HistoricEventsDAO : "+Integer.toString(rs.getRow()) +" "+ name + " "+type);
         	 switch (type) {
         	 case "CHARACTER VARYING" :
         		 event.add(name, new JsonPrimitive(rs.getString(name)));
