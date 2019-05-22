@@ -78,19 +78,27 @@ var BotReply = function (reply) {
    			    			 collectParameters(reply.assistantdata,appdata,
    			    					function(reply){BotReply(reply)});  			    					 
    			    	 }
-   			    	 //showresults is set complete by the server - if report is ok to display
+   			    	 //showresults is set complete by the server - if report is ok to fetch
    			    	 else if ((operation == 'showresults') && 
    	   			    	    (operationdata != undefined) && (operationstatus == 'complete')){
-   			    		 if (activity == 'searchrelatedevents') {
-   			    			 showLaunch('relatedevents',reply.assistantdata,appdata,
-   			    					function(reply){BotReply(reply)});
-   			    		 }
-   			    		 if (activity == 'searchseasonalevents') {
-   			    			 showLaunch('seasonalevents',reply.assistantdata,appdata,
-   			    					function(reply){BotReply(reply)});
-   			    		 }
-  	  					 
-   	   			     }
+   			    	  switch(activity) {
+   			    	   case 'searchrelatedevents':
+   			    		showLaunch('relatedevents',reply.assistantdata,appdata,
+			    					function(reply){BotReply(reply)});
+   			    	    break;
+   			    	   case 'searchseasonalevents':
+   			    		showLaunch('seasonalevents',reply.assistantdata,appdata,
+			    					function(reply){BotReply(reply)});
+   			    	    break;
+   			    	   case 'searchhistoricevents':
+   			    		showLaunch('historicevents',reply.assistantdata,appdata,
+			    					function(reply){BotReply(reply)});
+    			    	break;
+   			    	   default:
+   			    		displayMessage('Configuration Error in Chatbot', 'Bot');
+   			    	  }
+   			    	 }
+   
    			    	 else {
    	  			    	if (responsetype == "text") {
      		   			     displayBotMessage(reply.assistantdata.output.generic[topindex].text);

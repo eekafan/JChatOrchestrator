@@ -322,6 +322,7 @@ public class ChatFilter implements Filter {
 				else {
 					 // create new session if none exists, else collect current valid session
 					 HttpSession session = httprequest.getSession(true);
+					 logger.debug("servlet url: "+httprequest.getServletPath()+'?'+httprequest.getQueryString());
 					 
 			          //J7 Servlet3 fix for read request once problem - do this first
 			          // J8 -> InputData input = new InputData.Builder(IOUtils.toString(req.getReader())).build();

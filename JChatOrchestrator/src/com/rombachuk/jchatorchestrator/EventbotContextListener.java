@@ -170,7 +170,7 @@ public class EventbotContextListener implements ServletContextListener {
                    historyconn.connection.close();
                  }
                  historyconn = new HistoricEventsConnection (eventbotprops);
-                 this.context.setAttribute("eventbothistoryconn", historyconn);  
+                 this.context.setAttribute("eventbothistoryconnection", historyconn);  
  
                  ImpactConnection impactconn = (ImpactConnection) this.context.getAttribute("eventbotimpactconnection");
                  if ((impactconn.status) && (impactconn.connection.isValid(1000))) {

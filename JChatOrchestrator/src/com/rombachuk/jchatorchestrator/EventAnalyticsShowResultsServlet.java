@@ -50,6 +50,11 @@ public class EventAnalyticsShowResultsServlet extends HttpServlet {
 			         RequestDispatcher dispatcher = request.getServletContext().getRequestDispatcher("seasonalevents.jsp");
 			         dispatcher.forward(request, response);
 				    }
+			    
+			    if (request.getParameter("type").equals("historicevents")) {
+			         RequestDispatcher dispatcher = request.getServletContext().getRequestDispatcher("historicalevents.jsp");
+			         dispatcher.forward(request, response);
+				    }
 		        
 			    out.close();
 		  

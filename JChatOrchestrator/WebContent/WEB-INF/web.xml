@@ -82,6 +82,11 @@
 		<servlet-name>com.rombachuk.jchatorchestrator.SeasonalEventsServlet</servlet-name>
 	<servlet-class>com.rombachuk.jchatorchestrator.SeasonalEventsServlet</servlet-class>
 	</servlet>
+	    <servlet>
+		<display-name>HistoricEventsServlet</display-name>
+		<servlet-name>com.rombachuk.jchatorchestrator.HistoricEventsServlet</servlet-name>
+	<servlet-class>com.rombachuk.jchatorchestrator.HistoricEventsServlet</servlet-class>
+	</servlet>
 	<servlet>
 		<display-name>CustomerServiceServlet</display-name>
 		<servlet-name>com.rombachuk.jchatorchestrator.CustomerServiceServlet</servlet-name>
@@ -158,6 +163,10 @@
 		<servlet-name>com.rombachuk.jchatorchestrator.SeasonalEventsServlet</servlet-name>
 		<url-pattern>/show/seasonalevents</url-pattern>
 	</servlet-mapping> 
+			<servlet-mapping>
+		<servlet-name>com.rombachuk.jchatorchestrator.HistoricEventsServlet</servlet-name>
+		<url-pattern>/show/historicevents</url-pattern>
+	</servlet-mapping>
 		<context-param>
 			<param-name>jcoDialogueAssistants</param-name>
 			<param-value>/WEB-INF/jco_dialogue_assistants.props</param-value>

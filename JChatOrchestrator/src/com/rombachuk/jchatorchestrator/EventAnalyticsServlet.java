@@ -69,7 +69,7 @@ public class EventAnalyticsServlet extends HttpServlet {
 				
 				JsonObject appData = new JsonObject();
 				JsonObject chatclientAppInput = (JsonObject) request.getAttribute("chatclientappinput");
-			    if (chatclientAppInput.has("parameters")) {
+			    if ((chatclientAppInput != null) && (chatclientAppInput.has("parameters"))) {
 			    	appData.add("parameters", chatclientAppInput.getAsJsonArray("parameters"));
 			    }
 
