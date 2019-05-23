@@ -7,7 +7,7 @@ define (["jco/show/relatedevents/instancesPane",
  
     	var data = {identifier:'groupname',label:'groupname',items:group_rows};    	
     	var groupstore = new ItemFileReadStore({data:data});
-
+ 
         var layout = buildLayout();
         var menusObject = buildMenus();
     	

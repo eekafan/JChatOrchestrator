@@ -67,7 +67,7 @@ public class ShowFilter implements Filter {
 	 
 	  if (level.equals("DEBUG")) {
        if (!(showclientAppInput.size() == 0)) {
-		  logShow = "showop chatid={"+chatid+"} op={"+opname+"} showid={"+showid+"} POST otherparams= {"+otherparameters+"} body={"+showclientAppInput.toString()+"} replydata={"+appdata.toString()+"}";
+		  logShow = "showop chatid={"+chatid+"} op={"+opname+"} showid={"+showid+"} POST otherparams= {"+otherparameters+"} body={"+showclientAppInput.toString()+"} replydata={"+"}";
 	   } else {
 		  logShow = "showop chatid={"+chatid+"} op={"+opname+"} showid={"+showid+"} GET  otherparams= {"+otherparameters+"} replydata={"+appdata.toString()+"}";
 	   }

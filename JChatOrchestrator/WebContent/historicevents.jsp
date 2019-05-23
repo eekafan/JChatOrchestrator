@@ -43,10 +43,22 @@
 <body class="claro"  style= "width: 100%;height: 100%;margin: 0;padding: 0;overflow: hidden;">
 
 <div dojoType="dijit.layout.BorderContainer" id="BorderPane" design="screenDesign" style="width: 100%; height: 99%; border: none 0;">
+<div dojoType="dijit.layout.ContentPane" id="summaryRegion" region="top"
+    style="width: 98%;  height: 50px; min-height:50px; margin: 0px; padding-top: 1px">
+<div id="summaryDisplay" style="height:98%;min-height:98%;padding-top:1px;">
+<table >
+<tr><td style="padding-right: 30px"><b>Historic Events: First 100 Rows Matching Filter<b></td>
+<td style="padding-right: 3px"><b>Filter</b></td>
+<td style="padding-right: 20px"><p id="MatchingFilter"></p></td>
+<td style="padding-right: 3px"><b>Report Generated at</b></td>
+<td style="padding-right: 3px"><p id="GeneratedAtDatetime"></p></td>
+</tr></table>
+</div>
+</div>
 
 
 <div dojoType="dijit.layout.ContentPane" id="eventsRegion"  region="center"  
-   style="width: 55%; height:85%; min-height:75%;margin: 0px; padding-top: 1px"> 
+   style="width: 98%; height:85%; min-height:75%;margin: 0px; padding-top: 1px"> 
 <div id="eventsDisplay" style="width:98%;height:98%;min-height:98%;padding-top:1px;">
 <h3 id="eventResults">Constituent Events</h3>
 <div id="listEventsContainer" style="width:96%;height:90%;min-height:90%"> </div>

@@ -1,18 +1,12 @@
 define ([
 	"dojo/_base/array","dojo/data/ItemFileReadStore","dojox/grid/EnhancedGrid",
-    "dojox/grid/enhanced/plugins/Menu","dijit/Menu","dijit/registry"],
-    function (array,ItemFileReadStore,EnhancedGrid,enhancedMenu,Menu,registry) {
+    "dojox/grid/enhanced/plugins/Menu","dojox/grid/enhanced/plugins/Pagination",
+    "dijit/Menu","dijit/registry"],
+    function (array,ItemFileReadStore,EnhancedGrid,enhancedMenu,Pagination,Menu,registry) {
 	
     var eventsPane = function (events) {
     	
-    	var items = new Array();
-    	
-    	for (var index in events) {
-    	  var item = {identifier:events[index].identifier,eventepoch: String(events[index].eventepoch)};
-    	  items.push(item);
-    	}
-  
-    	var data = {identifier:'identifier',label:'identifier',items:items};    	
+    	var data = {identifier:'rowindex',label:'rowindex',items:events};    	
     	var eventstore = new ItemFileReadStore({data:data});
 
         var layout = buildLayout();
@@ -23,20 +17,20 @@ define ([
     	}
         var grid = new EnhancedGrid({
             jsId: 'listEventsGrid',
-            style: "height: 100%; width: 100%; whitespace:pre",
+           style: "height: 100%; width: 100%; whitespace:pre",
             id: 'listEventsGrid',
             store: eventstore,
             rowSelector: '20px',
             selectionMode: 'single',
-            plugins : { 
+            plugins : { pagination: {
+                pageSizes: ['25','50','100','All'],
+                description: true, sizeSwitch: true, pageStepper:true,
+	            gotobutton: true, maxPageStep:4, position: 'bottom' },
                         menus: menusObject
                       },
            structure:layout});
         grid.placeAt('listEventsContainer');
         grid.startup();
-        grid.setSortIndex(1,true);
-        grid.sort();
-  
      }
     
     function formatEpochToDate(field) {
@@ -56,8 +50,13 @@ define ([
     
     function buildLayout() {
 
-    var layout =  [[                 
-                    { field: 'identifier', name:'event', width:'70%'}]];  
+    var layout =  [[                
+                    { field: 'NODE', name:'node', width:'10%'},
+                    { field: 'STATECHANGE', name:'statechg', width:'10%'},
+                    { field: 'LASTOCCURRENCE', name:'lastocc', width:'10%'},
+                    { field: 'SEVERITY', name:'sev', width:'3%'},
+                    { field: 'SUMMARY', name:'summary', width:'50%'}                 
+    ]];  
     return layout;
     }
     

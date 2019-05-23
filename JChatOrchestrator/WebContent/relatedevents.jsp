@@ -26,15 +26,15 @@
        <script type="text/javascript" src="js/dojo-1.8.0/dojo/dojo.js" data-dojo-config="async: 1, parseOnLoad: 1"></script>
     <script type="text/javascript">  
     require([
-    	"jco/show/historicevents/Ready",
+    	"jco/show/relatedevents/Ready",
         "dojo/ready",
         "dijit/layout/ContentPane",
         "dijit/layout/BorderContainer",
         "dojo/domReady!"], // wait until DOM is loaded
-        function(historicReady,dojoReady){
+        function(relatedReady,dojoReady){
         dojoReady(function(){
             console.log("dojo is ready");
-            historicReady();
+            relatedReady();
         });
      });
      </script>  

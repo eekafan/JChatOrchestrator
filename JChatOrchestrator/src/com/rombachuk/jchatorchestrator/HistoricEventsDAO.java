@@ -27,9 +27,7 @@ import com.google.gson.JsonParser;
 
 public class HistoricEventsDAO {
 	 static Logger logger = Logger.getLogger(ChatFilter.class);
-	
-	
-	
+
 	public static JsonArray fetchMatchingEvents(Integer maxrows, String sqlfilter, ServletContext context) {
 		
      JsonArray events = new JsonArray();	
@@ -58,20 +56,25 @@ public class HistoricEventsDAO {
          while(rs.next()){
         	JsonObject event = new JsonObject();
         	for (JsonElement field:  historyconn.fields) {
+        	 event.addProperty("rowindex",Integer.toString(rs.getRow()));
              String name = field.getAsJsonObject().get("name").getAsString();
              String type = field.getAsJsonObject().get("type").getAsString();
         	 switch (type) {
         	 case "CHARACTER VARYING" :
-        		 event.add(name, new JsonPrimitive(rs.getString(name)));
+        		 if (rs.getString(name) == null) {
+        			 event.addProperty(name,""); 
+        		 } else {
+        		 event.addProperty(name, rs.getString(name));
+        		 }
         		 break;
            	 case "INTEGER" :
-           		event.add(name, new JsonPrimitive(Integer.toString(rs.getInt(name))));
+           		event.addProperty(name, Integer.toString(rs.getInt(name)));
         		 break;
            	 case "TIMESTAMP" :
            		if (rs.getTimestamp(name) == null) {
-           			event.add(name,new JsonPrimitive(""));
+           			event.addProperty(name,"");
            		} else {
-            		event.add(name, new JsonPrimitive(rs.getTimestamp(name).toString()));
+            		event.addProperty(name, rs.getTimestamp(name).toString());
            		}
  
         		 break;

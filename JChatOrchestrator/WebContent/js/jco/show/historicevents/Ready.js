@@ -4,7 +4,7 @@ define (["jco/show/historicevents/eventsPane"],function (eventsPane) {
     	 if (urlParams.has('dataform')) {		 
     	   var launchdataform = window.opener.document.getElementById(urlParams.get('dataform'));
     	   var appdata = JSON.parse(launchdataform.getAttribute('appdata'));
-    	   var showname = 'relatedevents'; var chatid='unknown'; var showid = 'unknown';
+    	   var showname = 'historicevents'; var chatid='unknown'; var showid = 'unknown';
     	   if (urlParams.has('name')) {showname = urlParams.get('name');}
 	       if (urlParams.has('chatid')) {chatid = urlParams.get('chatid');}
 	       if (urlParams.has('showid')) {showid = urlParams.get('showid');}

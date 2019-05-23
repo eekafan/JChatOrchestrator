@@ -7,7 +7,7 @@ var Launch = function (name,assistantdata,appdata,handler) {
 	  var activity = assistantdata.context.skills['main skill'].user_defined.activity;
 	  var operationdata = assistantdata.context.skills['main skill'].user_defined.operationdata;
 	  var output = assistantdata.output.generic;
-	  var formname = "show" + String(assistantdata.context.global.system.turn_counter);
+	  var formname = "show" + uuid();
 	  
       var urlParams = new URLSearchParams(window.location.search);
       var chatid='unknown';
