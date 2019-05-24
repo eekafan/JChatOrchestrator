@@ -96,8 +96,14 @@ public class EventAnalyticsServlet extends HttpServlet {
 						
 						if (userdefined.get("activity").toString().equals("searchhistoricevents")) {
 					     // appdata activity
-						 HistoricEventsConnection historyconn = (HistoricEventsConnection) request.getSession().getServletContext().getAttribute("eventbothistoryconnection");
-						 appData.add("filter_fields",historyconn.fields);
+						  HistoricEventsConnection historyconn = (HistoricEventsConnection) request.getSession().getServletContext().getAttribute("eventbothistoryconnection");
+			             
+						  if ((historyconn.getConnection() == null) || (historyconn.fields.size()==0)) {
+							EventbotProps eventbotprops = (EventbotProps) request.getSession().getServletContext().getAttribute("eventbotprops");
+							historyconn = new HistoricEventsConnection (eventbotprops);
+							request.getSession().getServletContext().setAttribute("eventbothistoryconnection", historyconn);         
+						  } 
+					      appData.add("filter_fields",historyconn.fields);
 					    }
 
 					    if (userdefined.get("activity").toString().equals("searchcurrentevents")) {

@@ -33,17 +33,26 @@ public class HistoricEventsDAO {
      JsonArray events = new JsonArray();	
      try { 
          HistoricEventsConnection historyconn = (HistoricEventsConnection) context.getAttribute("eventbothistoryconnection");
-  
-		 if (!historyconn.status) {
-		   // retry		
-		   EventbotProps eventbotprops = (EventbotProps) context.getAttribute("eventbotprops");
-           historyconn = new HistoricEventsConnection (eventbotprops);
-           context.setAttribute("eventbothistoryconnection", historyconn);     
-		 } 
+             try {
+             if	 (((historyconn.getConnection() == null) || (historyconn.fields.size()==0))
+        	 ||  (!historyconn.connection.isValid(200)) 
+        	 ||  (!historyconn.status)) {
+        	//retry
+      		   EventbotProps eventbotprops = (EventbotProps) context.getAttribute("eventbotprops");
+               historyconn = new HistoricEventsConnection (eventbotprops);
+               context.setAttribute("eventbothistoryconnection", historyconn);
+        	 }
+
+             } catch (Exception e ) {
+                	//retry
+        	   EventbotProps eventbotprops = (EventbotProps) context.getAttribute("eventbotprops");
+               historyconn = new HistoricEventsConnection (eventbotprops);
+               context.setAttribute("eventbothistoryconnection", historyconn);         	 
+             }
 
 		// recheck status and validity 
 		 if ((historyconn.status) && 
-				 historyconn.connection.isValid(200)) {
+				 (historyconn.connection.isValid(200))) {
 		  String fetchQuery = "select * " + "from REPORTER_STATUS" +
 		" where " + sqlfilter +
 					" fetch first "+ maxrows.toString() + " rows only";
