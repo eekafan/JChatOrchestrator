@@ -1,7 +1,7 @@
 define(["jco/display/DatetimePicker","jco/utils/childtable","jco/display/FilterParameter",
 	"dojo/dom-construct","dijit/form/TextBox","dijit/form/DateTextBox","dijit/form/TimeTextBox",
     "dijit/form/FilteringSelect","dojo/store/Memory"],
-    function (displayDatetimePicker,childtable,FilterParameter,
+    function (displayDatetimePicker,childtable,displayFilterParameter,
     		domconstruct,textbox,datetextbox,timetextbox,filteringselect,memory) {
 
 var SimplefilterParameter = function (parent,name,filter_fields) {
@@ -11,7 +11,7 @@ var SimplefilterParameter = function (parent,name,filter_fields) {
 	  	var filterdiv = document.createElement('div');
 	  	filterdiv.id = parent.id + '-filter';
 	  	paramtable.rows[0].cells[1].appendChild(filterdiv);
-	  	FilterParameter(filterdiv,filter_fields);
+	  	displayFilterParameter(filterdiv,filter_fields);
 }
 
 return SimplefilterParameter;
