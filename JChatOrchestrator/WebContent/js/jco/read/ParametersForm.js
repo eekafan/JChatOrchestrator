@@ -1,16 +1,19 @@
 define(["jco/read/DatetimeParameter","jco/read/SimplefilterParameter"],
     function (readDatetimeParameter,readSimplefilterParameter) {
 
-var ParametersForm = function (name,parameters)  {
+var ParametersForm = function (formname,parameters)  {
 	var searchparameters = new Array();
 	
     for (var index in parameters) {
-    	if (parameters[index].type == 'datetime') {  
-    		searchparameters.push(readDatetimeParameter(name,index,parameters[index].name));
+    	var parameter = new Object;
+    	if (parameters[index].type == 'datetime') {    		
+            parameter[String(parameters[index].name)] = readDatetimeParameter(formname+'-p'+String(index));
+
     	} 	
        	if (parameters[index].type == 'simplefilter') { 
-       		searchparameters.push(readSimplefilterParameter(name,index,parameters[index].name));
+       		parameter[String(parameters[index].name)] = readSimplefilterParameter(formname+'-p'+String(index)+'-filter');
     	} 	
+		searchparameters.push(parameter);
     } 
    return searchparameters;
 }

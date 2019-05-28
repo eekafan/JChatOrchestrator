@@ -3,14 +3,14 @@ define(["jco/display/DatetimeParameter","jco/display/SimplefilterParameter",
     function (displayDatetimeParameter,displaySimplefilterParameter,
     		displayComplexfilterParameter) {
 
-var ParametersForm = function (chat,name,activity,parameters,appdata)  {
+var ParametersForm = function (chat,formname,activity,parameters,appdata)  {
     var dpform = document.createElement('form');
-    dpform.id = name; dpform.className = "dpform";
+    dpform.id = formname; dpform.className = "dpform";
     chat.appendChild(dpform);
     
     for (var index in parameters) {
     	var paramdiv = document.createElement('div');
-    	paramdiv.id = name + String(index);   	
+    	paramdiv.id = formname + '-p' +String(index);   	
     	dpform.appendChild(paramdiv);
     	if (parameters[index].type == 'datetime') {        	
     		displayDatetimeParameter(paramdiv,parameters[index].name);
