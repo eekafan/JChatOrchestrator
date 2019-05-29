@@ -40,14 +40,14 @@ html, body {
 
 .chatbot {
     height: 100%;
-    width: 720px;
+    width: 770px;
 }
 
 .dialogContainer {
     display: flex;
     flex-direction: column;
     font-size: 14px;
-    width: 600px;
+    width: 720px;
     height: 85%;
     margin: 10px;
     border-radius: 4px;

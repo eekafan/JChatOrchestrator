@@ -15,6 +15,28 @@ var ComplexfilterParameter = function (parent,name,filter_fields) {
   	addFilterRow(cxfiltertable,filter_fields); 	
 }
 
+function addLogicRadio(filtercomponentid,parentrow) {
+		var andip = document.createElement('input');
+    	andip.type = 'radio';
+       	andip.name = filtercomponentid+'-logic-radio';
+        andip.value = 'and';
+        andip.checked = true;
+        var andlabel = document.createElement('label');
+        andlabel.htmlFor = 'and';
+        andlabel.innerHTML='and';
+		var orip = document.createElement('input');
+    	orip.type = 'radio';
+       	orip.name = filtercomponentid+'-logic-radio';
+        orip.value = 'or';
+        var orlabel = document.createElement('label');
+        orlabel.htmlFor = 'or';
+        orlabel.innerHTML='or';
+        parentrow.cells[0].appendChild(andlabel);
+        parentrow.cells[0].appendChild(andip);
+        parentrow.cells[0].appendChild(orlabel);
+        parentrow.cells[0].appendChild(orip);	
+}
+
 function addFilterRow(tbl,filter_fields) {
 		
     var tr = tbl.insertRow();
@@ -30,19 +52,7 @@ function addFilterRow(tbl,filter_fields) {
   	displayFilterParameter(filterdiv,filter_fields);
   	
   	if (tbl.rows.length > 1) {
-  	    var androw =  document.createElement('button');
-  	    androw.innerHTML = 'and';
-  	    androw.addEventListener("click", function(){
-  	  	  
-  	    });
-  	    var orrow =  document.createElement('button');
-  	    orrow.innerHTML = 'or';
-  	    orrow.addEventListener("click", function(){
-  	    	 
-  	    });
-  	    tbl.rows[numrows-1].cells[0].appendChild(androw);
-  	    tbl.rows[numrows-1].cells[0].appendChild(orrow);
-  	    
+  		addLogicRadio(filterdiv.id,tbl.rows[numrows-1]);	    
   	}
   	
     var addrow =  document.createElement('button');

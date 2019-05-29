@@ -6,13 +6,15 @@ define(["jco/utils/isodate","jco/read/SimplefilterParameter"],
      var complexfilter = new Array();
 	 var tbl = document.getElementById(domname+'-table');
 	 for(var j = 0; j < tbl.rows.length; j++){ 
-		var component = new Object();
+		var rowid = domname+'-table-r'+String(j)+'-filter';
+		var component = new Object()
 		if (j == 0) {
 			component.logic = 'none';
 	    } else {
-	    	component.logic = 'and'
+	    	var logicRadio = $("input[name="+rowid+"-logic-radio]");
+	    	component.logic = logicRadio.filter(":checked").val();
 	    }
-		component.filter = readSimplefilterParameter(domname+'-table-r'+String(j)+'-filter');
+		component.filter = readSimplefilterParameter(rowid);
 		complexfilter.push(component);
 	 }
 	 return complexfilter;

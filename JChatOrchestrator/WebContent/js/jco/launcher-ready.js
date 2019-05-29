@@ -26,7 +26,7 @@
              	   var url = new URL(window.location.origin + "/JChatOrchestrator/chatstart");
              	   url.searchParams.append("name",chat_name);
              	   url.searchParams.append("chatid",uuid());
-             	   var thischat = window.open(url,'_blank','location=no,scrollbars=yes,left=500,height=800,width=650');          	
+             	   var thischat = window.open(url,'_blank','location=no,scrollbars=yes,left=500,height=800,width=750');          	
  				   chat_windows.push(thischat);
  				   var thischatClosed = setInterval(function () {
  					    if (thischat.closed) {
