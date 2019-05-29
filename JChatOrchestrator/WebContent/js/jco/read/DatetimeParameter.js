@@ -1,9 +1,9 @@
-define(["jco/utils/isodate"],
-    function (getISO) {
+define(["jco/utils/isodate","dijit/registry"],
+    function (getISO,registry) {
 
 var DatetimeParameter = function (domname) {
-    var localdate = new Date(dijit.byId(domname+'-pickerdateinput').get('value'));
-	var localtime = new Date(dijit.byId(domname+'-pickertimeinput').get('value'));
+    var localdate = new Date(registry.byId(domname+'-pickerdateinput').get('value'));
+	var localtime = new Date(registry.byId(domname+'-pickertimeinput').get('value'));
 	var localdatetime_epoch = Math.floor((localdate.getTime() + 
 			 localtime.getTime() - (localdate.getTimezoneOffset()*60*1000))/1000);
 	var localdatetime = new Date(localdatetime_epoch*1000);  

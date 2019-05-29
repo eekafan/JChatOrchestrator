@@ -86,16 +86,25 @@ public class HistoricEventsServlet extends HttpServlet {
 
 			 	JsonElement resultType = new JsonParser().parse("historic-events-matchingfilter");
 				
-			    String sqlfilter = "Severity = 0"; // default in case parameter not present
+			    String sqlfilter = "Severity < 0"; // default in case parameter not present
 			    if (showclientAppInput.has("parameters")){  
                   for (JsonElement parameter : showclientAppInput.getAsJsonArray("parameters")) {
-               	 if (parameter.getAsJsonObject().has("searchfilter")) {
-               		 sqlfilter = parameter.getAsJsonObject().get("searchfilter").getAsJsonObject().get("field").getAsString() + ' '  +
-               				parameter.getAsJsonObject().get("searchfilter").getAsJsonObject().get("operator").getAsString() + ' ' +
-               				parameter.getAsJsonObject().get("searchfilter").getAsJsonObject().get("value").getAsString();
+               	   if (parameter.getAsJsonObject().has("searchfilter")) {
+               		 for (JsonElement component : parameter.getAsJsonObject().getAsJsonArray("searchfilter")) {
+               	     if (component.getAsJsonObject().get("logic").getAsString().equals("none")) {
+               		 sqlfilter = component.getAsJsonObject().get("filter").getAsJsonObject().get("field").getAsString() + " "  +
+               				component.getAsJsonObject().get("filter").getAsJsonObject().get("operator").getAsString() + " " +
+               				component.getAsJsonObject().get("filter").getAsJsonObject().get("value").getAsString();
                				 
-               	 }
+               	     } else {
+               	    	 sqlfilter = sqlfilter + " " + component.getAsJsonObject().get("logic").getAsString() + " " +
+               	    			component.getAsJsonObject().get("filter").getAsJsonObject().get("field").getAsString() + " "  +
+                   				component.getAsJsonObject().get("filter").getAsJsonObject().get("operator").getAsString() + " " +
+                   				component.getAsJsonObject().get("filter").getAsJsonObject().get("value").getAsString();
+               	     }
+                   }
                   }
+			     }
 			    }
 			    JsonArray resultRows = HistoricEventsDAO.fetchMatchingEvents(100, sqlfilter, request.getServletContext());
 

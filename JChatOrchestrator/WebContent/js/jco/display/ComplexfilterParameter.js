@@ -84,7 +84,7 @@ function removeFilterRow(tbl,filter_fields) {
 	        var removerow =  document.createElement('button');
 	        removerow.innerHTML = '-';
 	        removerow.addEventListener("click", function(){
-	        	  tbl.deleteRow(tbl,filter_fields);
+	        	  removeFilterRow(tbl,filter_fields);
 	});
 	        
 	tbl.rows[numrows-1].cells[2].appendChild(removerow);
